@@ -40,3 +40,8 @@ Dev plan
 2. shop visuals and pathfinding
 3. minigame start and stop
 4. shop stats number fiddling
+
+
+Sounds
+hagglefail: fishEscape
+haggleSuccess: newRecord

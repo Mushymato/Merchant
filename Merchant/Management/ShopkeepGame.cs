@@ -27,9 +27,6 @@ public sealed class ShopkeepGame : IMinigame
         Unloaded,
     }
 
-    // private GameLoopState state = GameLoopState.Start;
-    // private GameLoopState stateNext = GameLoopState.Haggle;
-    // private TimeSpan stateTransition = TimeSpan.Zero;
     private readonly StateManager<GameLoopState> state = new(GameLoopState.Start);
     #endregion
 
@@ -44,7 +41,6 @@ public sealed class ShopkeepGame : IMinigame
     #region setup teardown
     private ShopkeepGame(IModHelper helper, GameLocation location, Farmer player)
     {
-        ModEntry.LogDebug("ShopkeepGame.ctor");
         this.helper = helper;
         this.location = location;
         this.player = player;
@@ -117,13 +113,13 @@ public sealed class ShopkeepGame : IMinigame
 
     public void changeScreenSize()
     {
-        ModEntry.LogDebug("ShopkeepGame.changeScreenSize");
         Game1.viewport.X =
             location.Map.Layers[0].LayerWidth * 64 / 2
             - (int)(Game1.game1.localMultiplayerWindow.Width / 2 / Game1.options.zoomLevel);
         Game1.viewport.Y =
             location.Map.Layers[0].LayerHeight * 64 / 2
             - (int)(Game1.game1.localMultiplayerWindow.Height / 2 / Game1.options.zoomLevel);
+        haggling?.CalculateBounds();
     }
     #endregion
 
@@ -192,7 +188,7 @@ public sealed class ShopkeepGame : IMinigame
         else
         {
             string buyerName = "Krobus";
-            if (browsingHelper.MakeShopkeepGameBuyer(buyerName) is not NPC buyer)
+            if (browsingHelper.MakeCustomerActor(buyerName) is not NPC buyer)
             {
                 state.Current = GameLoopState.Exit;
                 return;

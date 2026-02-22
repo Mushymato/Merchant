@@ -1,10 +1,49 @@
 using Merchant.Misc;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.Menus;
 
 namespace Merchant.Management;
+
+internal sealed record HagglePatternSlice(HagglePatternSlice.PatternFn Fn, float Start, float End)
+{
+    public delegate float PatternFn(float prog);
+
+    public float Get(float prog)
+    {
+        float value = Fn(Start + prog * (End - Start));
+        return value;
+    }
+}
+
+internal sealed record HagglePattern(HagglePatternSlice[] Slices)
+{
+    private int currentIdx = 0;
+
+    public float Get(float prog)
+    {
+        HagglePatternSlice slice = Slices[currentIdx];
+        if (prog > slice.End)
+        {
+            currentIdx = (currentIdx + 1) % Slices.Length;
+            slice = Slices[currentIdx];
+        }
+        else if (prog < slice.Start)
+        {
+            currentIdx = (currentIdx - 1) % Slices.Length;
+            slice = Slices[currentIdx];
+        }
+        return slice.Get(prog);
+    }
+
+    internal static HagglePattern Default()
+    {
+        // TODO: piecewise funcs?
+        return new HagglePattern([new((prog) => MathF.Pow(prog, 2), 0f, 1f)]);
+    }
+}
 
 public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, float MinMult, float MaxMult, int MaxCount)
 {
@@ -20,12 +59,14 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
 
     private const double pointerPeriodMS = 1500.0;
     private const double pickedPauseMS = 1000.0;
+    private const int totalPitch = 12;
 
     public readonly StateManager<HaggleState> state = new(HaggleState.Begin);
     public bool IsReadyToStart =>
         state.Current == HaggleState.Begin && Game1.activeClickableMenu is DialogueBox { transitioning: false };
     public bool IsDone => state.Current == HaggleState.DoneSuccess || state.Current == HaggleState.DoneFailed;
     private float pointer = 0;
+    private HagglePattern hagglePattern = HagglePattern.Default();
 
     public int Count { get; private set; } = 0;
     public float TargetPointer { get; private set; } = 0.25f + Random.Shared.NextSingle() / 2;
@@ -62,11 +103,14 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
     private static readonly Rectangle sourceRectHaggleBarCap = new(323, 360, 6, 24);
     private static readonly Rectangle sourceRectHagglePointerA = new(310, 392, 16, 16);
     private static readonly Rectangle sourceRectHagglePointerB = new(294, 392, 16, 16);
+
+    private int pointerPitch = -1;
+    private ICue? pointerSound;
     #endregion
 
     public static ShopkeepHaggle Make(Farmer player, NPC buyer, Item forSale)
     {
-        ShopkeepHaggle newHaggle = new(player, buyer, forSale, 0.5f, 1.5f, 2);
+        ShopkeepHaggle newHaggle = new(player, buyer, forSale, 0.5f, 1.5f, 3);
         newHaggle.Initialize();
         return newHaggle;
     }
@@ -78,7 +122,7 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
         CalculateBounds();
     }
 
-    private void CalculateBounds()
+    internal void CalculateBounds()
     {
         Vector2 position = Utility.getTopLeftPositionForCenteringOnScreen(haggleBarTotalWidth, haggleBarHeight, 0, 0);
         haggleBarIconBoxPos = new(position.X, MathF.Min(position.Y, Game1.viewport.Height - 600));
@@ -93,13 +137,13 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
         CalculateTargetPointerBounds();
     }
 
-    private void CalculateTargetPointerBounds()
+    private void CalculateTargetPointerBounds(bool useNextTargetPnt = false)
     {
         targetPointerPos = new(
             Utility.Lerp(
-                haggleBarSlideBounds.X - buyerMugShotRect.Width * 2,
+                haggleBarSlideBounds.X - buyerMugShotRect.Width * 4,
                 haggleBarSlideBounds.X + haggleBarSlideWidth,
-                TargetPointer
+                useNextTargetPnt ? Utility.Lerp(nextTargetPointer, TargetPointer, state.TimerProgress) : TargetPointer
             ),
             haggleBarSlideBounds.Y
         );
@@ -137,6 +181,7 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
         if (Count > 0)
             SetNextDialogue(AssetManager.LoadString("speak.haggle.ask", ForSale.DisplayName), false);
         pointer = 0f;
+        pointerPitch = -1;
         state.Current = HaggleState.Increase;
         state.SetNext(HaggleState.Decrease, pointerPeriodMS, State_DecreaseStart);
         Count++;
@@ -149,19 +194,23 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
         switch (state.Current)
         {
             case HaggleState.Increase:
-                pointer = Ease.InQuad((float)(1.0 - state.TimerProgress));
+                pointer = hagglePattern.Get((float)(1.0 - state.TimerProgress));
                 break;
             case HaggleState.Decrease:
-                pointer = Ease.InQuad(state.TimerProgress);
+                pointer = hagglePattern.Get(state.TimerProgress);
                 break;
             case HaggleState.Picked:
                 if (nextTargetPointer > -1)
-                    targetPointerPos.X = Utility.Lerp(
-                        haggleBarSlideBounds.X - buyerMugShotRect.Width * 2,
-                        haggleBarSlideBounds.X + haggleBarSlideWidth,
-                        Utility.Lerp(nextTargetPointer, TargetPointer, state.TimerProgress)
-                    );
+                    CalculateTargetPointerBounds(true);
                 break;
+        }
+
+        int pitch = (int)(pointer * totalPitch) * 100;
+        if (pointerPitch != pitch)
+        {
+            pointerSound?.Stop(AudioStopOptions.Immediate);
+            Game1.playSound("flute", pitch, out pointerSound);
+            pointerPitch = pitch;
         }
     }
 
@@ -172,16 +221,19 @@ public sealed record ShopkeepHaggle(Farmer Player, NPC Buyer, Item ForSale, floa
         if (pointer <= TargetPointer)
         {
             state.SetNext(HaggleState.DoneSuccess, pickedPauseMS);
+            Game1.playSound("reward");
             SetNextDialogue(AssetManager.LoadString("speak.haggle.success", ForSale.DisplayName, PickedPrice));
         }
         else if (Count >= MaxCount)
         {
             state.SetNext(HaggleState.DoneFailed, pickedPauseMS);
+            Game1.playSound("fishEscape");
             SetNextDialogue(AssetManager.LoadString("speak.haggle.fail", ForSale.DisplayName, PickedPrice));
         }
         else
         {
             nextTargetPointer = Utility.Lerp(TargetPointer, pointer, Random.Shared.NextSingle());
+            Game1.playSound("smallSelect");
             state.SetNext(HaggleState.Begin, pickedPauseMS);
             SetNextDialogue(AssetManager.LoadString("speak.haggle.haggle", ForSale.DisplayName, PickedPrice));
         }

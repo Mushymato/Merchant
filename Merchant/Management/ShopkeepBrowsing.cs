@@ -5,7 +5,7 @@ namespace Merchant.Management;
 
 public sealed class ShopkeepBrowsing(GameLocation location)
 {
-    internal NPC? MakeShopkeepGameBuyer(string npcName)
+    internal CustomerActor? MakeCustomerActor(string npcName)
     {
         if (Game1.getCharacterFromName(npcName) is not NPC sourceNPC)
         {
