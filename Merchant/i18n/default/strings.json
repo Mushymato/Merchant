@@ -2,8 +2,9 @@
   "bc.cash-register.name": "Cash Register",
   "bc.cash-register.desc": "A cash register for managing your own shop! Place it down in any shed type farm building to use it.",
   // default dialogues
-  "Haggle_Ask": "How much for {0}?$0",
-  "Haggle_TooMuch": "{1}$ is a little too much...$s",
+  "Haggle_Ask": "How about {1} for {0}?$0",
+  "Haggle_Compromise": "{1}$ is a little too much, how about...$s",
+  "Haggle_Overpriced": "{1}$!?! That's daylight robbery!$s",
   "Haggle_Fail": "I can't afford this...$s",
   "Haggle_Success": "Deal! Here's {1}$.$h"
 }

@@ -1,4 +1,3 @@
-using Merchant.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,26 +11,18 @@ public sealed record ShopkeepHaggle(
     CustomerActor Buyer,
     ForSaleTarget ForSale,
     float MinMult,
-    float MaxMult,
-    int MaxCount
+    float MaxMult
 )
 {
     #region make
     public static ShopkeepHaggle Make(Farmer player, CustomerActor buyer, ForSaleTarget forSaleTarget, float decorBonus)
     {
-        float friendshipBonus = buyer.GetFriendshipHaggleBonus();
+        float minMult = 0.8f + decorBonus;
+        float maxMult = minMult + 1f;
 
-        float minMult = 0.75f + friendshipBonus;
-        float maxMult = 1.75f + decorBonus;
+        ModEntry.LogDebug($"Haggle Mult: {minMult} -> {maxMult}");
 
-        ShopkeepHaggle newHaggle = new(
-            player,
-            buyer,
-            forSaleTarget,
-            minMult,
-            maxMult,
-            buyer.GetFriendshipHaggleMaxCount()
-        );
+        ShopkeepHaggle newHaggle = new(player, buyer, forSaleTarget, minMult, maxMult);
         newHaggle.SetNextDialogue("Haggle_Ask", true);
         newHaggle.CalculateBounds();
         return newHaggle;
@@ -51,14 +42,16 @@ public sealed record ShopkeepHaggle(
     private const double pointerPeriodMS = 1500.0;
     private const double pickedPauseMS = 1000.0;
     private const int totalPitch = 12;
+    private const int maxTries = 3;
 
     public readonly StateManager<HaggleState> state = new(HaggleState.Begin);
     public bool IsReadyToStart =>
         state.Current == HaggleState.Begin && Game1.activeClickableMenu is DialogueBox { transitioning: false };
     private float pointer = 0;
 
-    public int Count { get; private set; } = 0;
-    public float TargetPointer { get; private set; } = 0.25f + Random.Shared.NextSingle() / 2;
+    public int Tries { get; private set; } = 0;
+    private float targetPointer = Buyer.GetHaggleBaseTargetPointer(ForSale.Thing);
+    private readonly float targetOverRange = Buyer.GetHaggleTargetOverRange();
     private float nextTargetPointer = -1;
     public float PickedMult
     {
@@ -67,11 +60,11 @@ public sealed record ShopkeepHaggle(
         {
             field = value;
             if (value >= 0)
-                PickedPrice = (int)
+                PickedPrice = (uint)
                     MathF.Ceiling(ForSale.Thing.sellToStorePrice(Player.UniqueMultiplayerID) * PickedMult);
         }
     } = MinMult;
-    public int PickedPrice { get; private set; } = -1;
+    public uint PickedPrice { get; private set; } = (uint)ForSale.Thing.sellToStorePrice(Player.UniqueMultiplayerID);
 
     private int pointerPitch = -1;
     private ICue? pointerSound;
@@ -92,18 +85,18 @@ public sealed record ShopkeepHaggle(
     {
         if (nextTargetPointer > -1)
         {
-            TargetPointer = nextTargetPointer;
+            targetPointer = nextTargetPointer;
             CalculateTargetPointerBounds();
             nextTargetPointer = -1;
         }
 
-        if (Count > 0)
+        if (Tries > 0)
             SetNextDialogue("Haggle_Ask", false);
         pointer = 0f;
         pointerPitch = -1;
         state.Current = HaggleState.Increase;
         state.SetNext(HaggleState.Decrease, pointerPeriodMS, State_DecreaseStart);
-        Count++;
+        Tries++;
         return false;
     }
 
@@ -141,31 +134,38 @@ public sealed record ShopkeepHaggle(
         return false;
     }
 
-    public bool HaggleExpired() => Count >= MaxCount;
+    public bool HaggleExpired() => Tries >= maxTries;
 
     public void Pick()
     {
         state.Current = HaggleState.Picked;
+        ModEntry.Log($"Pick: pointer {pointer} target {targetPointer} over {targetOverRange}");
         PickedMult = Utility.Lerp(MinMult, MaxMult, pointer);
-        if (pointer <= TargetPointer)
+        if (pointer <= targetPointer)
         {
             state.SetNext(HaggleState.Done, pickedPauseMS);
-            ForSale.Sold = new(true, Buyer.Name, ForSale.Thing.QualifiedItemId, PickedPrice);
+            ForSale.Sold = new(Buyer.Name, ForSale.Thing.QualifiedItemId, PickedPrice);
             Game1.playSound("reward");
             SetNextDialogue("Haggle_Success");
         }
         else if (HaggleExpired())
         {
-            state.SetNext(HaggleState.Done, pickedPauseMS);
-            Game1.playSound("fishEscape");
-            SetNextDialogue("Haggle_Fail");
+            SetupHaggleFailed();
         }
         else
         {
-            nextTargetPointer = Utility.Lerp(TargetPointer, pointer, Random.Shared.NextSingle());
             Game1.playSound("smallSelect");
-            state.SetNext(HaggleState.Begin, pickedPauseMS);
-            SetNextDialogue("Haggle_TooMuch");
+            if (pointer - targetPointer <= targetOverRange)
+            {
+                nextTargetPointer = Utility.Lerp(targetPointer, pointer, Random.Shared.NextSingle());
+                state.SetNext(HaggleState.Begin, pickedPauseMS);
+                SetNextDialogue("Haggle_Compromise");
+            }
+            else
+            {
+                state.SetNext(HaggleState.Begin, pickedPauseMS);
+                SetNextDialogue("Haggle_Overpriced");
+            }
         }
     }
 
@@ -173,14 +173,19 @@ public sealed record ShopkeepHaggle(
     {
         if (HaggleExpired())
         {
-            state.SetNext(HaggleState.Done, pickedPauseMS);
-            Game1.playSound("fishEscape");
-            SetNextDialogue("Haggle_Fail");
+            SetupHaggleFailed();
         }
         else
         {
             state.SetNext(HaggleState.Begin, pickedPauseMS);
         }
+    }
+
+    private void SetupHaggleFailed()
+    {
+        state.SetNext(HaggleState.Done, pickedPauseMS);
+        Game1.playSound("fishEscape");
+        SetNextDialogue("Haggle_Fail");
     }
     #endregion
 
@@ -195,6 +200,7 @@ public sealed record ShopkeepHaggle(
     private Rectangle haggleBarSlideBounds = Rectangle.Empty;
     private Vector2 haggleBarCapPos = Vector2.Zero;
     private Vector2 targetPointerPos = Vector2.Zero;
+    private Rectangle remainingTriesBounds = Rectangle.Empty;
     private Rectangle buyerMugShotRect = Buyer.getMugShotSourceRect();
 
     private static readonly Rectangle sourceRectHaggleBarIconBox = new(293, 360, 26, 24);
@@ -202,8 +208,7 @@ public sealed record ShopkeepHaggle(
     private static readonly Rectangle sourceRectHaggleBarCap = new(323, 360, 6, 24);
     private static readonly Rectangle sourceRectHagglePointerA = new(310, 392, 16, 16);
     private static readonly Rectangle sourceRectHagglePointerB = new(294, 392, 16, 16);
-
-    private static readonly Vector2 HaggleDrawPos = new(12, 12 + 64);
+    private static readonly Rectangle sourceRectRemainingTriesBox = new(0, 320, 60, 60);
 
     internal void CalculateBounds()
     {
@@ -217,6 +222,8 @@ public sealed record ShopkeepHaggle(
             haggleBarHeight
         );
         haggleBarCapPos = new(haggleBarIconBoxPos.X + haggleBarIconWidth + haggleBarSlideWidth, haggleBarIconBoxPos.Y);
+        remainingTriesBounds = new(haggleBarSlideBounds.X, haggleBarSlideBounds.Y - 60, 180, 60);
+
         CalculateTargetPointerBounds();
     }
 
@@ -226,7 +233,7 @@ public sealed record ShopkeepHaggle(
             Utility.Lerp(
                 haggleBarSlideBounds.X,
                 haggleBarSlideBounds.X + haggleBarSlideWidth,
-                useNextTargetPnt ? Utility.Lerp(nextTargetPointer, TargetPointer, state.TimerProgress) : TargetPointer
+                useNextTargetPnt ? Utility.Lerp(nextTargetPointer, targetPointer, state.TimerProgress) : targetPointer
             )
                 - buyerMugShotRect.Width * 4,
             haggleBarSlideBounds.Y - 16
@@ -235,16 +242,32 @@ public sealed record ShopkeepHaggle(
 
     public void Draw(SpriteBatch b)
     {
-#if DEBUG
-        b.Draw(Game1.staminaRect, new Rectangle(0, 64, Game1.viewport.Width, 64), Color.Black * 0.5f);
-        b.DrawString(
-            Game1.dialogueFont,
-            $"Haggle {Count} {state}: Pick {Utility.Lerp(MinMult, MaxMult, pointer):0.00} ({MinMult:0.00} - {MaxMult:0.00}, Target {TargetPointer:0.00})",
-            HaggleDrawPos,
+        // tries remaining
+        IClickableMenu.drawTextureBox(
+            b,
+            Game1.menuTexture,
+            sourceRectRemainingTriesBox,
+            remainingTriesBounds.X,
+            remainingTriesBounds.Y,
+            remainingTriesBounds.Width,
+            remainingTriesBounds.Height,
             Color.White
         );
-#endif
-
+        for (int i = 0; i <= maxTries - Tries; i++)
+        {
+            b.Draw(
+                Game1.mouseCursors,
+                new(remainingTriesBounds.X + 6 + i * 60, remainingTriesBounds.Y + 6),
+                sourceRectHagglePointerA,
+                Color.White,
+                0f,
+                Vector2.Zero,
+                3f,
+                SpriteEffects.None,
+                1f
+            );
+        }
+        // haggle bar
         b.Draw(
             Game1.mouseCursors,
             haggleBarIconBoxPos,
@@ -257,7 +280,6 @@ public sealed record ShopkeepHaggle(
             1f
         );
         ForSale.Thing.drawInMenu(b, haggleBarIconPos, 1f + pointer / 2f);
-
         b.Draw(
             Game1.mouseCursors,
             haggleBarSlideBounds,
@@ -280,6 +302,7 @@ public sealed record ShopkeepHaggle(
             1f
         );
 
+        // haggle pointer
         b.Draw(
             Buyer.Sprite.Texture,
             targetPointerPos,
@@ -297,7 +320,7 @@ public sealed record ShopkeepHaggle(
         b.Draw(
             Game1.mouseCursors,
             new(pointerPos, haggleBarSlideBounds.Y + 16 + sourceRectHagglePointerA.Height * 2),
-            pointer > TargetPointer ? sourceRectHagglePointerA : sourceRectHagglePointerB,
+            pointer > targetPointer ? sourceRectHagglePointerA : sourceRectHagglePointerB,
             Color.White,
             rotate,
             new(sourceRectHagglePointerA.Width / 2, sourceRectHagglePointerA.Height / 2),

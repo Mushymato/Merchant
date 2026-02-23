@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
+using StardewValley.Extensions;
+using StardewValley.GameData;
 using StardewValley.Minigames;
 
 namespace Merchant.Management;
@@ -23,8 +25,8 @@ public sealed class ShopkeepGame : IMinigame
         Start,
         Browse,
         Haggle,
-        Exit,
-        Unloaded,
+        Exiting,
+        Unload,
     }
 
     private readonly StateManager<GameLoopState> state = new(GameLoopState.Start);
@@ -33,7 +35,7 @@ public sealed class ShopkeepGame : IMinigame
     #region settings
     public bool doMainGameUpdates() => haggling == null;
 
-    public string minigameId() => $"{ModEntry.ModId}:{nameof(ShopkeepGame)}";
+    public string minigameId() => I18n.Minigame_Id();
 
     public bool overrideFreeMouseMovement() => true;
     #endregion
@@ -57,8 +59,6 @@ public sealed class ShopkeepGame : IMinigame
 
     private void OnRendered(object? sender, RenderedEventArgs e)
     {
-        if (state.Current == GameLoopState.Unloaded)
-            return;
         // restore minigame after render
         if (Game1.currentMinigame == null)
         {
@@ -83,10 +83,7 @@ public sealed class ShopkeepGame : IMinigame
             );
             return null;
         }
-        if (
-            ShopkeepBrowsing.Make(location, player, ["Marnie", "Sam", "Abigail", "Pierre", "Willy", "Krobus"])
-            is not ShopkeepBrowsing browsing
-        )
+        if (ShopkeepBrowsing.Make(location, player) is not ShopkeepBrowsing browsing)
         {
             return null;
         }
@@ -96,21 +93,21 @@ public sealed class ShopkeepGame : IMinigame
         Game1.activeClickableMenu = null;
         Game1.displayHUD = false;
         Game1.currentMinigame = shopkeepGame;
+        Game1.changeMusicTrack("event2", false, MusicContext.MiniGame);
+        player.completelyStopAnimatingOrDoingAction();
         return shopkeepGame;
     }
 
     public void unload()
     {
-        if (state.Current == GameLoopState.Unloaded)
-            return;
         ModEntry.LogDebug("ShopkeepGame.unload");
-        browsing.Cleanup();
+        browsing.FinalizeAndCleanup();
         haggling = null;
         helper.Events.Display.Rendering -= OnRendering;
         helper.Events.Display.Rendered -= OnRendered;
+        Game1.stopMusicTrack(MusicContext.MiniGame);
         Game1.activeClickableMenu = null;
         Game1.displayHUD = true;
-        state.Current = GameLoopState.Unloaded;
     }
 
     public bool forceQuit()
@@ -168,11 +165,11 @@ public sealed class ShopkeepGame : IMinigame
                 DoHaggle(time);
                 return false;
             default:
-            case GameLoopState.Exit:
-                browsing.DebugSummary();
+            case GameLoopState.Unload:
                 return true;
         }
     }
+
     #endregion
 
     #region gameloop start
@@ -193,7 +190,9 @@ public sealed class ShopkeepGame : IMinigame
         }
         else if (browsing.Update(time, ref haggling))
         {
-            state.Current = GameLoopState.Exit;
+            Game1.changeMusicTrack("harveys_theme_jazz", false, MusicContext.MiniGame);
+            state.Current = GameLoopState.Exiting;
+            state.SetNext(GameLoopState.Exiting, 5000);
         }
     }
     #endregion
@@ -205,7 +204,7 @@ public sealed class ShopkeepGame : IMinigame
     {
         if (haggling == null)
         {
-            state.Current = GameLoopState.Exit;
+            state.Current = GameLoopState.Browse;
             return;
         }
 
@@ -221,30 +220,27 @@ public sealed class ShopkeepGame : IMinigame
     #region inputs
     public void receiveLeftClick(int x, int y, bool playSound = true)
     {
-        ModEntry.LogDebug($"ShopkeepGame.receiveLeftClick: {x} {y} {playSound}");
         if (state.Current == GameLoopState.Haggle)
         {
             haggling?.Pick();
         }
     }
 
-    public void receiveRightClick(int x, int y, bool playSound = true)
-    {
-        ModEntry.LogDebug($"ShopkeepGame.receiveRightClick: {x} {y} {playSound}");
-    }
-
     public void receiveKeyPress(Keys k)
     {
-        ModEntry.LogDebug($"ShopkeepGame.receiveKeyPress: {k}");
+        if (Game1.options.doesInputListContain(Game1.options.useToolButton, k))
+        {
+            haggling?.Pick();
+        }
     }
 
-    public void receiveKeyRelease(Keys k)
-    {
-        ModEntry.LogDebug($"ShopkeepGame.receiveKeyRelease: {k}");
-    }
     #endregion
 
     #region unused
+    public void receiveRightClick(int x, int y, bool playSound = true) { }
+
+    public void receiveKeyRelease(Keys k) { }
+
     public void releaseLeftClick(int x, int y) { }
 
     public void releaseRightClick(int x, int y) { }
@@ -252,5 +248,6 @@ public sealed class ShopkeepGame : IMinigame
     public void leftClickHeld(int x, int y) { }
 
     public void receiveEventPoke(int data) { }
+
     #endregion
 }

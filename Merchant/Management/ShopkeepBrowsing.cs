@@ -9,7 +9,6 @@ namespace Merchant.Management;
 
 public record ForSaleTarget(Item Thing, Furniture Table, List<(Point, int)> BrowseAround, bool FromHeldChest)
 {
-    public bool IsAvailable => HeldBy == null && Sold == null;
     public CustomerActor? HeldBy { get; set; } = null;
     public SoldRecord? Sold
     {
@@ -61,7 +60,7 @@ public sealed record ShopkeepBrowsing(
 )
 {
     #region make
-    public static ShopkeepBrowsing? Make(GameLocation location, Farmer player, List<string> customerNPCs)
+    public static ShopkeepBrowsing? Make(GameLocation location, Farmer player)
     {
         // tile accessibility
         if (location.warps.Count < 1)
@@ -78,19 +77,7 @@ public sealed record ShopkeepBrowsing(
             return null;
         }
 
-        // customers
-        List<CustomerActor> customerActors = [];
-        foreach (string npcName in customerNPCs)
-        {
-            if (CustomerActor.Make(location, player, entryPoint, npcName) is CustomerActor customer)
-            {
-                ModEntry.LogDebug($"Customer: {npcName}");
-                customerActors.Add(customer);
-            }
-        }
-
         // shop layout and for sale items
-        int tableCount = 0;
         int floorDecorCount = 0;
         int standingDecorCount = 0;
         List<ForSaleTarget> forSaleTables = [];
@@ -98,8 +85,6 @@ public sealed record ShopkeepBrowsing(
         {
             if (furniture.heldObject.Value != null)
             {
-                tableCount++;
-
                 List<(Point, int)> browseAround = FormBrowseAround(furniture, reachableTiles).ToList();
                 if (!browseAround.Any())
                     continue;
@@ -116,9 +101,6 @@ public sealed record ShopkeepBrowsing(
                 }
                 else if (furniture.heldObject.Value.sellToStorePrice(player.UniqueMultiplayerID) > 0)
                 {
-                    ModEntry.LogDebug(
-                        $"ForSale: {furniture.heldObject.Value.DisplayName} ({string.Join(',', browseAround)})"
-                    );
                     forSaleTables.Add(new(furniture.heldObject.Value, furniture, browseAround, false));
                 }
             }
@@ -131,23 +113,30 @@ public sealed record ShopkeepBrowsing(
                 standingDecorCount++;
             }
         }
-        int objCount = location.objects.Count();
-        standingDecorCount += location.objects.Count();
+        standingDecorCount += Math.Max(location.objects.Count() - 1, 0);
         floorDecorCount += location.terrainFeatures.Count();
 
-        float shopDecorBonus = 0;
-        if (location.furniture.Count > 0)
+        // customers
+        List<CustomerActor> customerActors = [];
+        foreach (NPC sourceNPC in NPCLookup.PickCustomerNPCs(player, forSaleTables.Count))
         {
-            float decorBonus = (float)standingDecorCount / (location.furniture.Count + objCount);
-            float rugBonus =
-                (floorDecorCount * 0.5f) / ((location.Map.DisplayWidth / 64) * (location.Map.DisplayHeight / 64));
-            ModEntry.LogDebug(
-                $"DecorBonus: {standingDecorCount} / {location.furniture.Count + objCount} = {decorBonus}"
-            );
-            ModEntry.LogDebug(
-                $"RugBonus: {floorDecorCount} / {(location.Map.DisplayWidth / 64) * (location.Map.DisplayHeight / 64)} {rugBonus}"
-            );
-            shopDecorBonus = Math.Min(decorBonus, 0.6f) + Math.Min(rugBonus, 0.4f);
+            customerActors.Add(new CustomerActor(sourceNPC, location, player, entryPoint));
+        }
+
+        float shopDecorBonus = 0;
+        int tableCount = forSaleTables.Count;
+        if (tableCount > 0)
+        {
+            float decorBonus = 0.5f * standingDecorCount / tableCount;
+            ModEntry.LogDebug($"DecorBonus: {standingDecorCount} / {tableCount} = {decorBonus}");
+            shopDecorBonus += MathF.Min(decorBonus, 0.6f);
+        }
+        if (location.Map != null)
+        {
+            int mapTileCount = location.Map.DisplayWidth / 64 * (location.Map.DisplayHeight / 64);
+            float rugBonus = 0.5f * floorDecorCount / mapTileCount;
+            ModEntry.LogDebug($"RugBonus: {floorDecorCount} / {mapTileCount} {rugBonus}");
+            shopDecorBonus += Math.Min(rugBonus, 0.4f);
         }
 
         return new(location, player, entryPoint, reachableTiles, customerActors, forSaleTables, shopDecorBonus);
@@ -210,14 +199,7 @@ public sealed record ShopkeepBrowsing(
     public static Queue<CustomerActor> ShuffleWaitingActors(List<CustomerActor> customerActors)
     {
         customerActors = customerActors.ToList();
-        int n = customerActors.Count;
-        while (n > 1)
-        {
-            // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
-            n--;
-            int k = Random.Shared.Next(n + 1);
-            (customerActors[n], customerActors[k]) = (customerActors[k], customerActors[n]);
-        }
+        Random.Shared.ShuffleInPlace(customerActors);
         return new(customerActors);
     }
 
@@ -229,7 +211,7 @@ public sealed record ShopkeepBrowsing(
             return true;
         }
 
-        if (waitingActors.Count == 0 && dispatchedActors.All(actor => actor.IsFinished))
+        if (waitingActors.Count == 0 && dispatchedActors.All(actor => actor.IsLeaving))
         {
             state.Current = BrowsingState.Finished;
             return true;
@@ -249,28 +231,41 @@ public sealed record ShopkeepBrowsing(
             }
         }
 
-        List<ForSaleTarget> forSaleTargetsFiltered = ForSaleTargets.Where(forSale => forSale.IsAvailable).ToList();
-        if (forSaleTargetsFiltered.Count > 0)
+        List<ForSaleTarget>? availableForSale = null;
+        List<ForSaleTarget>? availableForSaleHeld = null;
+        foreach (ForSaleTarget forSale in ForSaleTargets)
         {
-            foreach (CustomerActor actor in dispatchedActors)
+            if (forSale.Sold == null)
             {
-                actor.UpdateBuyTarget(forSaleTargetsFiltered, out ForSaleTarget? hagglingForSaleTarget);
-                if (haggling == null && hagglingForSaleTarget != null)
+                if (forSale.HeldBy == null)
                 {
-                    haggling = ShopkeepHaggle.Make(Player, actor, hagglingForSaleTarget, ShopDecorBonus);
+                    availableForSale ??= [];
+                    availableForSale.Add(forSale);
+                }
+                else
+                {
+                    availableForSaleHeld ??= [];
+                    availableForSaleHeld.Add(forSale);
                 }
             }
         }
 
-        return false;
-    }
+        if (availableForSale == null && availableForSaleHeld == null)
+        {
+            state.Current = BrowsingState.Finished;
+            return true;
+        }
 
-    public void Cleanup()
-    {
-        waitingActors.Clear();
-        dispatchedActors.Clear();
-        Location.characters.RemoveWhere(actor => actor is CustomerActor);
-        state.Current = BrowsingState.Finished;
+        foreach (CustomerActor actor in dispatchedActors)
+        {
+            actor.UpdateBuyTarget(availableForSale, availableForSaleHeld, out ForSaleTarget? hagglingForSaleTarget);
+            if (haggling == null && hagglingForSaleTarget != null)
+            {
+                haggling = ShopkeepHaggle.Make(Player, actor, hagglingForSaleTarget, ShopDecorBonus);
+            }
+        }
+
+        return false;
     }
 
     private bool AddNewCustomer()
@@ -287,20 +282,40 @@ public sealed record ShopkeepBrowsing(
         return true;
     }
 
-    internal void DebugSummary()
+    internal void FinalizeAndCleanup()
     {
+        List<SoldRecord> sales = [];
         ModEntry.Log("===== SOLD =====", LogLevel.Info);
+
+        ulong totalEarnings = 0;
         foreach (ForSaleTarget forSale in ForSaleTargets)
         {
             if (forSale.Sold != null)
+            {
+                sales.Add(forSale.Sold);
+                totalEarnings += forSale.Sold.Price;
+                Item thing = forSale.Thing;
+                Game1.stats.ItemsShipped += (uint)thing.Stack;
+                if (thing.Category == -75 || thing.Category == -79)
+                {
+                    Game1.stats.CropsShipped += (uint)thing.Stack;
+                }
+                if (thing is SObject obj && obj.countsForShippedCollection())
+                {
+                    Player.shippedBasic(obj.ItemId, obj.Stack);
+                }
                 ModEntry.Log($"- {forSale.Thing.DisplayName} ({forSale.Sold})", LogLevel.Info);
+            }
         }
-        ModEntry.Log("===== REMAINING =====", LogLevel.Info);
-        foreach (ForSaleTarget forSale in ForSaleTargets)
-        {
-            if (forSale.Sold == null)
-                ModEntry.Log($"- {forSale.Thing.DisplayName} ({forSale.Thing.QualifiedItemId})", LogLevel.Info);
-        }
+        Player.Money = Player.Money + (int)totalEarnings;
+        Game1.dayTimeMoneyBox.gotGoldCoin((int)totalEarnings);
+
+        ModEntry.ProgressData!.SaveShopkeepSession(sales, false, totalEarnings);
+
+        waitingActors.Clear();
+        dispatchedActors.Clear();
+        Location.characters.RemoveWhere(actor => actor is CustomerActor);
+        state.Current = BrowsingState.Finished;
     }
     #endregion
 }

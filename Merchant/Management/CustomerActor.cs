@@ -2,6 +2,7 @@ using Merchant.Misc;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Extensions;
+using StardewValley.GameData.Characters;
 using StardewValley.Pathfinding;
 
 namespace Merchant.Management;
@@ -9,17 +10,6 @@ namespace Merchant.Management;
 public sealed class CustomerActor : NPC
 {
     #region make
-    public static CustomerActor? Make(GameLocation location, Farmer farmer, Point entryPoint, string npcName)
-    {
-        if (Game1.getCharacterFromName(npcName) is not NPC sourceNPC)
-        {
-            return null;
-        }
-        CustomerActor customerActor = new(sourceNPC, location, farmer, entryPoint);
-        customerActor.NetFields.CopyFrom(sourceNPC.NetFields);
-        return customerActor;
-    }
-
     private readonly Friendship? friendship;
     private readonly Point entryPoint;
 
@@ -34,6 +24,7 @@ public sealed class CustomerActor : NPC
             true
         )
     {
+        NetFields.CopyFrom(sourceNPC.NetFields);
         this.entryPoint = entryPoint;
         forceOneTileWide.Value = true;
         followSchedule = false;
@@ -59,17 +50,36 @@ public sealed class CustomerActor : NPC
 
     public float GetFriendshipHaggleBonus()
     {
-        if (friendship == null || friendship.Points <= 1)
-            return 0;
-
-        return MathF.Log10(friendship.Points / 2500f) * 0.2f;
+        // TODO: custom haggle bonus
+        if (friendship == null)
+            return 0.1f;
+        if (friendship.Points <= 1)
+            return 0.15f;
+        return 0.15f + MathF.Log10(friendship.Points / 2000f) * 0.25f;
     }
 
-    public int GetFriendshipHaggleMaxCount()
+    public float GetHaggleBaseTargetPointer(Item forSale)
     {
-        if (friendship == null || friendship.Points <= Utility.GetMaximumHeartsForCharacter(this))
-            return 3;
-        return 5;
+        float haggleBaseTarget = GetFriendshipHaggleBonus();
+        switch (getGiftTasteForThisItem(forSale))
+        {
+            case gift_taste_stardroptea:
+            case gift_taste_love:
+                haggleBaseTarget += 0.2f;
+                break;
+            case gift_taste_like:
+                haggleBaseTarget += 0.1f;
+                break;
+        }
+        return haggleBaseTarget + 0.3f * Random.Shared.NextSingle();
+    }
+
+    public float GetHaggleTargetOverRange()
+    {
+        // TODO: custom target over range bonus
+        if (friendship == null)
+            return 0.1f;
+        return 0.2f + Math.Min(0.4f, friendship.Points / 50000f);
     }
     #endregion
 
@@ -99,9 +109,13 @@ public sealed class CustomerActor : NPC
         }
     }
 
-    public bool IsFinished => state.Current == ActorState.Finished;
+    public bool IsLeaving => state.Current == ActorState.Leaving || state.Current == ActorState.Finished;
 
-    public void UpdateBuyTarget(List<ForSaleTarget> forSaleTargets, out ForSaleTarget? hagglingForSaleTarget)
+    public void UpdateBuyTarget(
+        List<ForSaleTarget>? availableForSale,
+        List<ForSaleTarget>? availableForSaleHeld,
+        out ForSaleTarget? hagglingForSaleTarget
+    )
     {
         hagglingForSaleTarget = null;
         if (state.Current == ActorState.Buy)
@@ -117,23 +131,56 @@ public sealed class CustomerActor : NPC
         }
         if (state.Current == ActorState.Await)
         {
+            if (availableForSale == null)
+            {
+                if (availableForSaleHeld == null)
+                {
+                    DoneHaggling();
+                }
+                return;
+            }
+            if (availableForSale.Count == 0)
+            {
+                return;
+            }
             state.Current = ActorState.Move;
-            ForSale = Random.Shared.ChooseFrom(forSaleTargets);
+            List<ForSaleTarget> likedForSaleTargets = availableForSale.Where(ForSaleNotHated).ToList();
+            if (likedForSaleTargets.Count == 0)
+            {
+                if (availableForSaleHeld == null || !availableForSaleHeld.Where(ForSaleNotHated).Any())
+                {
+                    DoneHaggling();
+                }
+                return;
+            }
+            ForSale = Random.Shared.ChooseFrom(likedForSaleTargets);
             (Point endPoint, int facing) = Random.Shared.ChooseFrom(ForSale.BrowseAround);
             controller = new PathFindController(this, currentLocation, endPoint, facing, ReachedForSaleItem);
         }
     }
 
+    private readonly Dictionary<ForSaleTarget, int> cachedGiftTastes = [];
+
+    private bool ForSaleNotHated(ForSaleTarget forSale)
+    {
+        if (!cachedGiftTastes.TryGetValue(forSale, out int giftTaste))
+        {
+            giftTaste = getGiftTasteForThisItem(forSale.Thing);
+            cachedGiftTastes[forSale] = giftTaste;
+        }
+        return giftTaste != gift_taste_dislike && giftTaste != gift_taste_hate;
+    }
+
     private void FinishedBuying(Character c, GameLocation location)
     {
         ForSale = null;
+        cachedGiftTastes.Clear();
         state.Current = ActorState.Finished;
         location.characters.Remove(this);
     }
 
     private void ReachedForSaleItem(Character c, GameLocation location)
     {
-        ModEntry.LogDebug($"ReachedForSaleItem {Name}");
         state.Current = ActorState.Check;
         browsedCount++;
         if (Random.Shared.NextSingle() < 0.3f + browsedCount * 0.1f)
@@ -159,7 +206,7 @@ public sealed class CustomerActor : NPC
     {
         base.update(time, location);
         state.Update(time);
-        if (state.Current == ActorState.Leaving && TilePoint == entryPoint && !IsFinished)
+        if (state.Current == ActorState.Leaving && TilePoint == entryPoint)
         {
             FinishedBuying(this, location);
         }

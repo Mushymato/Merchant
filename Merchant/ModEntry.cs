@@ -2,7 +2,9 @@ global using SObject = StardewValley.Object;
 using System.Diagnostics;
 using Merchant.Management;
 using Merchant.Misc;
+using Merchant.Models;
 using StardewModdingAPI;
+using StardewModdingAPI.Events;
 using StardewValley;
 
 namespace Merchant;
@@ -17,18 +19,37 @@ public sealed class ModEntry : Mod
     public const string ModId = "mushymato.Merchant";
     private static IMonitor? mon;
     internal static IModHelper help = null!;
+    internal static MerchantProgressData? ProgressData { get; private set; } = null;
 
     public override void Entry(IModHelper helper)
     {
         I18n.Init(helper.Translation);
         mon = Monitor;
         help = helper;
+        helper.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+        helper.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
+        helper.Events.GameLoop.Saving += OnSaving;
 
         AssetManager.Register();
 
 #if DEBUG
         DebugEntry(helper);
 #endif
+    }
+
+    private void OnSaving(object? sender, SavingEventArgs e)
+    {
+        NPCLookup.Clear();
+    }
+
+    private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
+    {
+        ProgressData = MerchantProgressData.Read();
+    }
+
+    private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
+    {
+        ProgressData = null;
     }
 
     /// <summary>SMAPI static monitor Log wrapper</summary>
@@ -56,9 +77,9 @@ public sealed class ModEntry : Mod
         mon!.Log(msg, level);
     }
 
-    public static bool InteractShowMerchantMenu(StardewValley.Object machine, GameLocation location, Farmer player)
+    public static bool InteractShowMerchantMenu(SObject _, GameLocation location, Farmer player)
     {
-        return ShopkeepGame.StartMinigame(help, Game1.currentLocation, Game1.player) != null;
+        return ShopkeepGame.StartMinigame(help, location, player) != null;
     }
 
 #if DEBUG
