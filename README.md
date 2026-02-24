@@ -1,3 +1,3 @@
 # Merchant
 
-New mod.
+![Can't believe it's not recettear!](./thumbnail.png)
