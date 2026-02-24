@@ -1,5 +1,6 @@
 {
   "minigame.id": "Merchant: Shopkeeping",
+  "fail-reason.exhausted": "You are too tired to run a shop right now.",
   "fail-reason.no-warps-in": "This building has no entrances for customers.",
   "fail-reason.invalid-map": "This building's map is invalid.",
   "fail-reason.no-reachable": "This building has no walkable tiles for customers.",

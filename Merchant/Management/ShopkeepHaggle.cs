@@ -137,6 +137,7 @@ public sealed record ShopkeepHaggle(
         {
             case HaggleState.Done:
                 Buyer.LeavingTheShop();
+                Player.Stamina -= 4;
                 Game1.exitActiveMenu();
                 return true;
             case HaggleState.Begin:

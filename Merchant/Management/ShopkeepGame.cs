@@ -15,6 +15,7 @@ namespace Merchant.Management;
 public sealed class ShopkeepGame : IMinigame
 {
     private readonly GameLocation location;
+    private readonly Farmer player;
 
     #region state
     private TimeSpan gameTimer = TimeSpan.Zero;
@@ -40,9 +41,10 @@ public sealed class ShopkeepGame : IMinigame
     #endregion
 
     #region setup teardown
-    private ShopkeepGame(GameLocation location, ShopkeepBrowsing browsing)
+    private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing)
     {
         this.location = location;
+        this.player = player;
         this.browsing = browsing;
         changeScreenSize();
     }
@@ -74,7 +76,7 @@ public sealed class ShopkeepGame : IMinigame
             );
             return null;
         }
-        ShopkeepGame shopkeepGame = new(location, browsing);
+        ShopkeepGame shopkeepGame = new(location, player, browsing);
         ModEntry.help.Events.Display.Rendering += shopkeepGame.OnRendering;
         ModEntry.help.Events.Display.Rendered += shopkeepGame.OnRendered;
         Game1.activeClickableMenu = null;
@@ -202,7 +204,7 @@ public sealed class ShopkeepGame : IMinigame
         if (haggling.Update(time))
         {
             haggling = null;
-            state.Current = GameLoopState.Browse;
+            state.Current = player.Stamina < 9 ? GameLoopState.Report : GameLoopState.Browse;
             return;
         }
     }
@@ -222,7 +224,7 @@ public sealed class ShopkeepGame : IMinigame
         }
         else if (state.Current == GameLoopState.Report)
         {
-            state.SetNext(GameLoopState.Unload, 500);
+            state.Current = GameLoopState.Unload;
             return;
         }
     }
@@ -244,11 +246,14 @@ public sealed class ShopkeepGame : IMinigame
         {
             if (Game1.options.doesInputListContain(Game1.options.menuButton, k))
             {
-                state.SetNext(GameLoopState.Unload, 500);
+                state.Current = GameLoopState.Unload;
             }
         }
 
-        Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), confirmForceQuit);
+        if (Game1.options.doesInputListContain(Game1.options.menuButton, k))
+        {
+            Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), confirmForceQuit);
+        }
     }
 
     private void confirmForceQuit(Farmer who)
