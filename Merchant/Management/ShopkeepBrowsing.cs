@@ -119,12 +119,14 @@ public sealed record ShopkeepBrowsing(
         // shop layout and for sale items
         int floorDecorCount = 0;
         int standingDecorCount = 0;
+        int unreachableTableCount = 0;
         List<ForSaleTarget> forSaleTables = [];
         foreach (Furniture furniture in location.furniture)
         {
             if (furniture.IsTable() && furniture.heldObject.Value != null)
             {
-                AddForSaleTable(player, reachableTiles, forSaleTables, furniture);
+                if (!AddForSaleTable(player, reachableTiles, forSaleTables, furniture))
+                    unreachableTableCount++;
             }
             else if (furniture.furniture_type.Value == 12)
             {
@@ -150,13 +152,19 @@ public sealed record ShopkeepBrowsing(
             customerActors.Add(new CustomerActor(sourceFriend, entryPoint));
         }
 
-        ShopBonusStats bonusStats = new(standingDecorCount, forSaleTables.Count, floorDecorCount, mapTileCount);
+        ShopBonusStats bonusStats = new(
+            standingDecorCount,
+            forSaleTables.Count,
+            floorDecorCount,
+            mapTileCount,
+            unreachableTableCount
+        );
 
         browsing = new(location, player, entryPoint, reachableTiles, customerActors, forSaleTables, bonusStats);
         return true;
     }
 
-    public static void AddForSaleTable(
+    public static bool AddForSaleTable(
         Farmer player,
         List<Point> reachableTiles,
         List<ForSaleTarget> forSaleTables,
@@ -165,7 +173,7 @@ public sealed record ShopkeepBrowsing(
     {
         List<(Point, int)> browseAround = FormBrowseAround(furniture, reachableTiles).ToList();
         if (!browseAround.Any())
-            return;
+            return false;
 
         if (furniture.heldObject.Value is Chest chest)
         {
@@ -183,6 +191,7 @@ public sealed record ShopkeepBrowsing(
         {
             forSaleTables.Add(new(furniture.heldObject.Value, furniture, browseAround));
         }
+        return true;
     }
 
     private static IEnumerable<(Point, int)> FormBrowseAround(Furniture furniture, List<Point> reachable)
@@ -302,6 +311,8 @@ public sealed record ShopkeepBrowsing(
 
         foreach (CustomerActor actor in dispatchedActors)
         {
+            if (actor.IsInvisible)
+                continue;
             actor.update(time, Location);
             actor.UpdateBuyTarget(availableForSale, availableForSaleHeld, out ForSaleTarget? hagglingForSaleTarget);
             if (haggling == null && hagglingForSaleTarget != null)
@@ -311,6 +322,15 @@ public sealed record ShopkeepBrowsing(
         }
 
         return false;
+    }
+
+    public void UpdateActorsOnly(GameTime time)
+    {
+        foreach (CustomerActor actor in dispatchedActors)
+        {
+            if (!actor.IsInvisible)
+                actor.update(time, Location);
+        }
     }
 
     private void AddNewCustomer()

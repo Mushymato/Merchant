@@ -16,10 +16,11 @@
   "bonus.title": "By decorating your store, you can sell items for higher prices!",
   "bonus.decor": "Decor:",
   "bonus.decor.values": "{{decor}} decorations / {{table}} tables ({{percent}}{{capped}})",
+  "bonus.unreachable-table": "WARNING: You have {{count}} unreachable tables that hold a sellable item.",
   "bonus.rug-floor": "Rug/Floor:",
-  "bonus.rug-floor.values": "{{decor}} covered tiles / {{tiles}} reachable tiles ({{percent}}{{capped}})",
+  "bonus.rug-floor.values": "{{decor}} covered tiles / {{tiles}} total tiles ({{percent}}{{capped}})",
   "bonus.capped": " =",
-  "bonus.total": "Total: {{multBonus}}",
+  "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
   "quit-confirm": "Close up the shop early?",
   // config menu
   "config.auto-restock.name": "Enable Auto-Restock",

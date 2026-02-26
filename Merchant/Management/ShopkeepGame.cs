@@ -142,6 +142,7 @@ public sealed class ShopkeepGame : IMinigame
 
         player.completelyStopAnimatingOrDoingAction();
         player.Stamina -= 20;
+        player.TemporaryItem = ItemRegistry.Create("(P)0");
 
         player.setTileLocation(tileAboveCashRegister.ToVector2());
         player.faceDirection(2);
@@ -172,6 +173,7 @@ public sealed class ShopkeepGame : IMinigame
 
         player.setTileLocation(playerPreviousPosition.Item1.ToVector2());
         player.faceDirection(playerPreviousPosition.Item2);
+        player.TemporaryItem = null;
     }
 
     public bool forceQuit()
@@ -222,6 +224,7 @@ public sealed class ShopkeepGame : IMinigame
                 DoHaggle(time);
                 return false;
             case GameLoopState.Report:
+                DoReport(time);
                 return false;
             default:
             case GameLoopState.Unload:
@@ -250,16 +253,11 @@ public sealed class ShopkeepGame : IMinigame
         }
         if (browsing.Update(time, ref haggling))
         {
-            PrepareToEnterReportState();
-            state.SetNext(GameLoopState.Report, 1000);
+            Game1.stopMusicTrack(MusicContext.MiniGame);
+            Game1.changeMusicTrack("harveys_theme_jazz", false, MusicContext.MiniGame);
+            state.Current = GameLoopState.Report;
             return;
         }
-    }
-
-    private void PrepareToEnterReportState()
-    {
-        Game1.stopMusicTrack(MusicContext.MiniGame);
-        Game1.changeMusicTrack("harveys_theme_jazz", false, MusicContext.MiniGame);
     }
 
     private void AutoRestockEmptyTables()
@@ -310,7 +308,7 @@ public sealed class ShopkeepGame : IMinigame
                     consumed++;
                 }
 
-            consume_stack:
+                consume_stack:
                 chest.Items[i] = item.ConsumeStack(consumed);
                 if (tableQueue.Count == 0)
                     return;
@@ -337,6 +335,13 @@ public sealed class ShopkeepGame : IMinigame
             state.Current = player.Stamina < 9 ? GameLoopState.Report : GameLoopState.Browse;
             return;
         }
+    }
+    #endregion
+
+    #region gameloop report
+    private void DoReport(GameTime time)
+    {
+        browsing.UpdateActorsOnly(time);
     }
     #endregion
 

@@ -57,7 +57,7 @@ internal static class NPCLookup
 
     internal static IEnumerable<FriendEntry> PickCustomerNPCs(Farmer player, int maxCount)
     {
-        maxCount = Math.Min(maxCount, 15);
+        maxCount = Math.Min(maxCount, 3);
         foreach (FriendEntry npc in PickNRandomNPCs(player, 5, true))
         {
             maxCount--;

@@ -1,14 +1,23 @@
 using System.Text;
+using Merchant.Management;
 
 namespace Merchant.Models;
 
-public sealed record ShopBonusStats(int StandingDecorCount, int TableCount, int FloorDecorCount, int MapTileCount)
+public sealed record ShopBonusStats(
+    int StandingDecorCount,
+    int TableCount,
+    int FloorDecorCount,
+    int MapTileCount,
+    int UnreachableTableCount
+)
 {
-    public readonly float StandingDecorBonusRaw = (float)StandingDecorCount / TableCount;
-    public readonly float FloorCoverageBonusRaw = FloorDecorCount / (float)MapTileCount;
-    public readonly float TotalBonus =
-        MathF.Min(0.5f, 1.0f * (StandingDecorCount / (float)TableCount))
-        + MathF.Min(0.5f, FloorDecorCount / (float)MapTileCount);
+    private const float FLOOR_COVERAGE_TARGET = 1 / 3f;
+    public readonly float StandingDecorBonus = Math.Min(1f, StandingDecorCount / (float)TableCount);
+    public readonly float FloorCoverageBonusRaw = Math.Min(
+        FLOOR_COVERAGE_TARGET,
+        FloorDecorCount / (float)MapTileCount
+    );
+    public float TotalBonus => StandingDecorBonus * 0.7f + FloorCoverageBonusRaw * 0.3f;
 
     public string FormatSummary()
     {
@@ -23,10 +32,16 @@ public sealed record ShopBonusStats(int StandingDecorCount, int TableCount, int 
             I18n.Bonus_Decor_Values(
                 StandingDecorCount,
                 TableCount,
-                $"{StandingDecorBonusRaw:P2}",
-                StandingDecorBonusRaw >= 1f ? I18n.Bonus_Capped() : ""
+                $"{StandingDecorBonus:P2}",
+                StandingDecorBonus >= 1f ? I18n.Bonus_Capped() : ""
             )
         );
+        if (UnreachableTableCount > 0)
+        {
+            sb.Append("  ^");
+            sb.Append(I18n.Bonus_UnreachableTable(UnreachableTableCount));
+            sb.Append("  ^  ");
+        }
         sb.Append("  ^");
         sb.Append(I18n.Bonus_RugFloor());
         sb.Append("  ^  ");
@@ -34,12 +49,18 @@ public sealed record ShopBonusStats(int StandingDecorCount, int TableCount, int 
             I18n.Bonus_RugFloor_Values(
                 FloorDecorCount,
                 MapTileCount,
-                $"{FloorCoverageBonusRaw:P2}",
-                StandingDecorBonusRaw >= 0.5f ? I18n.Bonus_Capped() : ""
+                $"{FloorCoverageBonusRaw * 3:P2}",
+                FloorCoverageBonusRaw >= FLOOR_COVERAGE_TARGET ? I18n.Bonus_Capped() : ""
             )
         );
         sb.Append("  ^");
-        sb.Append(I18n.Bonus_Total($"{TotalBonus:P2}"));
+        float totalBonus = TotalBonus;
+        sb.Append(
+            I18n.Bonus_Total(
+                $"{totalBonus + ShopkeepHaggle.MIN_MULT:P2}",
+                $"{totalBonus + ShopkeepHaggle.MIN_MULT + ShopkeepHaggle.MAX_MULT_DELTA:P2}"
+            )
+        );
         return sb.ToString();
     }
 }

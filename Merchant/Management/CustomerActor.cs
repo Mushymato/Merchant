@@ -258,6 +258,8 @@ public sealed class CustomerActor : NPC
         ForSale = null;
         cachedGiftTastes.Clear();
         state.Current = ActorState.Finished;
+        Position = Vector2.Zero;
+        IsInvisible = true;
     }
 
     public override void update(GameTime time, GameLocation location)
