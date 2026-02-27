@@ -72,10 +72,7 @@ internal static class AssetManager
         }
         else if (name.IsEquivalentTo(Asset_CustomerData))
         {
-            e.LoadFromModFile<Dictionary<string, CustomerData>>(
-                "assets/default_customer_data.json",
-                AssetLoadPriority.Exclusive
-            );
+            e.LoadFrom(() => new Dictionary<string, CustomerData>(), AssetLoadPriority.Exclusive);
         }
         else if (name.IsEquivalentTo(Asset_Strings))
         {

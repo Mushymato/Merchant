@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Merchant.Models;
 using StardewValley;
 using StardewValley.Delegates;
@@ -23,16 +24,16 @@ public record FriendEntry(NPC Npc, Friendship Fren, int MaxHeartCount)
     }
 }
 
-internal static class NPCLookup
+internal class NPCFriendEntries(Farmer player)
 {
-    private static List<FriendEntry>? sorted = null;
-    private static int bisect = 0;
+    private List<FriendEntry>? sorted = null;
+    private int bisect = 0;
 
-    internal static void Clear() => sorted = null;
+    internal void Clear() => sorted = null;
 
-    private static IEnumerable<FriendEntry> PickNRandomNPCs(Farmer player, int count, bool bestFriendsOnly)
+    private IEnumerable<FriendEntry> PickNRandomNPCs(int count, bool bestFriendsOnly)
     {
-        sorted ??= PopulateSortedNPCList(player);
+        sorted ??= PopulateSortedNPCList();
 
         List<int> ranges;
         if (bestFriendsOnly)
@@ -55,18 +56,17 @@ internal static class NPCLookup
         }
     }
 
-    internal static IEnumerable<FriendEntry> PickCustomerNPCs(Farmer player, int maxCount)
+    internal IEnumerable<FriendEntry> PickCustomerNPCs(int maxCount)
     {
         int bffs = maxCount / 3;
-        maxCount -= bffs;
-        foreach (FriendEntry npc in PickNRandomNPCs(player, bffs, true))
+        foreach (FriendEntry npc in PickNRandomNPCs(bffs, true))
         {
             maxCount--;
             yield return npc;
             if (maxCount == 0)
                 yield break;
         }
-        foreach (FriendEntry npc in PickNRandomNPCs(player, maxCount, false))
+        foreach (FriendEntry npc in PickNRandomNPCs(maxCount, false))
         {
             maxCount--;
             yield return npc;
@@ -75,7 +75,7 @@ internal static class NPCLookup
         }
     }
 
-    private static List<FriendEntry> PopulateSortedNPCList(Farmer player)
+    private List<FriendEntry> PopulateSortedNPCList()
     {
         GameStateQueryContext context = new();
         List<FriendEntry> newSortedList = [];
@@ -111,5 +111,22 @@ internal static class NPCLookup
             }
         }
         return newSortedList;
+    }
+
+    internal bool TryGetByName(string name, [NotNullWhen(true)] out NPC? npc)
+    {
+        sorted ??= PopulateSortedNPCList();
+
+        foreach (FriendEntry friend in sorted)
+        {
+            if (friend.Npc.Name == name)
+            {
+                npc = friend.Npc;
+                return true;
+            }
+        }
+
+        npc = null;
+        return false;
     }
 }

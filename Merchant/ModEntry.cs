@@ -6,6 +6,7 @@ using Merchant.ModIntegration;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
+using StardewValley;
 
 namespace Merchant;
 
@@ -20,8 +21,10 @@ public sealed class ModEntry : Mod
     private static IMonitor? mon;
     internal static ModConfig config = null!;
     internal static IModHelper help = null!;
-    private static PerScreen<MerchantProgressData?> progressData = new();
+    private static readonly PerScreen<MerchantProgressData?> progressData = new();
     internal static MerchantProgressData? ProgressData => progressData.Value;
+    private static readonly PerScreen<NPCFriendEntries?> friendEntries = new();
+    internal static NPCFriendEntries FriendEntries => friendEntries.Value ??= new NPCFriendEntries(Game1.player);
 
     public override void Entry(IModHelper helper)
     {
@@ -65,7 +68,7 @@ public sealed class ModEntry : Mod
     private void OnSaving(object? sender, SavingEventArgs e)
     {
         progressData.Value?.Write();
-        NPCLookup.Clear();
+        FriendEntries.Clear();
     }
 
     /// <summary>SMAPI static monitor Log wrapper</summary>

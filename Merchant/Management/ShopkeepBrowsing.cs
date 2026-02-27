@@ -57,6 +57,11 @@ public record ForSaleTarget(
             }
         }
     }
+
+    public static bool CanOfferForSale(Item? item, Farmer player)
+    {
+        return item != null && item is not Furniture && item.sellToStorePrice(player.UniqueMultiplayerID) > 0;
+    }
 }
 
 public sealed record ShopkeepBrowsing(
@@ -125,8 +130,14 @@ public sealed record ShopkeepBrowsing(
         {
             if (furniture.IsTable() && furniture.heldObject.Value != null)
             {
-                if (!AddForSaleTable(player, reachableTiles, forSaleTables, furniture))
-                    unreachableTableCount++;
+                AddForSaleTable(
+                    player,
+                    reachableTiles,
+                    forSaleTables,
+                    furniture,
+                    ref standingDecorCount,
+                    ref unreachableTableCount
+                );
             }
             else if (furniture.furniture_type.Value == 12)
             {
@@ -151,7 +162,7 @@ public sealed record ShopkeepBrowsing(
             32,
             Math.Min(forSaleTables.Count, 4 + (ModEntry.ProgressData?.Logs.Count ?? 0) / 2)
         );
-        foreach (FriendEntry sourceFriend in NPCLookup.PickCustomerNPCs(player, customerCount))
+        foreach (FriendEntry sourceFriend in ModEntry.FriendEntries.PickCustomerNPCs(customerCount))
         {
             customerActors.Add(new CustomerActor(sourceFriend, entryPoint));
         }
@@ -168,16 +179,18 @@ public sealed record ShopkeepBrowsing(
         return true;
     }
 
-    public static bool AddForSaleTable(
+    public static void AddForSaleTable(
         Farmer player,
         List<Point> reachableTiles,
         List<ForSaleTarget> forSaleTables,
-        Furniture furniture
+        Furniture furniture,
+        ref int standingDecorCount,
+        ref int unreachableTableCount
     )
     {
         List<(Point, int)> browseAround = FormBrowseAround(furniture, reachableTiles).ToList();
-        if (!browseAround.Any())
-            return false;
+        bool unreachable = !browseAround.Any();
+        bool gotForSale = false;
 
         if (furniture.heldObject.Value is Chest chest)
         {
@@ -185,17 +198,33 @@ public sealed record ShopkeepBrowsing(
             for (int i = 0; i < chest.Items.Count; i++)
             {
                 Item item = chest.Items[i];
-                if (item != null && item.sellToStorePrice(player.UniqueMultiplayerID) > 0)
+                if (ForSaleTarget.CanOfferForSale(item, player))
                 {
+                    if (unreachable)
+                    {
+                        unreachableTableCount++;
+                        return;
+                    }
+                    gotForSale = true;
                     forSaleTables.Add(new(item, furniture, browseAround, true, i));
                 }
             }
         }
-        else if (furniture.heldObject.Value.sellToStorePrice(player.UniqueMultiplayerID) > 0)
+        else if (ForSaleTarget.CanOfferForSale(furniture.heldObject.Value, player))
         {
+            if (unreachable)
+            {
+                unreachableTableCount++;
+                standingDecorCount++;
+                return;
+            }
+            gotForSale = true;
             forSaleTables.Add(new(furniture.heldObject.Value, furniture, browseAround));
         }
-        return true;
+        if (!gotForSale)
+        {
+            standingDecorCount++;
+        }
     }
 
     private static IEnumerable<(Point, int)> FormBrowseAround(Furniture furniture, List<Point> reachable)
@@ -387,7 +416,7 @@ public sealed record ShopkeepBrowsing(
         Player.Money = Player.Money + (int)totalEarnings;
         Game1.dayTimeMoneyBox.gotGoldCoin((int)totalEarnings);
 
-        ModEntry.ProgressData?.SaveShopkeepSession(sales, false, totalEarnings);
+        ModEntry.ProgressData?.SaveShopkeepSession(Location.NameOrUniqueName, sales, false, totalEarnings);
     }
     #endregion
 

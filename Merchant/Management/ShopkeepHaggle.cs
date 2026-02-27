@@ -369,7 +369,7 @@ public sealed record ShopkeepHaggle(
         b.Draw(
             Game1.mouseCursors,
             new(pointerPos, haggleBarSlideBounds.Y + 16 + sourceRectHagglePointerA.Height * 2),
-            pointer > (targetPointer + leewayPointer) ? sourceRectHagglePointerA : sourceRectHagglePointerB,
+            pointer < (targetPointer + leewayPointer) ? sourceRectHagglePointerB : sourceRectHagglePointerA,
             Color.White,
             rotate,
             new(sourceRectHagglePointerA.Width / 2, sourceRectHagglePointerA.Height / 2),

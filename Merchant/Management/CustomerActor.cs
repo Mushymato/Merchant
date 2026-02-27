@@ -76,8 +76,8 @@ public sealed class CustomerActor : NPC
     {
         // TODO: custom haggle bonus
         if (sourceFriend.Fren.Points <= 1)
-            return 0.1f;
-        return 0.1f + MathF.Log10(sourceFriend.Fren.Points / 2000f) * 0.3f;
+            return 0.15f;
+        return 0.15f + MathF.Log10(sourceFriend.Fren.Points / 2000f) * 0.25f;
     }
 
     public float GetHaggleBaseTargetPointer(ForSaleTarget forSale)
@@ -134,6 +134,7 @@ public sealed class CustomerActor : NPC
 
     private readonly StateManager<ActorState> state = new(ActorState.Await);
 
+    private readonly float chanceToBuy = 0.2f + 0.3f * Random.Shared.NextSingle();
     private int browsedCount = 0;
     public ForSaleTarget? ForSale
     {
@@ -227,7 +228,7 @@ public sealed class CustomerActor : NPC
         if (ForSale != null)
         {
             int giftTaste = GetGiftTasteForSaleItem(ForSale);
-            if (Random.Shared.NextSingle() < 0.3f + browsedCount * 0.1f)
+            if (Random.Shared.NextSingle() < chanceToBuy + browsedCount * 0.1f)
             {
                 doEmote(giftTaste == gift_taste_love ? 20 : 16);
                 state.SetNext(ActorState.Buy, 500);

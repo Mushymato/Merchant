@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using StardewValley;
 
 namespace Merchant.Models;
@@ -6,17 +7,19 @@ public sealed record SoldRecord(string Buyer, string ItemId, uint Price);
 
 public sealed class ShopkeepSessionLog
 {
-    public bool IsAutoShopkeep;
-    public int Date; // days played
-    public List<SoldRecord> Sales = [];
+    public string Shop = "Unknown";
+    public bool IsAutoShopkeep { get; set; } = false;
+    public int Date { get; set; } = 0; // days played
+    public List<SoldRecord> Sales { get; set; } = [];
 }
 
 public sealed class MerchantProgressData
 {
-    private string key = "merchant";
-    internal ulong TotalEarnings = 0;
-    internal uint TotalItemsSold = 0;
-    public List<ShopkeepSessionLog> Logs = [];
+    private string key { get; set; } = "merchant";
+    internal ulong TotalEarnings { get; set; } = 0;
+    internal uint TotalItemsSold { get; set; } = 0;
+
+    public List<ShopkeepSessionLog> Logs { get; set; } = [];
 
     private void Validate()
     {
@@ -48,10 +51,16 @@ public sealed class MerchantProgressData
         ModEntry.help.Data.WriteGlobalData(key, this);
     }
 
-    public void SaveShopkeepSession(List<SoldRecord> sales, bool isAutoShopkeep, ulong totalEarnings)
+    public void SaveShopkeepSession(
+        string locationName,
+        List<SoldRecord> sales,
+        bool isAutoShopkeep,
+        ulong totalEarnings
+    )
     {
         ShopkeepSessionLog newLog = new()
         {
+            Shop = locationName,
             IsAutoShopkeep = isAutoShopkeep,
             Date = Game1.Date.TotalDays,
             Sales = sales,
@@ -61,5 +70,18 @@ public sealed class MerchantProgressData
             TotalEarnings += totalEarnings;
 
         Logs.Add(newLog);
+    }
+
+    public bool TryGetMostRecentLogForLocation(string locationName, [NotNullWhen(true)] out ShopkeepSessionLog? log)
+    {
+        log = null;
+        for (int i = Logs.Count - 1; i >= 0; i--)
+        {
+            log = Logs[i];
+            if (log.Shop == locationName)
+                return true;
+            log = null;
+        }
+        return false;
     }
 }

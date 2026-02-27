@@ -1,9 +1,0 @@
-{
-    "Krobus": {
-        "Haggle_Ask": "{1}$ for the goods?$8",
-        "Haggle_Compromise": "Be a chum and cut a deal, c'mon.$8",
-        "Haggle_Overpriced": "I could buy Zuzu City with that money.$8",
-        "Haggle_Fail": "Ya ain't fooling no-one buddy.$8",
-        "Haggle_Success": "Knew you'd come through for ya old pal.$8"
-    }
-}

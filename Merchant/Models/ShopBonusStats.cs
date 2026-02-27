@@ -24,7 +24,7 @@ public sealed record ShopBonusStats(
         StringBuilder sb = new();
         sb.Append(I18n.Bonus_Title());
         sb.Append("  ^");
-        sb.Append("----------------------------------------");
+        sb.Append("---------------------------------------------");
         sb.Append("  ^");
         sb.Append(I18n.Bonus_Decor());
         sb.Append("  ^  ");

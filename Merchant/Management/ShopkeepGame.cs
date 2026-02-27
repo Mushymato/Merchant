@@ -282,7 +282,7 @@ public sealed class ShopkeepGame : IMinigame
                     continue;
                 if (!testTable.performObjectDropInAction(item, true, null))
                     continue;
-                if (item.sellToStorePrice(player.UniqueMultiplayerID) <= 0)
+                if (!ForSaleTarget.CanOfferForSale(item, player))
                     continue;
                 chestItemQueue.Enqueue(new(chest, i));
             }
@@ -366,25 +366,27 @@ public sealed class ShopkeepGame : IMinigame
         if (Game1.activeClickableMenu is ConfirmationDialog confirmationDialog)
         {
             confirmationDialog.receiveKeyPress(k);
+            return;
         }
-        else if (state.Current == GameLoopState.Haggle)
+
+        if (Game1.options.doesInputListContain(Game1.options.useToolButton, k))
         {
-            if (Game1.options.doesInputListContain(Game1.options.useToolButton, k))
+            if (state.Current == GameLoopState.Haggle)
             {
                 haggling?.Pick();
-            }
-        }
-        else if (state.Current == GameLoopState.Report)
-        {
-            if (Game1.options.doesInputListContain(Game1.options.menuButton, k))
-            {
-                state.Current = GameLoopState.Unload;
             }
         }
 
         if (Game1.options.doesInputListContain(Game1.options.menuButton, k))
         {
-            Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), confirmForceQuit);
+            if (state.Current == GameLoopState.Report)
+            {
+                state.Current = GameLoopState.Unload;
+            }
+            else
+            {
+                Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), confirmForceQuit);
+            }
         }
     }
 

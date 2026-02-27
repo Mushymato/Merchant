@@ -27,6 +27,7 @@ public static class GameDelegates
             [
                 new("merchant_startgame", I18n.Menu_StartMinigame()),
                 new("merchant_checkbonus", I18n.Menu_CheckBonus()),
+                new("merchant_sessionlog", I18n.Menu_SessionLog()),
                 new("merchant_cancel", Game1.content.LoadString("Strings\\Locations:MineCart_Destination_Cancel")),
             ],
             (who, response) =>
@@ -38,6 +39,17 @@ public static class GameDelegates
                         break;
                     case "merchant_checkbonus":
                         Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatSummary());
+                        break;
+                    case "merchant_sessionlog":
+                        if (
+                            ModEntry.ProgressData?.TryGetMostRecentLogForLocation(
+                                location.NameOrUniqueName,
+                                out ShopkeepSessionLog? log
+                            ) ?? false
+                        )
+                            Game1.activeClickableMenu = SessionReportMenu.Make(log);
+                        else
+                            Game1.drawObjectDialogue(I18n.SessionReport_NoLog());
                         break;
                 }
             },
