@@ -348,8 +348,11 @@ public sealed record ShopkeepBrowsing(
 
     internal void FinalizeAndCleanup()
     {
+        waitingActors.Clear();
+        dispatchedActors.Clear();
+
         List<SoldRecord> sales = [];
-        ModEntry.Log("===== SOLD =====", LogLevel.Info);
+        StringBuilder sb = new("===== SOLD =====");
 
         ulong totalEarnings = 0;
         foreach (ForSaleTarget forSale in ForSaleTargets)
@@ -368,16 +371,20 @@ public sealed record ShopkeepBrowsing(
                 {
                     Player.shippedBasic(obj.ItemId, obj.Stack);
                 }
-                ModEntry.Log($"- {forSale.Thing.DisplayName} ({forSale.Sold})", LogLevel.Info);
+                sb.Append($"- {forSale.Thing.DisplayName} ({forSale.Sold})");
             }
         }
+
+        if (sales.Count <= 0)
+            return;
+
+        sb.Insert(0, '\n');
+        ModEntry.Log(sb.ToString(), LogLevel.Info);
+
         Player.Money = Player.Money + (int)totalEarnings;
         Game1.dayTimeMoneyBox.gotGoldCoin((int)totalEarnings);
 
         ModEntry.ProgressData!.SaveShopkeepSession(sales, false, totalEarnings);
-
-        waitingActors.Clear();
-        dispatchedActors.Clear();
     }
     #endregion
 

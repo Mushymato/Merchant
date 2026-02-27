@@ -38,6 +38,7 @@ public sealed record ShopkeepHaggle(
         ShopkeepHaggle newHaggle = new(player, buyer, forSaleTarget, minMult, maxMult, PatternFn);
         newHaggle.SetNextDialogue(CxDialogueKind.Haggle_Ask, newHaggle.PntToPrice(newHaggle.targetPointer));
         newHaggle.CalculateBounds();
+
         return newHaggle;
     }
 
@@ -80,6 +81,8 @@ public sealed record ShopkeepHaggle(
     private float targetOverRange = 0.25f * Random.Shared.NextSingle() + Buyer.GetHaggleTargetOverRange();
     private float nextTargetPointer = -1;
     private readonly uint basePrice = (uint)Math.Max(ForSale.Thing.sellToStorePrice(Player.UniqueMultiplayerID), 1);
+    private uint leewayPrice = 0;
+    private float leewayPointer = 0f;
 
     public uint PntToPrice(float pnt) => (uint)Math.Ceiling(Utility.Lerp(MinMult, MaxMult, pnt) * basePrice);
 
@@ -183,9 +186,9 @@ public sealed record ShopkeepHaggle(
         uint targetPrice = PntToPrice(targetPointer);
         ModEntry.Log($"Pick: {pointer}({pickedPrice}) vs {targetPointer}({targetPrice})");
 
-        if (pickedPrice <= targetPrice)
+        if (pickedPrice <= targetPrice + leewayPrice)
         {
-            SetupHaggleSuccess(pickedPrice);
+            SetupHaggleSuccess(Math.Min(pickedPrice, targetPrice));
         }
         else if (HaggleExpired())
         {
@@ -197,15 +200,7 @@ public sealed record ShopkeepHaggle(
             if (delta <= targetOverRange)
             {
                 nextTargetPointer = targetPointer + delta * Random.Shared.NextSingle();
-                if (PntToPrice(nextTargetPointer) >= pickedPrice)
-                {
-                    SetupHaggleSuccess(pickedPrice);
-                    return;
-                }
-                else
-                {
-                    targetOverRange -= nextTargetPointer - targetPointer;
-                }
+                targetOverRange -= nextTargetPointer - targetPointer;
                 state.SetNext(HaggleState.Begin, pickedPauseMS);
                 SetNextDialogue(CxDialogueKind.Haggle_Compromise, pickedPrice);
             }
@@ -274,6 +269,9 @@ public sealed record ShopkeepHaggle(
         haggleBarCapPos = new(haggleBarIconBoxPos.X + haggleBarIconWidth + haggleBarSlideWidth, haggleBarIconBoxPos.Y);
         remainingTriesBounds = new(haggleBarSlideBounds.X, haggleBarSlideBounds.Y - 72, 196, 80);
 
+        leewayPrice = (uint)(basePrice * (float)buyerMugShotRect.Width * 2 / haggleBarSlideWidth * 4);
+        leewayPointer = (float)leewayPrice / basePrice;
+
         CalculateTargetPointerBounds();
     }
 
@@ -285,7 +283,7 @@ public sealed record ShopkeepHaggle(
                 haggleBarSlideBounds.X + haggleBarSlideWidth,
                 useNextTargetPnt ? Utility.Lerp(nextTargetPointer, targetPointer, state.TimerProgress) : targetPointer
             )
-                - buyerMugShotRect.Width * 4,
+                + buyerMugShotRect.Width * 2,
             haggleBarSlideBounds.Y - 16
         );
     }
@@ -329,7 +327,7 @@ public sealed record ShopkeepHaggle(
             SpriteEffects.None,
             1f
         );
-        ForSale.Thing.drawInMenu(b, haggleBarIconPos, 1f + pointer / 2f);
+        ForSale.Thing.drawInMenu(b, haggleBarIconPos, 1f);
         b.Draw(
             Game1.mouseCursors,
             haggleBarSlideBounds,
@@ -370,7 +368,7 @@ public sealed record ShopkeepHaggle(
         b.Draw(
             Game1.mouseCursors,
             new(pointerPos, haggleBarSlideBounds.Y + 16 + sourceRectHagglePointerA.Height * 2),
-            pointer > targetPointer ? sourceRectHagglePointerA : sourceRectHagglePointerB,
+            pointer > (targetPointer + leewayPointer) ? sourceRectHagglePointerA : sourceRectHagglePointerB,
             Color.White,
             rotate,
             new(sourceRectHagglePointerA.Width / 2, sourceRectHagglePointerA.Height / 2),

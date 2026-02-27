@@ -197,6 +197,9 @@ public sealed class ShopkeepGame : IMinigame
     #region gameloop
     public void draw(SpriteBatch b)
     {
+        // Draw day time money box by itself
+        if (Game1.activeClickableMenu == null)
+            Game1.dayTimeMoneyBox.draw(b);
         // Draw Haggling
         haggling?.Draw(b);
     }
@@ -209,6 +212,8 @@ public sealed class ShopkeepGame : IMinigame
             Game1.PushUIMode();
             Game1.activeClickableMenu.update(time);
             Game1.PopUIMode();
+            if (Game1.activeClickableMenu is ConfirmationDialog)
+                return false;
         }
         state.Update(time);
         // state behavior
@@ -262,24 +267,13 @@ public sealed class ShopkeepGame : IMinigame
 
     private void AutoRestockEmptyTables()
     {
-        Queue<Furniture> tableQueue = [];
-        foreach (Furniture furniture in location.furniture)
-        {
-            if (furniture.IsTable())
-            {
-                tableQueue.Enqueue(furniture);
-            }
-        }
-        if (tableQueue.Count == 0)
-            return;
         Furniture testTable = ItemRegistry.Create<Furniture>("(F)DesertTable");
         testTable.Location = location;
+        Queue<(Chest, int)> chestItemQueue = [];
         foreach (SObject obj in location.objects.Values)
         {
             if (obj is not Chest chest)
-            {
                 continue;
-            }
             for (int i = 0; i < chest.Items.Count; i++)
             {
                 Item item = chest.Items[i];
@@ -289,30 +283,32 @@ public sealed class ShopkeepGame : IMinigame
                     continue;
                 if (item.sellToStorePrice(player.UniqueMultiplayerID) <= 0)
                     continue;
-
-                int consumed = 0;
-                for (int j = 0; j < item.Stack; j++)
-                {
-                    Furniture table = tableQueue.Peek();
-                    while (!table.performObjectDropInAction(item, true, player))
-                    {
-                        tableQueue.Dequeue();
-                        if (tableQueue.Count == 0)
-                            goto consume_stack;
-                        table = tableQueue.Peek();
-                    }
-                    ModEntry.Log(
-                        $"Restocked '{table.QualifiedItemId} ({table.TileLocation})' with '{item.QualifiedItemId}'"
-                    );
-                    table.performObjectDropInAction(item, false, null);
-                    consumed++;
-                }
-
-                consume_stack:
-                chest.Items[i] = item.ConsumeStack(consumed);
-                if (tableQueue.Count == 0)
-                    return;
+                chestItemQueue.Enqueue(new(chest, i));
             }
+        }
+        foreach (Furniture table in location.furniture)
+        {
+            if (!table.IsTable())
+                continue;
+
+            if (chestItemQueue.TryDequeue(out (Chest, int) chestItem))
+            {
+                Item? item = chestItem.Item1.Items[chestItem.Item2];
+                if (table.performObjectDropInAction(item, true, null))
+                {
+                    table.performObjectDropInAction(item, false, null);
+                    item = item.ConsumeStack(1);
+                    chestItem.Item1.Items[chestItem.Item2] = item;
+                }
+                if (item == null)
+                    continue;
+                chestItemQueue.Enqueue(chestItem);
+            }
+        }
+        foreach (SObject obj in location.objects.Values)
+        {
+            if (obj is not Chest chest)
+                continue;
             chest.Items.RemoveEmptySlots();
         }
     }
@@ -394,6 +390,7 @@ public sealed class ShopkeepGame : IMinigame
     private void confirmForceQuit(Farmer who)
     {
         state.Current = GameLoopState.Unload;
+        Game1.activeClickableMenu = null;
     }
 
     #endregion

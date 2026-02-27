@@ -135,7 +135,6 @@ public sealed class CustomerActor : NPC
     private readonly StateManager<ActorState> state = new(ActorState.Await);
 
     private int browsedCount = 0;
-    private readonly int maxBrowsedCount = Random.Shared.Next(4, 7);
     public ForSaleTarget? ForSale
     {
         get => field;
@@ -237,10 +236,7 @@ public sealed class CustomerActor : NPC
         }
 
         ForSale = null;
-        state.SetNext(
-            browsedCount >= maxBrowsedCount ? ActorState.Leaving : ActorState.Await,
-            Random.Shared.NextSingle() * 750
-        );
+        state.SetNext(ActorState.Await, Random.Shared.NextSingle() * 750);
     }
 
     internal void LeavingTheShop()
