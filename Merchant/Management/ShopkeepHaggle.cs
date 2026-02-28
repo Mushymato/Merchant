@@ -217,7 +217,7 @@ public sealed record ShopkeepHaggle(
 
     private void SetupHaggleSuccess(uint pickedPrice)
     {
-        state.SetNext(HaggleState.Done, pickedPauseMS);
+        state.SetNext(HaggleState.Done, pickedPauseMS, DoneAndLock);
         ForSale.Sold = SoldRecord.Make(Buyer.Name, pickedPrice, ForSale.Thing);
         Game1.playSound("reward");
         SetNextDialogue(CxDialogueKind.Haggle_Success, pickedPrice);
@@ -225,9 +225,14 @@ public sealed record ShopkeepHaggle(
 
     private void SetupHaggleFailed(uint pickedPrice)
     {
-        state.SetNext(HaggleState.Done, pickedPauseMS);
+        state.SetNext(HaggleState.Done, pickedPauseMS, DoneAndLock);
         Game1.playSound("fishEscape");
         SetNextDialogue(CxDialogueKind.Haggle_Fail, pickedPrice);
+    }
+
+    private void DoneAndLock()
+    {
+        state.SetAndLock(HaggleState.Done);
     }
 
     private void State_DecreaseStart()

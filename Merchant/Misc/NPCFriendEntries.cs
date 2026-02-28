@@ -52,7 +52,9 @@ internal class NPCFriendEntries(Farmer player)
         Random.Shared.ShuffleInPlace(ranges);
         for (int i = 0; i < Math.Min(ranges.Count, count); i++)
         {
-            yield return sorted[ranges[i]];
+            FriendEntry friend = sorted[ranges[i]];
+            if (!friend.Npc.IsInvisible)
+                yield return sorted[ranges[i]];
         }
     }
 

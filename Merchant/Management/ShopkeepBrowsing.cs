@@ -207,7 +207,7 @@ public sealed record ShopkeepBrowsing(
         if (waitingActors.Count == 0 && dispatchedActors.All(actor => actor.IsLeavingOrFinished))
         {
             ModEntry.Log("Browsing finished reason: all actors are leaving");
-            state.Current = BrowsingState.Finished;
+            state.SetAndLock(BrowsingState.Finished);
             return true;
         }
 
@@ -233,7 +233,7 @@ public sealed record ShopkeepBrowsing(
         if (availableForSale == null && availableForSaleHeld == null)
         {
             ModEntry.Log("Browsing finished reason: all items have been sold");
-            state.Current = BrowsingState.Finished;
+            state.SetAndLock(BrowsingState.Finished);
             return true;
         }
 

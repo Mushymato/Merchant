@@ -2,7 +2,7 @@ using Microsoft.Xna.Framework;
 
 namespace Merchant.Management;
 
-public sealed class StateManager<T>(T defaultValue)
+public sealed class StateManager<T>(T defaultValue, string? loggingName = null)
     where T : Enum
 {
     public delegate void stateChanged();
@@ -11,6 +11,13 @@ public sealed class StateManager<T>(T defaultValue)
         get => field;
         set
         {
+            if (loggingName != null)
+            {
+                ModEntry.Log($"STATE({loggingName}): {field} -> {value}");
+            }
+            if (Lock)
+                return;
+
             field = value;
             Next = value;
             Timer = TimeSpan.Zero;
@@ -18,20 +25,27 @@ public sealed class StateManager<T>(T defaultValue)
         }
     } = defaultValue;
     public T Next { get; private set; } = defaultValue;
+    public bool Lock { get; private set; } = false;
     public TimeSpan Timer { get; private set; } = TimeSpan.Zero;
     private double timerTotalMS = -1;
     public float TimerProgress => (float)(Timer.TotalMilliseconds / timerTotalMS);
     private stateChanged? changeCallback = null;
 
-    public void SetNext(T next, double transition, stateChanged? onChange = null, bool force = false)
+    public void SetNext(T next, double transition, stateChanged? onChange = null)
     {
-        if (force || Timer == TimeSpan.Zero)
+        if (Timer == TimeSpan.Zero)
         {
             Next = next;
             changeCallback = onChange;
             Timer = TimeSpan.FromMilliseconds(transition);
             timerTotalMS = transition;
         }
+    }
+
+    public void SetAndLock(T current)
+    {
+        Current = current;
+        Lock = true;
     }
 
     public void Update(GameTime time)

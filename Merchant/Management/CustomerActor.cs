@@ -133,7 +133,6 @@ public sealed class CustomerActor : NPC
         Buy,
         Leaving,
         Finished,
-        Decorative,
     }
 
     private readonly StateManager<ActorState> state = new(ActorState.Await);
@@ -282,7 +281,7 @@ public sealed class CustomerActor : NPC
         ModEntry.Log($"LeftTheShop {c.displayName}");
         ForSale = null;
         cachedGiftTastes.Clear();
-        state.Current = ActorState.Finished;
+        state.SetAndLock(ActorState.Finished);
         Position = Vector2.Zero;
         IsInvisible = true;
     }

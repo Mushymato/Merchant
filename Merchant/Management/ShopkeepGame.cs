@@ -33,7 +33,7 @@ public sealed class ShopkeepGame : IMinigame
         Unload,
     }
 
-    private readonly StateManager<GameLoopState> state = new(GameLoopState.Start);
+    private readonly StateManager<GameLoopState> state = new(GameLoopState.Start, "GAME");
     #endregion
 
     #region settings
@@ -357,7 +357,7 @@ public sealed class ShopkeepGame : IMinigame
     {
         if (Game1.activeClickableMenu == null)
         {
-            state.Current = GameLoopState.Unload;
+            state.SetAndLock(GameLoopState.Unload);
         }
         browsing.UpdateActorsOnly(time);
     }
@@ -376,7 +376,7 @@ public sealed class ShopkeepGame : IMinigame
         }
         else if (state.Current == GameLoopState.Report)
         {
-            state.Current = GameLoopState.Unload;
+            state.SetAndLock(GameLoopState.Unload);
         }
     }
 
@@ -412,7 +412,7 @@ public sealed class ShopkeepGame : IMinigame
         {
             if (state.Current == GameLoopState.Report)
             {
-                state.Current = GameLoopState.Unload;
+                state.SetAndLock(GameLoopState.Unload);
             }
             else
             {
@@ -423,8 +423,8 @@ public sealed class ShopkeepGame : IMinigame
 
     private void ConfirmForceQuit(Farmer who)
     {
-        state.Current = GameLoopState.Unload;
-        Game1.activeClickableMenu = null;
+        ModEntry.Log("ConfirmForceQuit");
+        state.SetAndLock(GameLoopState.Unload);
     }
 
     #endregion
