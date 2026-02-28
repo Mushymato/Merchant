@@ -15,9 +15,9 @@
   <PropertyGroup>
     <Name>Merchant</Name>
     <Authors>mushymato</Authors>
-    <Description>DESCRIPTION</Description>
+    <Description>Become a Shopkeeper and take down the duopoly today!</Description>
     <UniqueId>mushymato.Merchant</UniqueId>
-    <UpdateKeys>Nexus:???,GitHub:Mushymato/Merchant</UpdateKeys>
+    <UpdateKeys>Nexus:42801,GitHub:Mushymato/Merchant</UpdateKeys>
     <Version>0.1.0</Version>
     <BaseManifest>new</BaseManifest>
     <MinimumApiVersion_Behavior>Update</MinimumApiVersion_Behavior>
