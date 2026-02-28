@@ -40,6 +40,9 @@ public sealed class ShopkeepGame : IMinigame
     public string minigameId() => I18n.Minigame_Id();
 
     public bool overrideFreeMouseMovement() => true;
+
+    private bool ShouldControlActiveClickableMenu =>
+        Game1.activeClickableMenu is not null && state.Current != GameLoopState.Haggle;
     #endregion
 
     #region setup teardown
@@ -151,8 +154,8 @@ public sealed class ShopkeepGame : IMinigame
     public void unload()
     {
         ModEntry.LogDebug("ShopkeepGame.unload");
-        browsing.FinalizeAndCleanup();
-        if (ModEntry.config.EnableAutoRestock)
+        browsing.Cleanup();
+        if (ModEntry.Config.EnableAutoRestock)
             AutoRestockEmptyTables();
         haggling = null;
 
@@ -261,6 +264,7 @@ public sealed class ShopkeepGame : IMinigame
         {
             Game1.stopMusicTrack(MusicContext.MiniGame);
             Game1.changeMusicTrack("harveys_theme_jazz", false, MusicContext.MiniGame);
+            Game1.activeClickableMenu = browsing.Finalize();
             state.Current = GameLoopState.Report;
             return;
         }
@@ -345,27 +349,37 @@ public sealed class ShopkeepGame : IMinigame
     #region inputs
     public void receiveLeftClick(int x, int y, bool playSound = true)
     {
-        if (Game1.activeClickableMenu is ConfirmationDialog confirmationDialog)
+        if (ShouldControlActiveClickableMenu)
         {
-            confirmationDialog.receiveLeftClick(x, y);
+            Game1.activeClickableMenu.receiveLeftClick(x, y);
         }
         else if (state.Current == GameLoopState.Haggle)
         {
             haggling?.Pick();
-            return;
         }
         else if (state.Current == GameLoopState.Report)
         {
             state.Current = GameLoopState.Unload;
-            return;
+        }
+    }
+
+    public void receiveRightClick(int x, int y, bool playSound = true)
+    {
+        if (ShouldControlActiveClickableMenu)
+        {
+            Game1.activeClickableMenu.receiveRightClick(x, y, playSound);
+        }
+        else if (state.Current == GameLoopState.Haggle)
+        {
+            haggling?.Pick();
         }
     }
 
     public void receiveKeyPress(Keys k)
     {
-        if (Game1.activeClickableMenu is ConfirmationDialog confirmationDialog)
+        if (ShouldControlActiveClickableMenu)
         {
-            confirmationDialog.receiveKeyPress(k);
+            Game1.activeClickableMenu.receiveKeyPress(k);
             return;
         }
 
@@ -385,12 +399,12 @@ public sealed class ShopkeepGame : IMinigame
             }
             else
             {
-                Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), confirmForceQuit);
+                Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), ConfirmForceQuit);
             }
         }
     }
 
-    private void confirmForceQuit(Farmer who)
+    private void ConfirmForceQuit(Farmer who)
     {
         state.Current = GameLoopState.Unload;
         Game1.activeClickableMenu = null;
@@ -399,7 +413,6 @@ public sealed class ShopkeepGame : IMinigame
     #endregion
 
     #region unused
-    public void receiveRightClick(int x, int y, bool playSound = true) { }
 
     public void receiveKeyRelease(Keys k) { }
 

@@ -1,8 +1,10 @@
 using Merchant.Misc;
+using Merchant.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
+using StardewValley.Extensions;
 using StardewValley.Menus;
 
 namespace Merchant.Management;
@@ -25,15 +27,7 @@ public sealed record ShopkeepHaggle(
         float minMult = MIN_MULT + decorBonus / 2f;
         float maxMult = MAX_MULT + decorBonus;
 
-        ModEntry.LogDebug($"Haggle Mult: {minMult} -> {maxMult}");
-
-        int whichFn = Random.Shared.Next(0, 3);
-        Func<float, float> PatternFn = whichFn switch
-        {
-            1 => Ease.OutQuad,
-            2 => Ease.InOutCubic,
-            _ => Ease.InQuad,
-        };
+        Func<float, float> PatternFn = Random.Shared.NextBool() ? Ease.InQuad : Ease.InOutQuad;
 
         ShopkeepHaggle newHaggle = new(player, buyer, forSaleTarget, minMult, maxMult, PatternFn);
         newHaggle.SetNextDialogue(CxDialogueKind.Haggle_Ask, newHaggle.PntToPrice(newHaggle.targetPointer));
@@ -66,7 +60,6 @@ public sealed record ShopkeepHaggle(
         Done,
     }
 
-    private const double pointerPeriodMS = 1500.0;
     private const double pickedPauseMS = 1000.0;
     private const int totalPitch = 12;
     private const int maxTries = 3;
@@ -121,7 +114,7 @@ public sealed record ShopkeepHaggle(
         pointer = 0f;
         pointerPitch = -1;
         state.Current = HaggleState.Increase;
-        state.SetNext(HaggleState.Decrease, pointerPeriodMS, State_DecreaseStart);
+        state.SetNext(HaggleState.Decrease, ModEntry.Config.HaggleSpeed, State_DecreaseStart);
         Tries++;
     }
 
@@ -213,10 +206,18 @@ public sealed record ShopkeepHaggle(
         }
     }
 
+    public void Giveup()
+    {
+        if (state.Current == HaggleState.Picked)
+            return;
+
+        SetupHaggleSuccess(PntToPrice(0f));
+    }
+
     private void SetupHaggleSuccess(uint pickedPrice)
     {
         state.SetNext(HaggleState.Done, pickedPauseMS);
-        ForSale.Sold = new(Buyer.Name, ForSale.Thing.QualifiedItemId, pickedPrice);
+        ForSale.Sold = SoldRecord.Make(Buyer.Name, pickedPrice, ForSale.Thing);
         Game1.playSound("reward");
         SetNextDialogue(CxDialogueKind.Haggle_Success, pickedPrice);
     }

@@ -1,0 +1,6 @@
+{
+  "config.auto-restock.name": "Enable Auto-Restock",
+  "config.auto-restock.desc": "When auto-restock is enabled and there are chests in the shop location, items inside will be automatically placed onto empty tables when you close the shop.",
+  "config.haggle-speed.name": "Haggle Speed",
+  "config.haggle-speed.desc": "Set the speed of the haggle minigame."
+}

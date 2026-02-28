@@ -379,13 +379,16 @@ public sealed record ShopkeepBrowsing(
         Game1.playSound(AssetManager.DoorbellCue, 1100 + (int)(300 * Random.Shared.NextSingle()));
     }
 
-    internal void FinalizeAndCleanup()
+    internal void Cleanup()
     {
         waitingActors.Clear();
         dispatchedActors.Clear();
+    }
 
+    internal SessionReportMenu? Finalize()
+    {
         List<SoldRecord> sales = [];
-        StringBuilder sb = new("===== SOLD =====\n");
+        StringBuilder sb = new("===== SOLD =====");
 
         ulong totalEarnings = 0;
         foreach (ForSaleTarget forSale in ForSaleTargets)
@@ -404,19 +407,27 @@ public sealed record ShopkeepBrowsing(
                 {
                     Player.shippedBasic(obj.ItemId, obj.Stack);
                 }
-                sb.Append($"- {forSale.Thing.DisplayName} ({forSale.Sold})\n");
+                sb.Append($"\n- {forSale.Thing.DisplayName} ({forSale.Sold})");
             }
         }
 
         if (sales.Count <= 0)
-            return;
+            return null;
 
         ModEntry.Log(sb.ToString(), LogLevel.Info);
 
         Player.Money = Player.Money + (int)totalEarnings;
         Game1.dayTimeMoneyBox.gotGoldCoin((int)totalEarnings);
 
-        ModEntry.ProgressData?.SaveShopkeepSession(Location.NameOrUniqueName, sales, false, totalEarnings);
+        ShopkeepSessionLog newLog = new()
+        {
+            Shop = Location.NameOrUniqueName,
+            IsAutoShopkeep = false,
+            Date = Game1.Date.TotalDays,
+            Sales = sales,
+        };
+        ModEntry.ProgressData?.SaveShopkeepSession(newLog, totalEarnings);
+        return SessionReportMenu.Make(newLog);
     }
     #endregion
 

@@ -19,7 +19,7 @@ public sealed class ModEntry : Mod
 #endif
     public const string ModId = "mushymato.Merchant";
     private static IMonitor? mon;
-    internal static ModConfig config = null!;
+    internal static ModConfig Config { get; private set; } = null!;
     internal static IModHelper help = null!;
     private static readonly PerScreen<MerchantProgressData?> progressData = new();
     internal static MerchantProgressData? ProgressData => progressData.Value;
@@ -34,7 +34,7 @@ public sealed class ModEntry : Mod
 
         mon = Monitor;
         help = helper;
-        config = help.ReadConfig<ModConfig>();
+        Config = help.ReadConfig<ModConfig>();
         help.Events.GameLoop.GameLaunched += OnGameLaunched;
         help.Events.GameLoop.SaveLoaded += OnSaveLoaded;
         help.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
@@ -51,7 +51,7 @@ public sealed class ModEntry : Mod
             is IGenericModConfigMenuApi gmcm
         )
         {
-            config.Register(ModManifest, gmcm);
+            Config.Register(ModManifest, gmcm);
         }
     }
 

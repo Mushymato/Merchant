@@ -17,6 +17,7 @@ public sealed class SessionReportMenu : IClickableMenu
         SoldRecord record,
         Rectangle bounds,
         Item soldItem,
+        string characterName,
         Texture2D sprite,
         Rectangle mugshotSourceRect
     ) : ClickableComponent(bounds, soldItem)
@@ -63,7 +64,13 @@ public sealed class SessionReportMenu : IClickableMenu
 
         internal void DrawToolTip(SpriteBatch b)
         {
-            drawToolTip(b, item.getDescription(), item.DisplayName, item);
+            drawToolTip(
+                b,
+                I18n.Hover_BoughtBy(characterName),
+                item.DisplayName,
+                item,
+                moneyAmountToShowAtBottom: (int)record.Price
+            );
         }
     }
 
@@ -83,28 +90,30 @@ public sealed class SessionReportMenu : IClickableMenu
             for (int col = 0; col < COLS; col++)
             {
                 int idx = col + row * COLS;
-                // if (idx >= sessionLog.Sales.Count)
-                //     break;
+                if (idx >= sessionLog.Sales.Count)
+                    break;
 
                 int x = xPositionOnScreen + col * CELL_WIDTH;
                 int y = yPositionOnScreen + row * CELL_HEIGHT;
-                SoldRecord record = sessionLog.Sales[idx % sessionLog.Sales.Count];
-                Item SoldItem = ItemRegistry.Create(record.ItemId);
-                Texture2D Sprite;
-                Rectangle MugshotSourceRect;
+                SoldRecord record = sessionLog.Sales[idx];
+                Item soldItem = record.CreateReprItem();
+                string characterName = record.Buyer;
+                Texture2D sprite;
+                Rectangle mugshotSourceRect;
                 if (ModEntry.FriendEntries.TryGetByName(record.Buyer, out NPC? npc))
                 {
-                    Sprite = npc.Sprite.Texture;
-                    MugshotSourceRect = npc.getMugShotSourceRect();
+                    characterName = npc.displayName;
+                    sprite = npc.Sprite.Texture;
+                    mugshotSourceRect = npc.getMugShotSourceRect();
                 }
                 else
                 {
-                    Sprite = Game1.content.Load<Texture2D>("Characters/Monsters/Skeleton");
-                    MugshotSourceRect = new(0, 0, 16, 24);
+                    sprite = Game1.content.Load<Texture2D>("Characters/Monsters/Skeleton");
+                    mugshotSourceRect = new(0, 0, 16, 24);
                 }
                 int myID = 100 + idx;
                 soldRecordDisplays.Add(
-                    new(record, new(x, y, CELL_WIDTH, CELL_HEIGHT), SoldItem, Sprite, MugshotSourceRect)
+                    new(record, new(x, y, CELL_WIDTH, CELL_HEIGHT), soldItem, characterName, sprite, mugshotSourceRect)
                     {
                         myID = myID,
                         upNeighborID = row > 0 ? myID - COLS : ClickableComponent.ID_ignore,
@@ -123,6 +132,22 @@ public sealed class SessionReportMenu : IClickableMenu
             populateClickableComponentList();
             snapToDefaultClickableComponent();
         }
+    }
+
+    public override void populateClickableComponentList()
+    {
+        allClickableComponents = [];
+        allClickableComponents.AddRange(soldRecordDisplays);
+        if (upperRightCloseButton != null)
+        {
+            allClickableComponents.Add(upperRightCloseButton);
+        }
+    }
+
+    public override void snapToDefaultClickableComponent()
+    {
+        currentlySnappedComponent = getComponentWithID(100);
+        snapCursorToCurrentSnappedComponent();
     }
 
     private void Recenter()

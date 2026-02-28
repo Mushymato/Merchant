@@ -13,7 +13,7 @@
   "menu.prompt": "Shopkeeping",
   "menu.start-minigame": "Open the Shop",
   "menu.check-bonus": "Decor Bonuses",
-  "menu.session-log": "Previous Sesson Report",
+  "menu.session-log": "Report of Session ({{idx}})",
   "bonus.title": "By decorating your store, you can sell items for higher prices!",
   "bonus.decor": "Decor:",
   "bonus.decor.values": "{{decor}} decorations / {{table}} tables ({{percent}}{{capped}})",
@@ -22,9 +22,6 @@
   "bonus.rug-floor.values": "{{decor}} covered tiles / {{tiles}} total tiles ({{percent}}{{capped}})",
   "bonus.capped": " =",
   "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
-  "session-report.no-log": "You haven't opened shop in this building yet.",
   "quit-confirm": "Close up the shop early?",
-  // config menu
-  "config.auto-restock.name": "Enable Auto-Restock",
-  "config.auto-restock.desc": "When auto-restock is enabled and there are chests in the shop location, items inside will be automatically placed onto empty tables when you close the shop.",
+  "hover.bought-by": "Bought by {{chara}}.",
 }
