@@ -92,24 +92,24 @@ public sealed class ModEntry : Mod
     private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
     {
         progressData.Value = null;
-        FriendEntries.Clear();
+        friendEntries.Value = null;
     }
 
     private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
     {
         progressData.Value = MerchantProgressData.Read();
-        FriendEntries.Clear();
+        friendEntries.Value = null;
     }
 
     private void OnSaving(object? sender, SavingEventArgs e)
     {
         progressData.Value?.Write();
-        FriendEntries.Clear();
+        friendEntries.Value = null;
     }
 
     private void OnWarped(object? sender, WarpedEventArgs e)
     {
-        FriendEntries.Clear();
+        friendEntries.Value = null;
     }
 
     /// <summary>SMAPI static monitor Log wrapper</summary>

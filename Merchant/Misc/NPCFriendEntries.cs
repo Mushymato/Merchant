@@ -106,8 +106,6 @@ internal class NPCFriendEntries(Farmer player)
     private List<FriendEntry>? sortedFriends = null;
     private int bisect = 0;
 
-    internal void Clear() => sortedFriends = null;
-
     private void PickNRandomNPCs(ref List<CustomerActor> picked, Point entryPoint, int count, bool bestFriendsOnly)
     {
         if (count <= 0)
