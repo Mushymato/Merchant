@@ -78,6 +78,10 @@ public sealed class CustomerActor : NPC
                 rawDialogueText = rawDialogueText.Replace(specificEmotion, "");
                 break;
             }
+            else if (!char.IsDigit(rawDialogueText[i]))
+            {
+                break;
+            }
         }
 
         Dialogue dialogue = new(
@@ -265,7 +269,7 @@ public sealed class CustomerActor : NPC
             if (giftTaste == gift_taste_hate)
             {
                 doEmote(angryEmote);
-                state.SetNext(ActorState.Leaving, 500, LeavingTheShop);
+                LeavingTheShop();
                 return;
             }
             float bonusChanceToBuy = giftTaste == gift_taste_love ? 0.2f : 0f;

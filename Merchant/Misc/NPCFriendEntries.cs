@@ -32,8 +32,6 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
     {
         if (CxData == null)
             return true;
-        if ((context.Random ?? Random.Shared).NextSingle() > CxData.Chance)
-            return false;
         if (CxData.Condition == null)
             return true;
         return GameStateQuery.CheckConditions(CxData.Condition, context);
@@ -135,7 +133,9 @@ internal class NPCFriendEntries(Farmer player)
         for (int i = 0; i < Math.Min(ranges.Count, count); i++)
         {
             FriendEntry friend = sortedFriends[ranges[i]];
-            if (!friend.Npc.IsInvisible)
+            if (
+                !friend.Npc.IsInvisible && (friend.CxData == null || Random.Shared.NextSingle() <= friend.CxData.Chance)
+            )
             {
                 picked.Add(new(friend, entryPoint));
             }
