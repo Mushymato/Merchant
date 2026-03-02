@@ -147,10 +147,9 @@ internal class NPCFriendEntries(Farmer player)
         int bffs = Math.Max(1, maxCount / 3);
         List<CustomerActor> pickedActors = [];
         PickNRandomNPCs(ref pickedActors, entryPoint, bffs, true);
-        ModEntry.Log($"Picked {pickedActors.Count} customers (bffs {sortedFriends?.Count - bisect})");
-        maxCount -= pickedActors.Count;
-        PickNRandomNPCs(ref pickedActors, entryPoint, maxCount, false);
-        ModEntry.Log($"Picked {pickedActors.Count} customers");
+        ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers (bffs {sortedFriends?.Count - bisect})");
+        PickNRandomNPCs(ref pickedActors, entryPoint, maxCount - pickedActors.Count, false);
+        ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers");
         return pickedActors;
     }
 

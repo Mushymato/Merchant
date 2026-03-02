@@ -92,11 +92,13 @@ public sealed class ModEntry : Mod
     private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
     {
         progressData.Value = null;
+        FriendEntries.Clear();
     }
 
     private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
     {
         progressData.Value = MerchantProgressData.Read();
+        FriendEntries.Clear();
     }
 
     private void OnSaving(object? sender, SavingEventArgs e)

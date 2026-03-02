@@ -222,7 +222,7 @@ public sealed record ShopkeepBrowsing(
             return true;
         }
 
-        if (waitingActors.Count == 0 && dispatchedActors.All(actor => actor.IsLeavingOrFinished))
+        if (waitingActors.Count == 0 && dispatchedActors.All(actor => actor.IsLeavingOrFinished && !actor.IsEmoting))
         {
             ModEntry.Log("Browsing finished reason: all actors are leaving");
             state.SetAndLock(BrowsingState.Finished);

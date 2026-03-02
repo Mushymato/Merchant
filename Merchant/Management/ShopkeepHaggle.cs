@@ -106,6 +106,11 @@ public sealed record ShopkeepHaggle(
 
     private void BeginHaggleRound()
     {
+        if (ModEntry.config.HaggleAutoClick)
+        {
+            Giveup();
+            return;
+        }
         if (HaggleExpired())
         {
             state.Current = HaggleState.Picked;
@@ -220,7 +225,8 @@ public sealed record ShopkeepHaggle(
     {
         if (state.Current == HaggleState.Picked)
             return;
-        pointer = targetPointer / 2;
+        pointer = targetPointer / 3;
+        state.Current = HaggleState.Picked;
         SetupHaggleSuccess(PntToPrice(pointer));
     }
 
