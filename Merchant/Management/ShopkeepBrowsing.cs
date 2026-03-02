@@ -297,10 +297,7 @@ public sealed record ShopkeepBrowsing(
         }
         ModEntry.Log($"AddNewCustomer: {nextActor.Name}, ({waitingActors.Count} remaining)");
         dispatchedActors.Add(nextActor);
-        nextActor.currentLocation = Location;
-        nextActor.reloadSprite(true);
-        nextActor.setTileLocation(EntryPoint.ToVector2());
-        nextActor.faceDirection(0);
+        nextActor.EnterShop(Location);
         Game1.playSound(AssetManager.DoorbellCue, 1100 + (int)(300 * Random.Shared.NextSingle()));
     }
 

@@ -2,9 +2,15 @@
   "CashRegister_Name": "Cash Register",
   "CashRegister_Desc": "A cash register for managing your own shop! Place it down in a farm building to use it.",
   // default haggle dialogues
-  "Haggle_Ask": "How about {1}$ for {0}?",
-  "Haggle_Compromise": "{1}$ is a little too much...$s",
-  "Haggle_Overpriced": "{1}$!?! That's daylight robbery!$s",
+  "Haggle_Ask": "How about {1} for {0}?",
+  "Haggle_Compromise": "{1} is a little too much...$s",
+  "Haggle_Overpriced": "{1}!?! That's daylight robbery!$s",
   "Haggle_Fail": "I can't afford this...$s",
-  "Haggle_Success": "Deal! Here's {1}$.$h"
+  "Haggle_Success": "Deal! Here's {1}.$h",
+  // krobus haggle dialogues
+  "Haggle_Ask_Krobus": "{1}$ for the {0}?$8",
+  "Haggle_Compromise_Krobus": "C'mon now, we both know what {0} is worth.$8",
+  "Haggle_Overpriced_Krobus": "I could buy Zuzu City with that money.$8",
+  "Haggle_Success_Krobus": "Knew you'd come through for ya old pal.$8",
+  "Haggle_Fail_Krobus": "Ya ain't fooling no-one bud.$8",
 }

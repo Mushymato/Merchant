@@ -21,6 +21,7 @@ public abstract class BaseCustomerData
     // Will Shop
     public string? Condition { get; set; } = null;
     public float Chance { get; set; } = 1.0f;
+    public string? OverrideAppearanceId { get; set; } = null;
 
     // Haggle Dialogue
     public Dictionary<string, CustomerDialogue> Dialogue = [];

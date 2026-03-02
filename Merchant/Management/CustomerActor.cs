@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Extensions;
+using StardewValley.GameData.Characters;
 using StardewValley.Menus;
 using StardewValley.Pathfinding;
 using StardewValley.TokenizableStrings;
@@ -19,15 +20,19 @@ public sealed class CustomerActor : NPC
 
     public CustomerActor(FriendEntry sourceFriend, Point entryPoint)
         : base(
-            new AnimatedSprite(sourceFriend.Npc.Sprite.textureName.Value),
+            new AnimatedSprite(Game1.temporaryContent, sourceFriend.Npc.Sprite.textureName.Value),
             Vector2.Zero,
             sourceFriend.Npc.speed,
             sourceFriend.Npc.Name
         )
     {
-        this.modData.CopyFrom(sourceFriend.Npc.modData);
         this.sourceFriend = sourceFriend;
         this.entryPoint = entryPoint;
+
+        modData.CopyFrom(sourceFriend.Npc.modData);
+        displayName = sourceFriend.Npc.displayName;
+        Portrait = sourceFriend.Npc.Portrait;
+
         forceOneTileWide.Value = true;
         followSchedule = false;
         EventActor = true;
@@ -38,7 +43,7 @@ public sealed class CustomerActor : NPC
 
     #region social
     internal static readonly NPC dummySpeaker = new(
-        new AnimatedSprite("Characters\\Abigail", 0, 16, 16),
+        new AnimatedSprite(Game1.temporaryContent, "Characters\\Abigail", 0, 16, 16),
         Vector2.Zero,
         "",
         0,
@@ -53,21 +58,37 @@ public sealed class CustomerActor : NPC
     public Dialogue GetHaggleDialogue(NPC dummySpeaker, CustomerDialogueKind kind, params object[] substitutions)
     {
         dummySpeaker.Name = sourceFriend.Npc.Name;
-        dummySpeaker.Portrait = sourceFriend.Npc.Portrait;
-        dummySpeaker.displayName = sourceFriend.Npc.displayName;
+        dummySpeaker.Portrait = Portrait;
+        dummySpeaker.displayName = displayName;
+        string? rawDialogueText = null;
         if (sourceFriend.CxData?.TryGetDialogueText(kind, out string? dialogueText) ?? false)
         {
-            return new Dialogue(
-                dummySpeaker,
-                string.Concat(AssetManager.Asset_Strings, ":", kind.ToString()),
-                string.Format(TokenParser.ParseText(dialogueText) ?? dialogueText, substitutions)
-            );
+            rawDialogueText = string.Format(TokenParser.ParseText(dialogueText) ?? dialogueText, substitutions);
         }
-        return new Dialogue(
+        rawDialogueText ??= AssetManager.LoadString(kind.ToString(), substitutions);
+
+        // fix emotions
+        string? specificEmotion = null;
+        int maxIdx = rawDialogueText.Length - 1;
+        for (int i = maxIdx; i >= 0; i--)
+        {
+            if (rawDialogueText[i] == '$' && i < maxIdx)
+            {
+                specificEmotion = rawDialogueText[i..];
+                rawDialogueText = rawDialogueText.Replace(specificEmotion, "");
+                break;
+            }
+        }
+
+        Dialogue dialogue = new(
             dummySpeaker,
             string.Concat(AssetManager.Asset_Strings, ":", kind.ToString()),
-            AssetManager.LoadString(kind.ToString(), substitutions)
-        );
+            rawDialogueText
+        )
+        {
+            CurrentEmotion = specificEmotion,
+        };
+        return dialogue;
     }
     #endregion
 
@@ -102,6 +123,41 @@ public sealed class CustomerActor : NPC
     public (Point, int)? ForSaleBrowsing;
 
     public bool IsLeavingOrFinished => state.Current == ActorState.Leaving || state.Current == ActorState.Finished;
+
+    internal void EnterShop(GameLocation location)
+    {
+        state.Current = ActorState.Await;
+        currentLocation = location;
+        reloadSprite(true);
+        setTileLocation(entryPoint.ToVector2());
+        faceDirection(0);
+    }
+
+    public override void reloadSprite(bool onlyAppearance = false)
+    {
+        base.reloadSprite(true);
+        if (
+            sourceFriend.CxData?.OverrideAppearanceId is string apprId
+            && GetData().Appearance?.FirstOrDefault(appear => appear.Id == apprId)
+                is CharacterAppearanceData overrideAppearance
+        )
+        {
+            if (
+                !string.IsNullOrEmpty(overrideAppearance.Sprite)
+                && !TryLoadSprites(overrideAppearance.Sprite, out string error, Game1.temporaryContent)
+            )
+            {
+                ModEntry.Log($"Failed to load sprite from [{Name}].OverrideAppearanceId='{apprId}'", LogLevel.Error);
+            }
+            if (
+                !string.IsNullOrEmpty(overrideAppearance.Portrait)
+                && !TryLoadPortraits(overrideAppearance.Portrait, out error, Game1.temporaryContent)
+            )
+            {
+                ModEntry.Log($"Failed to load portrait from [{Name}].OverrideAppearanceId='{apprId}'", LogLevel.Error);
+            }
+        }
+    }
 
     public void UpdateBuyTarget(
         List<ForSaleTarget>? availableForSale,

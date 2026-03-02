@@ -26,5 +26,5 @@
   "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
   "bonus.theme-boost": "Shop Themes:",
   "quit-confirm": "Close up the shop early?",
-  "hover.bought-by": "Bought by {{chara}}.",
+  "hover.bought-by": "Bought by {{chara}}."
 }

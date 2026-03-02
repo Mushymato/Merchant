@@ -461,7 +461,7 @@ public sealed class ShopkeepGame : IMinigame
         }
         else if (state.Current == GameLoopState.Haggle)
         {
-            haggling?.Pick();
+            haggling?.Giveup();
         }
     }
 
@@ -480,6 +480,15 @@ public sealed class ShopkeepGame : IMinigame
             if (state.Current == GameLoopState.Haggle)
             {
                 haggling?.Pick();
+                return;
+            }
+        }
+
+        if (Game1.options.doesInputListContain(Game1.options.cancelButton, k))
+        {
+            if (state.Current == GameLoopState.Haggle)
+            {
+                haggling?.Giveup();
                 return;
             }
         }
