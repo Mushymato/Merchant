@@ -14,10 +14,11 @@ public sealed record ShopBonusStats(
 )
 {
     private const float FLOOR_COVERAGE_TARGET = 1 / 3f;
+    private const float FLOOR_COVERAGE_TARGET_BOUND = 225;
     public readonly float StandingDecorBonus = Math.Min(1f, StandingDecorCount / (float)TableCount);
     public readonly float FloorCoverageBonusRaw = Math.Min(
         1f,
-        FloorDecorCount / (float)(MapTileCount * FLOOR_COVERAGE_TARGET)
+        FloorDecorCount / (float)Math.Min(MapTileCount * FLOOR_COVERAGE_TARGET, FLOOR_COVERAGE_TARGET_BOUND)
     );
     public float TotalBonus => StandingDecorBonus * 0.7f + FloorCoverageBonusRaw * 0.3f;
 

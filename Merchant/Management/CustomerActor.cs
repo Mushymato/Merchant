@@ -84,10 +84,9 @@ public sealed class CustomerActor : NPC
             dummySpeaker,
             string.Concat(AssetManager.Asset_Strings, ":", kind.ToString()),
             rawDialogueText
-        )
-        {
-            CurrentEmotion = specificEmotion,
-        };
+        );
+        if (specificEmotion != null)
+            dialogue.CurrentEmotion = specificEmotion;
         return dialogue;
     }
     #endregion
