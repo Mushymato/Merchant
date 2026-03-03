@@ -5,16 +5,17 @@ namespace Merchant.Management;
 public sealed class StateManager<T>(T defaultValue, string? loggingName)
     where T : Enum
 {
+    private readonly string? loggingName = loggingName;
     public delegate void stateChanged();
     public T Current
     {
         get => field;
         set
         {
+#if DEBUG
             if (loggingName != null)
-            {
-                ModEntry.LogDebug($"STATE({loggingName}): {field} -> {value}");
-            }
+                ModEntry.Log($"STATE({loggingName}): {field} -> {value}");
+#endif
             if (Lock)
                 return;
 

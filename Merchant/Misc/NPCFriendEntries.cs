@@ -109,6 +109,7 @@ internal class NPCFriendEntries(Farmer player)
         Point entryPoint,
         int count,
         bool bestFriendsOnly,
+        List<ForSaleTarget> forSaleTargets,
         HashSet<string> excluding
     )
     {
@@ -126,7 +127,7 @@ internal class NPCFriendEntries(Farmer player)
         }
         else
         {
-            ranges = Enumerable.Range(0, bisect).ToList();
+            ranges = Enumerable.Range(0, sortedFriends.Count - 1).ToList();
         }
         if (ranges.Count == 0)
             return;
@@ -139,20 +140,27 @@ internal class NPCFriendEntries(Farmer player)
                 !friend.Npc.IsInvisible
                 && !excluding.Contains(friend.Npc.Name)
                 && (friend.CxData == null || Random.Shared.NextSingle() <= friend.CxData.Chance)
+                && forSaleTargets.Any(forSale => friend.GetGiftTasteForSaleItem(forSale) != NPC.gift_taste_hate)
             )
             {
                 picked.Add(new(friend, entryPoint));
+                excluding.Add(friend.Npc.Name);
             }
         }
     }
 
-    internal List<CustomerActor> MakeCustomerActors(int maxCount, Point entryPoint, HashSet<string> excluding)
+    internal List<CustomerActor> MakeCustomerActors(
+        int maxCount,
+        Point entryPoint,
+        List<ForSaleTarget> forSaleTargets,
+        HashSet<string> excluding
+    )
     {
         int bffs = Math.Max(1, maxCount / 3);
         List<CustomerActor> pickedActors = [];
-        PickNRandomNPCs(ref pickedActors, entryPoint, bffs, true, excluding);
+        PickNRandomNPCs(ref pickedActors, entryPoint, bffs, true, forSaleTargets, excluding);
         ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers (bffs {sortedFriends?.Count - bisect})");
-        PickNRandomNPCs(ref pickedActors, entryPoint, maxCount - pickedActors.Count, false, excluding);
+        PickNRandomNPCs(ref pickedActors, entryPoint, maxCount - pickedActors.Count, false, forSaleTargets, excluding);
         ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers");
         return pickedActors;
     }

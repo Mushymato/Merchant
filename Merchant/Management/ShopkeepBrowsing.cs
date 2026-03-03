@@ -45,7 +45,6 @@ public sealed record ShopkeepBrowsing(
     GameLocation Location,
     Farmer Player,
     Point EntryPoint,
-    List<Point> ReachableTiles,
     Queue<CustomerActor> WaitingActors,
     List<ForSaleTarget> ForSaleTargets,
     ShopBonusStats ShopBonus
@@ -67,46 +66,39 @@ public sealed record ShopkeepBrowsing(
             failReason = I18n.FailReason_InvalidMap();
             return false;
         }
-        int mapTileCount = location.Map.DisplayWidth / 64 * (location.Map.DisplayHeight / 64);
-        if (mapTileCount <= 0)
-        {
-            failReason = I18n.FailReason_InvalidMap();
-            return false;
-        }
         // location
-        if (!location.TryGetMapProperty(AssetManager.MapProp_ShopkeepContextId, out string? shopkeepThemeId))
+        ShopkeepContextData? shopkeepContextData;
+        if (location.ParentBuilding != null)
         {
-            if (location.ParentBuilding != null)
+            string shopkeepThemeId = location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepCondition);
+            shopkeepContextData = AssetManager.ShopkeepContexts.Get(shopkeepThemeId);
+
+            if (
+                location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepCondition) is string shopkeepCondition
+                && !GameStateQuery.CheckConditions(shopkeepCondition, new(location, player, null, null, Random.Shared))
+            )
             {
-                shopkeepThemeId = location.ParentBuilding.GetMetadata(AssetManager.MapProp_ShopkeepContextId);
+                failReason =
+                    location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepNotAllowedMessage)
+                    ?? I18n.FailReason_CantBeShop();
+                return false;
             }
         }
-        ShopkeepContextData? shopkeepContextData = AssetManager.ShopkeepContexts.Get(shopkeepThemeId);
-        if (
-            shopkeepContextData != null
-            && !GameStateQuery.CheckConditions(
-                shopkeepContextData.Condition,
-                new(location, player, null, null, Random.Shared)
-            )
-        )
-        {
-            failReason = shopkeepContextData.CantBeShopReason ?? I18n.FailReason_CantBeShop();
-            return false;
-        }
-        if (location.ParentBuilding == null && shopkeepContextData == null)
+        else
         {
             failReason = I18n.FailReason_NotFarmBuilding();
             return false;
         }
+
         // tile accessibility
-        if (location.warps.Count < 1)
-        {
-            failReason = I18n.FailReason_NoWarpsIn();
-            return false;
-        }
-        Warp firstWarp = location.warps[0];
         if (!location.TryGetMapPropertyAs(AssetManager.MapProp_EntryPoint, out Point entryPoint))
         {
+            if (location.warps.Count < 1)
+            {
+                failReason = I18n.FailReason_NoWarpsIn();
+                return false;
+            }
+            Warp firstWarp = location.warps[0];
             entryPoint = new(firstWarp.X, firstWarp.Y - 1);
         }
         if (!Topology.IsTileStandable(location, entryPoint))
@@ -125,7 +117,7 @@ public sealed record ShopkeepBrowsing(
         int floorDecorCount = 0;
         int standingDecorCount = location.objects.Values.Count(SObjectIsDecor);
         int unreachableTableCount = 0;
-        List<ForSaleTarget> forSaleTables = [];
+        List<ForSaleTarget> forSaleTargets = [];
         foreach (Furniture furniture in location.furniture)
         {
             if (
@@ -147,7 +139,7 @@ public sealed record ShopkeepBrowsing(
                     }
                     else
                     {
-                        forSaleTables.Add(forSale);
+                        forSaleTargets.Add(forSale);
                     }
                 }
             }
@@ -161,7 +153,7 @@ public sealed record ShopkeepBrowsing(
                 standingDecorCount += Math.Clamp(furniture.getTilesHigh() * furniture.getTilesWide() / 2, 1, 4);
             }
         }
-        if (forSaleTables.Count == 0)
+        if (forSaleTargets.Count == 0)
         {
             failReason = I18n.FailReason_NoItemsForSale();
             return false;
@@ -172,19 +164,25 @@ public sealed record ShopkeepBrowsing(
         // customers
         HashSet<string> excludingSet = location.characters.Select(chara => chara.Name).ToHashSet();
 
-        int customerCount = Math.Min(32, Math.Min(forSaleTables.Count, 4 + (ModEntry.ProgressData?.Logs.Count ?? 0)));
+        int customerCount = Math.Min(32, Math.Min(forSaleTargets.Count, 4 + (ModEntry.ProgressData?.Logs.Count ?? 0)));
         List<CustomerActor> waitingActors = ModEntry.FriendEntries.MakeCustomerActors(
             customerCount,
             entryPoint,
+            forSaleTargets,
             excludingSet
         );
+        if (waitingActors.Count == 0)
+        {
+            failReason = I18n.FailReason_NoItemsForSale();
+            return false;
+        }
         Random.Shared.ShuffleInPlace(waitingActors);
 
         ShopBonusStats bonusStats = new(
             standingDecorCount,
-            forSaleTables.Count,
+            forSaleTargets.Count,
             floorDecorCount,
-            mapTileCount,
+            reachableTiles.Count,
             unreachableTableCount,
             shopkeepContextData
         );
@@ -193,9 +191,8 @@ public sealed record ShopkeepBrowsing(
             location,
             player,
             entryPoint,
-            reachableTiles,
             new Queue<CustomerActor>(waitingActors),
-            forSaleTables,
+            forSaleTargets,
             bonusStats
         );
         return true;
@@ -311,7 +308,7 @@ public sealed record ShopkeepBrowsing(
         {
             return;
         }
-        ModEntry.Log($"AddNewCustomer: {nextActor.Name}, ({WaitingActors.Count} remaining)");
+        ModEntry.Log($"AddNewCustomer: '{nextActor.Name}' ({WaitingActors.Count} remaining)");
         dispatchedActors.Add(nextActor);
         nextActor.EnterShop(Location);
         Game1.playSound(AssetManager.DoorbellCue, 1100 + (int)(300 * Random.Shared.NextSingle()));

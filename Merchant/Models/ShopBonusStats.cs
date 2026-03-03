@@ -13,7 +13,7 @@ public sealed record ShopBonusStats(
     ShopkeepContextData? ShopkeepData
 )
 {
-    private const float FLOOR_COVERAGE_TARGET = 1 / 3f;
+    private const float FLOOR_COVERAGE_TARGET = 2 / 3f;
     private const float FLOOR_COVERAGE_TARGET_BOUND = 225;
     public readonly float StandingDecorBonus = Math.Min(1f, StandingDecorCount / (float)TableCount);
     public readonly float FloorCoverageBonusRaw = Math.Min(
@@ -52,7 +52,7 @@ public sealed record ShopBonusStats(
         sb.Append(
             I18n.Bonus_RugFloor_Values(
                 FloorDecorCount,
-                MapTileCount,
+                (int)(MapTileCount * FLOOR_COVERAGE_TARGET),
                 $"{FloorCoverageBonusRaw:P2}",
                 FloorCoverageBonusRaw >= 1f ? I18n.Bonus_Capped() : ""
             )
