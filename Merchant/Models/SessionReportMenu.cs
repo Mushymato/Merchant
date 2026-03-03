@@ -28,7 +28,7 @@ public sealed class SessionReportMenu : IClickableMenu
         {
             drawToolTip(
                 b,
-                I18n.Hover_BoughtBy(CharacterName),
+                I18n.Report_Hover_BoughtBy(CharacterName),
                 SoldItem.DisplayName,
                 SoldItem,
                 moneyAmountToShowAtBottom: (int)Record.Price
@@ -86,11 +86,15 @@ public sealed class SessionReportMenu : IClickableMenu
         return new(sessionLog);
     }
 
+    private readonly string totalEarningsString;
+
     public SessionReportMenu(ShopkeepSessionLog sessionLog)
         : base(0, 0, CELL_WIDTH * COLS, CELL_HEIGHT * ROWS, true)
     {
+        this.totalEarningsString = I18n.Report_TotalEarnings(sessionLog.Earnings);
+
         int maxY = 0;
-        for (int row = 0; row < ROWS; row++)
+        for (int row = 1; row < ROWS; row++)
         {
             for (int col = 0; col < COLS; col++)
             {
@@ -118,7 +122,6 @@ public sealed class SessionReportMenu : IClickableMenu
                 );
             }
         }
-        height = maxY + CELL_HEIGHT;
 
         foreach (SoldRecord record in sessionLog.Sales)
         {
@@ -177,7 +180,7 @@ public sealed class SessionReportMenu : IClickableMenu
         {
             SoldRecordComponent comp = soldRecordCC[i];
             comp.bounds.X = xPositionOnScreen + i % COLS * CELL_WIDTH;
-            comp.bounds.Y = yPositionOnScreen + i / COLS * CELL_HEIGHT;
+            comp.bounds.Y = yPositionOnScreen + (i / COLS + 1) * CELL_HEIGHT;
         }
     }
 
@@ -208,6 +211,7 @@ public sealed class SessionReportMenu : IClickableMenu
     public override void draw(SpriteBatch b)
     {
         drawTextureBox(b, xPositionOnScreen - 20, yPositionOnScreen - 20, width + 40, height + 40, Color.White);
+        SpriteText.drawString(b, totalEarningsString, xPositionOnScreen, yPositionOnScreen);
         foreach ((SoldRecordComponent comp, SoldRecordDisplay displ) in IterateVisibleSoldRecord())
         {
             comp.Draw(b, displ);

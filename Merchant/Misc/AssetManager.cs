@@ -15,7 +15,7 @@ namespace Merchant.Misc;
 internal static class AssetManager
 {
     private const string Asset_TextureCraftables = $"{ModEntry.ModId}/craftables";
-    internal const string Asset_Strings = $"{ModEntry.ModId}\\Strings";
+    internal const string Asset_Strings = $"{ModEntry.ModId}.i18n";
     internal const string Asset_CustomerData = $"{ModEntry.ModId}/Customers";
     internal const string Asset_ShopkeepLocationData = $"{ModEntry.ModId}/ShopkeepLocations";
     internal const string CashRegisterId = $"{ModEntry.ModId}_CashRegister";
@@ -98,6 +98,10 @@ internal static class AssetManager
         {
             e.Edit(Edit_AudioChanges, AssetEditPriority.Default);
         }
+        else if (name.IsEquivalentTo("Data/Events/FishShop"))
+        {
+            e.Edit(Edit_Events_FishShop, AssetEditPriority.Default);
+        }
         else if (name.IsEquivalentTo(Asset_ShopkeepLocationData))
         {
             e.LoadFromModFile<Dictionary<string, ShopkeepLocationData>>(
@@ -152,6 +156,13 @@ internal static class AssetManager
                 continue;
             data.TryAdd(key, new CustomerData());
         }
+    }
+
+    private static void Edit_Events_FishShop(IAssetData asset)
+    {
+        IDictionary<string, string> data = asset.AsDictionary<string, string>().Data;
+        data[$"{ModEntry.ModId}_WillyWalrus"] =
+            $"distantBanjo/6 8/farmer 5 9 0 Willy 5 4 2/setSkipActions AddItem (BC)mushymato.Merchant_CashRegister/skippable/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.01\"/faceDirection farmer 2/playsound doorClose/textAboveHead Willy \"[LocalizedText {Asset_Strings}:WillyWalrus.Willy.02]\"/pause 1000/faceDirection farmer 0/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.03\"/showFrame Willy 25/positionOffset Willy 0 8 true/move farmer 0 -3 0/textAboveHead Willy \"[LocalizedText {Asset_Strings}:WillyWalrus.Willy.04]\"/showFrame Willy 0/positionOffset Willy 0 -8 true/pause 1500/faceDirection farmer 2/itemAboveHead (BC)mushymato.Merchant_CashRegister/setSkipActions null/pause 3300/addItem (BC)mushymato.Merchant_CashRegister/message \"[LocalizedText {Asset_Strings}:WillyWalrus.Message]\"/faceDirection farmer 0/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.05\"/emote farmer 8/emote Willy 40/faceDirection Willy 1/pause 500/faceDirection Willy 3/pause 500/faceDirection Willy 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.06\"/quickQuestion #[LocalizedText {Asset_Strings}:WillyWalrus.Player.A1]#[LocalizedText {Asset_Strings}:WillyWalrus.Player.A2](break)speak Willy \"{Asset_Strings}:WillyWalrus.Willy.R1\"(break)speak Willy \"{Asset_Strings}:WillyWalrus.Willy.R2\"/speed Willy 1/advancedMove Willy false -3 0 0 4 2 0 0 -2 1 1/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.07\"/faceDirection farmer 3 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.08\"/faceDirection farmer 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.09\"/faceDirection farmer 3 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.10\"/emote farmer 40/speed Willy 1/advancedMove Willy false 0 1 2 0 1 1/faceDirection farmer 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.11\"/faceDirection Willy 0 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.12\"/emote farmer 40/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.13\"/emote Willy 32/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.14\"/pause 2000/end";
     }
 
     private static void Edit_AudioChanges(IAssetData asset)

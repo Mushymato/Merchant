@@ -4,7 +4,7 @@
   "fail-reason.cant-be-shop": "This building can't be a shop.",
   "fail-reason.no-warps-in": "This building has no entrance for customers.",
   "fail-reason.invalid-map": "This building's map is invalid.",
-  "fail-reason.warp-blocked": "This building's entrance is not passable by customers.",
+  "fail-reason.warp-blocked": "This building's entrance tile is not passable by customers.",
   "fail-reason.no-reachable": "This building has no walkable tiles for customers.",
   "fail-reason.not-farm-building": "You can only open a shop in farm buildings (e.g. a shed).",
   "fail-reason.no-items-for-sale": "Put out some items on tables for sale, and make sure customers can reach them.",
@@ -26,5 +26,6 @@
   "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
   "bonus.theme-boost": "Shop Themes:",
   "quit-confirm": "Close up the shop early?",
-  "hover.bought-by": "Bought by {{chara}}."
+  "report.total-earnings": "Total Earnings: {{totalEarnings}}$",
+  "report.hover.bought-by": "Bought by {{chara}}."
 }

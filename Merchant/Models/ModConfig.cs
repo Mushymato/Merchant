@@ -39,7 +39,11 @@ public sealed class ModConfig
         gmcm.AddBoolOption(
             mod,
             () => AllowUnmetCustomers,
-            (value) => AllowUnmetCustomers = value,
+            (value) =>
+            {
+                AllowUnmetCustomers = value;
+                ModEntry.FriendEntries.Reset();
+            },
             I18n.Config_UnmetNpc_Name,
             I18n.Config_UnmetNpc_Desc
         );

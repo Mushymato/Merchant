@@ -104,7 +104,13 @@ public sealed record TouristFriendEntry(NPC Npc, TouristData TrstData) : BaseFri
 internal class NPCFriendEntries(Farmer player)
 {
     private List<FriendEntry>? sortedFriends = null;
-    private int bisect = 0;
+    private int bisect = -1;
+
+    internal void Reset()
+    {
+        sortedFriends = null;
+        bisect = -1;
+    }
 
     private void PickNRandomNPCs(ref List<CustomerActor> picked, Point entryPoint, int count, bool bestFriendsOnly)
     {

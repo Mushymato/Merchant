@@ -1,4 +1,5 @@
 using Merchant.Misc;
+using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -147,7 +148,8 @@ public sealed class ShopkeepGame : IMinigame
 
         Game1.activeClickableMenu = null;
         Game1.onScreenMenus.RemoveWhere(menu => menu is Toolbar);
-        Game1.changeMusicTrack("event2", false, MusicContext.MiniGame);
+
+        PlayMusic("event2");
 
         // ban other players from entering (hopefully)
         if (location.ParentBuilding.GetData() is BuildingData buildingData)
@@ -164,6 +166,13 @@ public sealed class ShopkeepGame : IMinigame
         player.faceDirection(2);
 
         Game1.currentMinigame = this;
+    }
+
+    private void PlayMusic(string musicName)
+    {
+        Game1.stopMusicTrack(MusicContext.MiniGame);
+        if (!location.IsMiniJukeboxPlaying())
+            Game1.changeMusicTrack(musicName, false, MusicContext.MiniGame);
     }
 
     public void unload()
@@ -294,29 +303,54 @@ public sealed class ShopkeepGame : IMinigame
         }
         else
         {
-            // allow panning viewport with keys
+            // allow panning viewport with WASD keys
             int panX = 0;
             int panY = 0;
-            Keys[] pressedKeys = Game1.oldKBState.GetPressedKeys();
-            foreach (Keys k in pressedKeys)
+            if (Game1.options.gamepadControls)
             {
-                if (Game1.options.doesInputListContain(Game1.options.moveDownButton, k))
-                {
-                    panY += 4;
-                }
-                else if (Game1.options.doesInputListContain(Game1.options.moveRightButton, k))
-                {
-                    panX += 4;
-                }
-                else if (Game1.options.doesInputListContain(Game1.options.moveUpButton, k))
-                {
-                    panY -= 4;
-                }
-                else if (Game1.options.doesInputListContain(Game1.options.moveLeftButton, k))
+                GamePadState gamePadState = Game1.input.GetGamePadState();
+                if (gamePadState.ThumbSticks.Left.X < -0.25)
                 {
                     panX -= 4;
                 }
+                else if (gamePadState.ThumbSticks.Left.X > 0.25)
+                {
+                    panX += 4;
+                }
+                if (gamePadState.ThumbSticks.Left.Y > 0.25)
+                {
+                    panY -= 4;
+                }
+                else if (gamePadState.ThumbSticks.Left.Y < -0.25)
+                {
+                    panY += 4;
+                }
             }
+            else
+            {
+                Keys[] pressedKeys = Game1.oldKBState.GetPressedKeys();
+                foreach (Keys k in pressedKeys)
+                {
+                    if (Game1.options.doesInputListContain(Game1.options.moveDownButton, k))
+                    {
+                        panY += 4;
+                    }
+                    else if (Game1.options.doesInputListContain(Game1.options.moveRightButton, k))
+                    {
+                        panX += 4;
+                    }
+                    else if (Game1.options.doesInputListContain(Game1.options.moveUpButton, k))
+                    {
+                        panY -= 4;
+                    }
+                    else if (Game1.options.doesInputListContain(Game1.options.moveLeftButton, k))
+                    {
+                        panX -= 4;
+                    }
+                }
+            }
+
+            // allow panning
             // set pan if changed
             if (panX != 0 || panY != 0)
             {
@@ -327,8 +361,7 @@ public sealed class ShopkeepGame : IMinigame
 
     private void PrepareReport()
     {
-        Game1.stopMusicTrack(MusicContext.MiniGame);
-        Game1.changeMusicTrack("harveys_theme_jazz", false, MusicContext.MiniGame);
+        PlayMusic("harveys_theme_jazz");
         Game1.activeClickableMenu = browsing.FinalizeAndReport();
         state.SetAndLock(GameLoopState.Report);
     }
