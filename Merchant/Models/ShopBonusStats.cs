@@ -65,7 +65,7 @@ public sealed record ShopBonusStats(
                 $"{totalBonus + ShopkeepHaggle.MAX_MULT:0.00}"
             )
         );
-        if (ShopkeepData != null && ShopkeepData.ThemedBoosts.Count > 0)
+        if (ShopkeepData != null && ShopkeepData.ThemedBoosts?.Count > 0)
         {
             sb.Append(LINEBREAK);
             sb.Append('^');

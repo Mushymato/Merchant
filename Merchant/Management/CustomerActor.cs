@@ -160,6 +160,7 @@ public sealed class CustomerActor : NPC
                 ModEntry.Log($"Failed to load portrait from [{Name}].OverrideAppearanceId='{apprId}'", LogLevel.Error);
             }
         }
+        Portrait ??= Game1.mouseCursors;
     }
 
     public void UpdateBuyTarget(

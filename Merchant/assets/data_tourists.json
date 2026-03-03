@@ -1,0 +1,13 @@
+{
+  "mushymato.Merchant_Marcello": {
+    "AppearsDuring": [
+      "mushymato.Merchant_BooksellingDay"
+    ],
+    "DisplayName": "[LocalizedText Strings/NPCNames:Marcello]",
+    "Sprite": "Characters/Marcello",
+    "Size": {
+      "X": 16,
+      "Y": 32
+    }
+  }
+}

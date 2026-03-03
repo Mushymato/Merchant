@@ -1,0 +1,13 @@
+{
+  "Default": {
+    "TouristMinCount": 1,
+    "TouristMaxCount": 1
+  },
+  "mushymato.Merchant_BooksellingDay": {
+    "Condition": "mushymato.Merchant_BOOK_SELLER_IN_TOWN",
+    "DisplayName": "[LocalizedText mushymato.Merchant.i18n:Tourism_BooksellerDay]",
+    "DesiredContextTags": [
+      "book_item"
+    ]
+  }
+}

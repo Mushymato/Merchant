@@ -172,7 +172,7 @@ internal class NPCFriendEntries(Farmer player)
                 }
                 FriendEntry friendEntry = new(
                     npc,
-                    AssetManager.GetCustomerData(npc.Name),
+                    AssetManager.Customers.Get(npc.Name),
                     friendship,
                     Utility.GetMaximumHeartsForCharacter(npc)
                 );

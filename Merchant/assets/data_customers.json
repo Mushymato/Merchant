@@ -3,12 +3,12 @@
     "Chance": 0.3,
     "OverrideAppearanceId": "MovieTheater",
     "Dialogue": {
-      "Thug": {
-        "Haggle_Ask": "[LocalizedText mushymato.Merchant\\Strings:Haggle_Ask_Krobus]",
-        "Haggle_Compromise": "[LocalizedText mushymato.Merchant\\Strings:Haggle_Compromise_Krobus]",
-        "Haggle_Overpriced": "[LocalizedText mushymato.Merchant\\Strings:Haggle_Overpriced_Krobus]",
-        "Haggle_Success": "[LocalizedText mushymato.Merchant\\Strings:Haggle_Success_Krobus]",
-        "Haggle_Fail": "[LocalizedText mushymato.Merchant\\Strings:Haggle_Fail_Krobus]"
+      "mushymato.Merchant_Thug": {
+        "Haggle_Ask": "[LocalizedText mushymato.Merchant.i18n:Haggle_Ask_Krobus]",
+        "Haggle_Compromise": "[LocalizedText mushymato.Merchant.i18n:Haggle_Compromise_Krobus]",
+        "Haggle_Overpriced": "[LocalizedText mushymato.Merchant.i18n:Haggle_Overpriced_Krobus]",
+        "Haggle_Success": "[LocalizedText mushymato.Merchant.i18n:Haggle_Success_Krobus]",
+        "Haggle_Fail": "[LocalizedText mushymato.Merchant.i18n:Haggle_Fail_Krobus]"
       }
     }
   },

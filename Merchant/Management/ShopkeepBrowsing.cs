@@ -81,7 +81,7 @@ public sealed record ShopkeepBrowsing(
                 shopkeepThemeId = location.ParentBuilding.GetMetadata(AssetManager.MapProp_ShopkeepContextId);
             }
         }
-        ShopkeepContextData? shopkeepContextData = AssetManager.GetShopkeepContextData(shopkeepThemeId);
+        ShopkeepContextData? shopkeepContextData = AssetManager.ShopkeepContexts.Get(shopkeepThemeId);
         if (
             shopkeepContextData != null
             && !GameStateQuery.CheckConditions(

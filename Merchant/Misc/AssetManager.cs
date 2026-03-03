@@ -11,13 +11,43 @@ using StardewValley.GameData.Shops;
 
 namespace Merchant.Misc;
 
+internal sealed class CachedLazyLoader<T>(string assetName, string? additionallyInvalidateOn = null)
+{
+    private Dictionary<string, T>? cachedData = null;
+
+    public T? Get(string? key)
+    {
+        if (key == null)
+            return default;
+        cachedData ??= Game1.content.Load<Dictionary<string, T>>(assetName);
+        if (cachedData.TryGetValue(key, out T? data))
+            return data;
+        return default;
+    }
+
+    public void Invalidate(IReadOnlySet<IAssetName> names)
+    {
+        if (
+            names.Any(name =>
+                name.IsEquivalentTo(assetName)
+                || additionallyInvalidateOn == null
+                || name.IsEquivalentTo(additionallyInvalidateOn)
+            )
+        )
+        {
+            cachedData = null;
+        }
+    }
+}
+
 internal static class AssetManager
 {
     private const string Asset_TextureCraftables = $"{ModEntry.ModId}/craftables";
     internal const string Asset_Strings = $"{ModEntry.ModId}.i18n";
     internal const string Asset_CustomerData = $"{ModEntry.ModId}/Customers";
     internal const string Asset_ShopkeepContextData = $"{ModEntry.ModId}/ShopkeepContexts";
-    internal const string Asset_TourismData = $"{ModEntry.ModId}/Customers";
+    internal const string Asset_TourismWavesData = $"{ModEntry.ModId}/TourismWaves";
+    internal const string Asset_Tourists = $"{ModEntry.ModId}/Tourists";
 
     internal const string CashRegisterId = $"{ModEntry.ModId}_CashRegister";
     internal const string CashRegisterQId = $"(BC){ModEntry.ModId}_CashRegister";
@@ -29,33 +59,26 @@ internal static class AssetManager
 
     private const AssetEditPriority ReallyEarly = AssetEditPriority.Early - 100;
 
-    private static Dictionary<string, CustomerData>? customerData = null;
-
-    public static CustomerData? GetCustomerData(string key)
-    {
-        customerData ??= Game1.content.Load<Dictionary<string, CustomerData>>(Asset_CustomerData);
-        if (customerData.TryGetValue(key, out CustomerData? data))
-            return data;
-        return null;
-    }
-
-    private static Dictionary<string, ShopkeepContextData>? shopkeepLocData = null;
-
-    public static ShopkeepContextData? GetShopkeepContextData(string? key)
-    {
-        if (key == null)
-            return null;
-        shopkeepLocData ??= Game1.content.Load<Dictionary<string, ShopkeepContextData>>(Asset_ShopkeepContextData);
-        if (shopkeepLocData.TryGetValue(key, out ShopkeepContextData? data))
-            return data;
-        return null;
-    }
-
     public static void Register()
     {
         ModEntry.help.Events.Content.AssetRequested += OnAssetRequested;
         ModEntry.help.Events.Content.AssetsInvalidated += OnAssetInvalidated;
     }
+
+    #region lazy loaders
+    internal static readonly CachedLazyLoader<CustomerData> Customers = new(Asset_CustomerData);
+    internal static readonly CachedLazyLoader<ShopkeepContextData> ShopkeepContexts = new(Asset_ShopkeepContextData);
+    internal static readonly CachedLazyLoader<TourismWaveData> TourismWaves = new(Asset_TourismWavesData);
+    internal static readonly CachedLazyLoader<TouristData> Tourists = new(Asset_Tourists);
+
+    private static void OnAssetInvalidated(object? sender, AssetsInvalidatedEventArgs e)
+    {
+        Customers.Invalidate(e.NamesWithoutLocale);
+        ShopkeepContexts.Invalidate(e.NamesWithoutLocale);
+        TourismWaves.Invalidate(e.NamesWithoutLocale);
+        Tourists.Invalidate(e.NamesWithoutLocale);
+    }
+    #endregion
 
     internal static string LoadString(string key) => Game1.content.LoadString($"{Asset_Strings}:{key}");
 
@@ -64,26 +87,6 @@ internal static class AssetManager
 
     internal static string LoadStringReturnNullIfNotFound(string key, params object[] substitutions) =>
         Game1.content.LoadStringReturnNullIfNotFound($"{Asset_Strings}:{key}", substitutions);
-
-    private static void OnAssetInvalidated(object? sender, AssetsInvalidatedEventArgs e)
-    {
-        if (
-            e.NamesWithoutLocale.Any(name =>
-                name.IsEquivalentTo(Asset_CustomerData) || name.IsEquivalentTo("Data/Characters")
-            )
-        )
-        {
-            customerData = null;
-        }
-        if (
-            e.NamesWithoutLocale.Any(name =>
-                name.IsEquivalentTo(Asset_ShopkeepContextData) || name.IsEquivalentTo("Data/Buildings")
-            )
-        )
-        {
-            shopkeepLocData = null;
-        }
-    }
 
     public static void OnAssetRequested(object? sender, AssetRequestedEventArgs e)
     {
@@ -120,6 +123,20 @@ internal static class AssetManager
             );
             e.Edit(Edit_CustomerData, ReallyEarly);
         }
+        else if (name.IsEquivalentTo(Asset_TourismWavesData))
+        {
+            e.LoadFromModFile<Dictionary<string, TourismWaveData>>(
+                "assets/data_tourism_waves.json",
+                AssetLoadPriority.Exclusive
+            );
+        }
+        else if (name.IsEquivalentTo(Asset_Tourists))
+        {
+            e.LoadFromModFile<Dictionary<string, TourismWaveData>>(
+                "assets/data_tourists.json",
+                AssetLoadPriority.Exclusive
+            );
+        }
         else if (name.IsEquivalentTo(Asset_TextureCraftables))
         {
             e.LoadFromModFile<Texture2D>("assets/tx_craftables.png", AssetLoadPriority.Low);
@@ -152,7 +169,7 @@ internal static class AssetManager
     private static void Edit_Events_FishShop(IAssetData asset)
     {
         IDictionary<string, string> data = asset.AsDictionary<string, string>().Data;
-        data[$"{ModEntry.ModId}_WillyWalrus"] =
+        data[$"{ModEntry.ModId}_WillyWalrus/NpcVisibleHere Willy/EarnedMoney 25000"] =
             $"distantBanjo/6 8/farmer 5 9 0 Willy 5 4 2/setSkipActions AddItem (BC)mushymato.Merchant_CashRegister/skippable/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.01\"/faceDirection farmer 2/playsound doorClose/textAboveHead Willy \"[LocalizedText {Asset_Strings}:WillyWalrus.Willy.02]\"/pause 1000/faceDirection farmer 0/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.03\"/showFrame Willy 25/positionOffset Willy 0 8 true/move farmer 0 -3 0/textAboveHead Willy \"[LocalizedText {Asset_Strings}:WillyWalrus.Willy.04]\"/showFrame Willy 0/positionOffset Willy 0 -8 true/pause 1500/faceDirection farmer 2/itemAboveHead (BC)mushymato.Merchant_CashRegister/setSkipActions null/pause 3300/addItem (BC)mushymato.Merchant_CashRegister/message \"[LocalizedText {Asset_Strings}:WillyWalrus.Message]\"/faceDirection farmer 0/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.05\"/emote farmer 8/emote Willy 40/faceDirection Willy 1/pause 500/faceDirection Willy 3/pause 500/faceDirection Willy 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.06\"/quickQuestion #[LocalizedText {Asset_Strings}:WillyWalrus.Player.A1]#[LocalizedText {Asset_Strings}:WillyWalrus.Player.A2](break)speak Willy \"{Asset_Strings}:WillyWalrus.Willy.R1\"(break)speak Willy \"{Asset_Strings}:WillyWalrus.Willy.R2\"/speed Willy 1/advancedMove Willy false -3 0 0 4 2 0 0 -2 1 1/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.07\"/faceDirection farmer 3 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.08\"/faceDirection farmer 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.09\"/faceDirection farmer 3 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.10\"/emote farmer 40/speed Willy 1/advancedMove Willy false 0 1 2 0 1 1/faceDirection farmer 2 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.11\"/faceDirection Willy 0 true/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.12\"/emote farmer 40/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.13\"/emote Willy 32/speak Willy \"{Asset_Strings}:WillyWalrus.Willy.14\"/pause 2000/end";
     }
 
