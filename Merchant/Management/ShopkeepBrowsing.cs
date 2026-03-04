@@ -181,6 +181,7 @@ public sealed record ShopkeepBrowsing(
             forSaleTargets,
             excludingSet
         );
+        ModEntry.Log($"Picked {waitingActors.Count}/{customerCount} actors");
         Random.Shared.ShuffleInPlace(waitingActors);
 
         ShopBonusStats bonusStats = new(

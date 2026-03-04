@@ -191,7 +191,9 @@ public sealed record ShopkeepHaggle(
         state.Current = HaggleState.Picked;
         uint pickedPrice = PntToPrice(pointer);
         uint targetPrice = PntToPrice(targetPointer);
-        ModEntry.Log($"Pick: {pointer}({pickedPrice}) vs {targetPointer}({targetPrice})");
+        ModEntry.Log(
+            $"Pick: {pointer}({pickedPrice}) vs {targetPointer}({targetPrice}) {leewayPrice} {targetOverRange}"
+        );
 
         if (pickedPrice <= targetPrice + leewayPrice)
         {
@@ -280,7 +282,7 @@ public sealed record ShopkeepHaggle(
     private Vector2 haggleBarCapPos = Vector2.Zero;
     private Vector2 targetPointerPos = Vector2.Zero;
     private Rectangle remainingTriesBounds = Rectangle.Empty;
-    private Rectangle buyerMugShotRect = Buyer.sourceFriend.Npc.getMugShotSourceRect();
+    private Rectangle buyerMugShotRect = Buyer.sourceFriend.MugShotSourceRect;
     private Rectangle sourceRectHaggleBarIconBox = sourceRectHaggleBarNormalIconBox;
 
     private static readonly Rectangle sourceRectHaggleBarNormalIconBox = new(293, 360, 26, 24);

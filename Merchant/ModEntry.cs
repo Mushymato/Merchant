@@ -8,8 +8,6 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 using StardewValley;
-using StardewValley.Objects;
-using StardewValley.Triggers;
 
 namespace Merchant;
 
@@ -26,8 +24,8 @@ public sealed class ModEntry : Mod
     internal static ModConfig config = null!;
     private static readonly PerScreen<MerchantProgressData?> progressData = new();
     internal static MerchantProgressData? ProgressData => progressData.Value;
-    private static readonly PerScreen<NPCFriendEntries?> friendEntries = new();
-    internal static NPCFriendEntries FriendEntries => friendEntries.Value ??= new NPCFriendEntries(Game1.player);
+    private static readonly PerScreen<CachedFriendEntries?> friendEntries = new();
+    internal static CachedFriendEntries FriendEntries => friendEntries.Value ??= new CachedFriendEntries(Game1.player);
 
     internal static bool HasBETAS = false;
 
@@ -44,6 +42,7 @@ public sealed class ModEntry : Mod
         config = help.ReadConfig<ModConfig>();
         help.Events.GameLoop.GameLaunched += OnGameLaunched;
         help.Events.GameLoop.SaveLoaded += OnSaveLoaded;
+        help.Events.GameLoop.DayEnding += OnDayEnding;
         help.Events.GameLoop.ReturnedToTitle += OnReturnedToTitle;
         help.Events.GameLoop.Saving += OnSaving;
         help.Events.Player.Warped += OnWarped;
@@ -111,6 +110,10 @@ public sealed class ModEntry : Mod
     private void OnSaving(object? sender, SavingEventArgs e)
     {
         progressData.Value?.Write();
+    }
+
+    private void OnDayEnding(object? sender, DayEndingEventArgs e)
+    {
         friendEntries.Value?.ResetFriends();
     }
 

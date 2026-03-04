@@ -25,7 +25,7 @@ internal sealed class CachedLazyLoader<T>(string assetName, string? additionally
         return default;
     }
 
-    public void Invalidate(IReadOnlySet<IAssetName> names)
+    public bool Invalidate(IReadOnlySet<IAssetName> names)
     {
         if (
             names.Any(name =>
@@ -36,7 +36,9 @@ internal sealed class CachedLazyLoader<T>(string assetName, string? additionally
         )
         {
             cachedData = null;
+            return true;
         }
+        return false;
     }
 }
 

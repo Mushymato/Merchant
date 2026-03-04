@@ -124,19 +124,25 @@ public sealed class SessionReportMenu : IClickableMenu
         {
             Item soldItem = record.CreateReprItem();
             string characterName = record.Buyer;
-            Texture2D sprite;
+            string? SpriteAssetName = null;
             Rectangle mugshotSourceRect;
-            if (ModEntry.FriendEntries.TryGetFriendByName(record.Buyer, out NPC? npc))
+            if (ModEntry.FriendEntries.TryGetFriendByName(record.Buyer, out FriendEntry? friend))
             {
-                characterName = npc.displayName;
-                sprite = npc.Sprite.Texture;
-                mugshotSourceRect = npc.getMugShotSourceRect();
+                characterName = friend.DisplayName;
+                SpriteAssetName = friend.SpriteAssetName;
+                mugshotSourceRect = friend.MugShotSourceRect;
             }
             else
             {
-                sprite = Game1.content.Load<Texture2D>("Characters/Monsters/Skeleton");
                 mugshotSourceRect = new(0, 0, 16, 24);
             }
+
+            Texture2D sprite;
+            if (!string.IsNullOrEmpty(SpriteAssetName) && Game1.content.DoesAssetExist<Texture2D>(SpriteAssetName))
+                sprite = Game1.content.Load<Texture2D>(SpriteAssetName);
+            else
+                sprite = Game1.content.Load<Texture2D>("Characters/Monsters/Skeleton");
+
             soldRecordDisplays.Add(new(record, soldItem, characterName, sprite, mugshotSourceRect));
         }
 

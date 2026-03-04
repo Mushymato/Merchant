@@ -16,28 +16,19 @@ public sealed class CustomerActor : NPC
     internal static readonly Event BogusEvent = new();
     #region make
     private readonly Point entryPoint;
-    internal readonly FriendEntry sourceFriend;
+    internal readonly BaseFriendEntry sourceFriend;
 
-    public CustomerActor(FriendEntry sourceFriend, Point entryPoint)
-        : base(
-            new AnimatedSprite(Game1.temporaryContent, sourceFriend.Npc.Sprite.textureName.Value),
-            Vector2.Zero,
-            sourceFriend.Npc.speed,
-            sourceFriend.Npc.Name
-        )
+    public CustomerActor(BaseFriendEntry sourceFriend, Point entryPoint)
+        : base(new(Game1.content, sourceFriend.SpriteAssetName), Vector2.Zero, 2, sourceFriend.Name)
     {
         this.sourceFriend = sourceFriend;
         this.entryPoint = entryPoint;
-
-        modData.CopyFrom(sourceFriend.Npc.modData);
-        displayName = sourceFriend.Npc.displayName;
-        Portrait = sourceFriend.Npc.Portrait;
 
         forceOneTileWide.Value = true;
         followSchedule = false;
         EventActor = true;
         collidesWithOtherCharacters.Value = false;
-        state = new(ActorState.Await, $"{nameof(ActorState)}[{sourceFriend.Npc.Name}]");
+        state = new(ActorState.Await, $"{nameof(ActorState)}[{sourceFriend.Name}]");
     }
     #endregion
 
@@ -57,11 +48,11 @@ public sealed class CustomerActor : NPC
 
     public Dialogue GetHaggleDialogue(NPC dummySpeaker, CustomerDialogueKind kind, params object[] substitutions)
     {
-        dummySpeaker.Name = sourceFriend.Npc.Name;
+        dummySpeaker.Name = sourceFriend.Name;
         dummySpeaker.Portrait = Portrait;
         dummySpeaker.displayName = displayName;
         string? rawDialogueText = null;
-        if (sourceFriend.CxData?.TryGetDialogueText(kind, out string? dialogueText) ?? false)
+        if (sourceFriend.BaseCxData?.TryGetDialogueText(kind, out string? dialogueText) ?? false)
         {
             rawDialogueText = string.Format(TokenParser.ParseText(dialogueText) ?? dialogueText, substitutions);
         }
@@ -139,27 +130,7 @@ public sealed class CustomerActor : NPC
     public override void reloadSprite(bool onlyAppearance = false)
     {
         base.reloadSprite(true);
-        if (
-            sourceFriend.CxData?.OverrideAppearanceId is string apprId
-            && GetData().Appearance?.FirstOrDefault(appear => appear.Id == apprId)
-                is CharacterAppearanceData overrideAppearance
-        )
-        {
-            if (
-                !string.IsNullOrEmpty(overrideAppearance.Sprite)
-                && !TryLoadSprites(overrideAppearance.Sprite, out string error, Game1.temporaryContent)
-            )
-            {
-                ModEntry.Log($"Failed to load sprite from [{Name}].OverrideAppearanceId='{apprId}'", LogLevel.Error);
-            }
-            if (
-                !string.IsNullOrEmpty(overrideAppearance.Portrait)
-                && !TryLoadPortraits(overrideAppearance.Portrait, out error, Game1.temporaryContent)
-            )
-            {
-                ModEntry.Log($"Failed to load portrait from [{Name}].OverrideAppearanceId='{apprId}'", LogLevel.Error);
-            }
-        }
+        sourceFriend.ApplyChangesToActor(this);
         Portrait ??= Game1.mouseCursors;
     }
 

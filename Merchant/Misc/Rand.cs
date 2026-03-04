@@ -14,12 +14,11 @@ public static class Rand
         }
     }
 
-    public static List<int> GetShuffledIdx(this Random rand, int startingIdx, int listSize, int maxCount)
+    public static List<int> GetShuffledIdx(this Random rand, int startingIdx, int listSize)
     {
-        if (maxCount <= 0 || startingIdx >= listSize)
+        if (startingIdx >= listSize)
             return [];
-        int targetMax = Math.Min(listSize - startingIdx, maxCount);
-        List<int> ranges = Enumerable.Range(startingIdx, targetMax).ToList();
+        List<int> ranges = Enumerable.Range(startingIdx, listSize - startingIdx).ToList();
         rand.ShuffleInPlace(ranges);
         return ranges;
     }

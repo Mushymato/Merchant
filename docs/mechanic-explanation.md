@@ -32,7 +32,7 @@ What price you actually get is a combination of several factors:
 2. Starting target price (i.e. where the customer's sprite is at on the bar):
     - Base: 10%~25%
     - Friendship with customer: up to 10%
-    - Gift taste (Loved: +40%, Liked: +20%, Neutral: 0%, Disliked: -20%, Hated: won't buy)
+    - Gift taste (Loved: +30%, Liked: +15%, Neutral: 0%, Disliked: -20%, Hated: won't buy)
 3. Willingness to Haggle (i.e. the barrier above which negotiation does not work):
     - Base: 15%~30%
     - Friendship with customer: up to 20%
