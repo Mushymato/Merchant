@@ -126,7 +126,7 @@ public sealed class SessionReportMenu : IClickableMenu
             string characterName = record.Buyer;
             Texture2D sprite;
             Rectangle mugshotSourceRect;
-            if (ModEntry.FriendEntries.TryGetByName(record.Buyer, out NPC? npc))
+            if (ModEntry.FriendEntries.TryGetFriendByName(record.Buyer, out NPC? npc))
             {
                 characterName = npc.displayName;
                 sprite = npc.Sprite.Texture;

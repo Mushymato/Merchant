@@ -42,7 +42,7 @@ public sealed class ModConfig
             (value) =>
             {
                 AllowUnmetCustomers = value;
-                ModEntry.FriendEntries.Reset();
+                ModEntry.FriendEntries.ResetFriends();
             },
             I18n.Config_UnmetNpc_Name,
             I18n.Config_UnmetNpc_Desc

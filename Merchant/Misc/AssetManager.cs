@@ -14,13 +14,13 @@ namespace Merchant.Misc;
 internal sealed class CachedLazyLoader<T>(string assetName, string? additionallyInvalidateOn = null)
 {
     private Dictionary<string, T>? cachedData = null;
+    public Dictionary<string, T> Data => cachedData ??= Game1.content.Load<Dictionary<string, T>>(assetName);
 
     public T? Get(string? key)
     {
         if (key == null)
             return default;
-        cachedData ??= Game1.content.Load<Dictionary<string, T>>(assetName);
-        if (cachedData.TryGetValue(key, out T? data))
+        if (Data.TryGetValue(key, out T? data))
             return data;
         return default;
     }

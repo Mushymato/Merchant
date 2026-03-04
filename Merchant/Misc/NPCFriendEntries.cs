@@ -95,73 +95,12 @@ public sealed record TouristFriendEntry(NPC Npc, TouristData TrstData, TourismWa
 internal class NPCFriendEntries(Farmer player)
 {
     private List<FriendEntry>? sortedFriends = null;
-    private int bisect = -1;
+    private int sortedFriendsBisect = -1;
 
-    internal void Reset()
+    internal void ResetFriends()
     {
         sortedFriends = null;
-        bisect = -1;
-    }
-
-    private void PickNRandomNPCs(
-        ref List<CustomerActor> picked,
-        Point entryPoint,
-        int count,
-        bool bestFriendsOnly,
-        List<ForSaleTarget> forSaleTargets,
-        HashSet<string> excluding
-    )
-    {
-        if (count <= 0)
-            return;
-
-        sortedFriends ??= PopulateSortedNPCList();
-
-        List<int> ranges;
-        if (bestFriendsOnly)
-        {
-            if (bisect == sortedFriends.Count)
-                return;
-            ranges = Enumerable.Range(bisect, sortedFriends.Count - bisect).ToList();
-        }
-        else
-        {
-            ranges = Enumerable.Range(0, sortedFriends.Count - 1).ToList();
-        }
-        if (ranges.Count == 0)
-            return;
-
-        Random.Shared.ShuffleInPlace(ranges);
-        for (int i = 0; i < Math.Min(ranges.Count, count); i++)
-        {
-            FriendEntry friend = sortedFriends[ranges[i]];
-            if (
-                !friend.Npc.IsInvisible
-                && !excluding.Contains(friend.Npc.Name)
-                && (friend.CxData == null || Random.Shared.NextSingle() <= friend.CxData.Chance)
-                && forSaleTargets.Any(forSale => friend.GetGiftTasteForSaleItem(forSale) != NPC.gift_taste_hate)
-            )
-            {
-                picked.Add(new(friend, entryPoint));
-                excluding.Add(friend.Npc.Name);
-            }
-        }
-    }
-
-    internal List<CustomerActor> MakeCustomerActors(
-        int maxCount,
-        Point entryPoint,
-        List<ForSaleTarget> forSaleTargets,
-        HashSet<string> excluding
-    )
-    {
-        int bffs = Math.Max(1, maxCount / 3);
-        List<CustomerActor> pickedActors = [];
-        PickNRandomNPCs(ref pickedActors, entryPoint, bffs, true, forSaleTargets, excluding);
-        ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers (bffs {sortedFriends?.Count - bisect})");
-        PickNRandomNPCs(ref pickedActors, entryPoint, maxCount - pickedActors.Count, false, forSaleTargets, excluding);
-        ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers");
-        return pickedActors;
+        sortedFriendsBisect = -1;
     }
 
     private List<FriendEntry> PopulateSortedNPCList()
@@ -189,19 +128,19 @@ internal class NPCFriendEntries(Farmer player)
             return true;
         });
         newSortedList.Sort((npcA, npcB) => npcA.FrenPercent.CompareTo(npcB.FrenPercent));
-        bisect = newSortedList.Count;
+        sortedFriendsBisect = newSortedList.Count;
         for (int i = 0; i < newSortedList.Count; i++)
         {
             if (newSortedList[i].IsMaxedHeart)
             {
-                bisect = i;
+                sortedFriendsBisect = i;
                 break;
             }
         }
         return newSortedList;
     }
 
-    internal bool TryGetByName(string name, [NotNullWhen(true)] out NPC? npc)
+    internal bool TryGetFriendByName(string name, [NotNullWhen(true)] out NPC? npc)
     {
         sortedFriends ??= PopulateSortedNPCList();
 
@@ -213,8 +152,61 @@ internal class NPCFriendEntries(Farmer player)
                 return true;
             }
         }
-
         npc = null;
         return false;
     }
+
+    private static void MakeCustomerActor(
+        FriendEntry friend,
+        List<ForSaleTarget> forSaleTargets,
+        HashSet<string> excluding,
+        Point entryPoint,
+        ref List<CustomerActor> pickedActors
+    )
+    {
+        if (friend.Npc.IsInvisible)
+            return;
+        if (excluding.Contains(friend.Npc.Name))
+            return;
+        if (friend.CxData != null && Random.Shared.NextSingle() > friend.CxData.Chance)
+            return;
+        if (forSaleTargets.All(forSale => friend.GetGiftTasteForSaleItem(forSale) == NPC.gift_taste_hate))
+            return;
+        pickedActors.Add(new(friend, entryPoint));
+        excluding.Add(friend.Npc.Name);
+    }
+
+    internal List<CustomerActor> MakeCustomerActors(
+        int maxCount,
+        Point entryPoint,
+        List<ForSaleTarget> forSaleTargets,
+        HashSet<string> excluding
+    )
+    {
+        List<CustomerActor> pickedActors = [];
+        sortedFriends ??= PopulateSortedNPCList();
+
+        int bffs = Math.Max(1, maxCount / 3);
+        List<int> range = Random.Shared.GetShuffledIdx(sortedFriendsBisect, sortedFriends.Count, bffs);
+        foreach (int idx in range)
+        {
+            FriendEntry friendEntry = sortedFriends[idx];
+            MakeCustomerActor(friendEntry, forSaleTargets, excluding, entryPoint, ref pickedActors);
+        }
+        ModEntry.Log(
+            $"Picked {pickedActors.Count}/{maxCount} customers (bffs {sortedFriends.Count - sortedFriendsBisect})"
+        );
+
+        range = Random.Shared.GetShuffledIdx(0, sortedFriends.Count, maxCount - bffs);
+        foreach (int idx in range)
+        {
+            FriendEntry friendEntry = sortedFriends[idx];
+            MakeCustomerActor(friendEntry, forSaleTargets, excluding, entryPoint, ref pickedActors);
+        }
+        ModEntry.Log($"Picked {pickedActors.Count}/{maxCount} customers");
+
+        return pickedActors;
+    }
+
+    internal void MakeTouristActors(List<ForSaleTarget> forSaleTargets) { }
 }

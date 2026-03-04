@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Merchant.Management;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.ItemTypeDefinitions;
@@ -6,9 +7,16 @@ using StardewValley.Objects;
 
 namespace Merchant.Models;
 
-public sealed record SoldRecord(string Buyer, uint Price, string ItemId, string? PreserveId, byte[]? Color)
+public sealed record SoldRecord(
+    string Buyer,
+    bool IsTourist,
+    uint Price,
+    string ItemId,
+    string? PreserveId,
+    byte[]? Color
+)
 {
-    public static SoldRecord Make(string buyer, uint price, Item item)
+    public static SoldRecord Make(CustomerActor buyer, uint price, Item item)
     {
         string? preserveId = null;
         byte[]? colorBytes = null;
@@ -21,7 +29,14 @@ public sealed record SoldRecord(string Buyer, uint Price, string ItemId, string?
                 colorBytes = [color.R, color.G, color.B, color.A];
             }
         }
-        return new SoldRecord(buyer, price, item.QualifiedItemId, preserveId, colorBytes);
+        return new SoldRecord(
+            buyer.Name,
+            buyer.sourceFriend.IsTourist,
+            price,
+            item.QualifiedItemId,
+            preserveId,
+            colorBytes
+        );
     }
 
     public Item CreateReprItem()

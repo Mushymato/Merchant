@@ -62,7 +62,7 @@ public sealed record ShopkeepHaggle(
         Done,
     }
 
-    private const double pickedPauseMS = 2000.0;
+    private const double pickedPauseMS = 1500.0;
     private const int totalPitch = 12;
     private const int maxTries = 3;
 
@@ -233,7 +233,7 @@ public sealed record ShopkeepHaggle(
     private void SetupHaggleSuccess(uint pickedPrice)
     {
         state.SetNext(HaggleState.Done, pickedPauseMS, DoneAndLock);
-        ForSale.Sold = SoldRecord.Make(Buyer.Name, pickedPrice, ForSale.Thing);
+        ForSale.Sold = SoldRecord.Make(Buyer, pickedPrice, ForSale.Thing);
         Game1.playSound("reward");
         SetNextDialogue(CustomerDialogueKind.Haggle_Success, pickedPrice);
         // mod triggers
@@ -462,7 +462,7 @@ public sealed record ShopkeepHaggle(
         );
         float pointerPos = PntToXPos(pointer);
         float rotate =
-            state.Current == HaggleState.Picked && ForSale.Sold != null ? 4 * MathF.PI * state.TimerProgress : 0f;
+            state.Current == HaggleState.Picked && ForSale.Sold != null ? 6 * MathF.PI * state.TimerProgress : 0f;
         b.Draw(
             Game1.mouseCursors,
             new(pointerPos, haggleBarSlideBounds.Y + 16 + sourceRectHagglePointerA.Height * 2),
