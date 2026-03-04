@@ -3,7 +3,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
-using StardewValley.Delegates;
 using StardewValley.GameData.Characters;
 using StardewValley.TokenizableStrings;
 
@@ -21,6 +20,7 @@ public abstract record BaseFriendEntry(BaseCustomerData? BaseCxData, Friendship?
     public abstract string Name { get; }
     public abstract string DisplayName { get; }
     public abstract string SpriteAssetName { get; }
+    public abstract AnimatedSprite Sprite { get; }
     public abstract Rectangle MugShotSourceRect { get; }
 
     public abstract float GetHaggleBaseTargetPointer(ForSaleTarget forSale);
@@ -30,15 +30,6 @@ public abstract record BaseFriendEntry(BaseCustomerData? BaseCxData, Friendship?
     public abstract int GetGiftTasteForSaleItem(ForSaleTarget forSale);
 
     public abstract void ApplyChangesToActor(CustomerActor actor);
-
-    public virtual bool WillComeToShop(GameStateQueryContext context)
-    {
-        if (BaseCxData == null)
-            return true;
-        if (BaseCxData.Condition == null)
-            return true;
-        return GameStateQuery.CheckConditions(BaseCxData.Condition, context);
-    }
 }
 
 public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren, int MaxHeartCount)
@@ -47,6 +38,8 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
     public override string Name => Npc.Name;
     public override string DisplayName => Npc.displayName;
     public override string SpriteAssetName => Npc.Sprite.textureName.Value;
+    public override AnimatedSprite Sprite =>
+        new(Game1.content, Npc.Sprite.textureName.Value, 0, Npc.Sprite.SpriteWidth, Npc.Sprite.SpriteHeight);
     public override Rectangle MugShotSourceRect => Npc.getMugShotSourceRect();
 
     public override float GetHaggleBaseTargetPointer(ForSaleTarget forSale)
@@ -121,13 +114,23 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
     }
 }
 
-public sealed record TouristFriendEntry(string TrstId, TouristData TrstData, TourismWaveData WaveData)
+public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWaveData? WaveData)
     : BaseFriendEntry(TrstData, null, -2)
 {
+    private readonly FriendEntry? friendEntry =
+        TrstData.NPC != null && ModEntry.FriendEntries.TryGetFriendByName(TrstData.NPC, out FriendEntry? friend, true)
+            ? friend
+            : null;
+
     public override string Name => TrstId;
-    public override string DisplayName => TokenParser.ParseText(TrstData.DisplayName);
-    public override string SpriteAssetName => TrstData.Sprite ?? "Characters/Monsters/Skeleton";
-    public override Rectangle MugShotSourceRect => TrstData.MugShotSourceRect ?? new(0, 0, 16, 24);
+    public override string DisplayName =>
+        friendEntry?.DisplayName ?? TokenParser.ParseText(TrstData.DisplayName) ?? Name;
+    public override string SpriteAssetName =>
+        friendEntry?.SpriteAssetName ?? TrstData.Sprite ?? "Characters/Monsters/Skeleton";
+    public override AnimatedSprite Sprite =>
+        friendEntry?.Sprite ?? new(Game1.content, SpriteAssetName, 0, TrstData.Size.X, TrstData.Size.Y);
+    public override Rectangle MugShotSourceRect =>
+        friendEntry?.MugShotSourceRect ?? TrstData.MugShotSourceRect ?? new(0, 0, 16, 24);
 
     public override float GetHaggleBaseTargetPointer(ForSaleTarget forSale) => 0.6f;
 
@@ -137,17 +140,25 @@ public sealed record TouristFriendEntry(string TrstId, TouristData TrstData, Tou
     {
         if (TrstData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
             return NPC.gift_taste_love;
-        if (WaveData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
+        if (WaveData?.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
             return NPC.gift_taste_love;
         return NPC.gift_taste_hate;
     }
 
     public override void ApplyChangesToActor(CustomerActor actor)
     {
-        actor.displayName = DisplayName;
-        if (!string.IsNullOrEmpty(TrstData.Portrait) && Game1.content.DoesAssetExist<Texture2D>(TrstData.Portrait))
+        if (friendEntry != null)
         {
-            actor.Portrait = Game1.content.Load<Texture2D>(TrstData.Portrait);
+            actor.Sprite.textureName.Value = actor.Sprite.textureName.Value;
+            friendEntry.ApplyChangesToActor(actor);
+        }
+        else
+        {
+            actor.displayName = DisplayName;
+            if (!string.IsNullOrEmpty(TrstData.Portrait) && Game1.content.DoesAssetExist<Texture2D>(TrstData.Portrait))
+            {
+                actor.Portrait = Game1.content.Load<Texture2D>(TrstData.Portrait);
+            }
         }
     }
 }

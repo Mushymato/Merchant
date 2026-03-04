@@ -59,7 +59,6 @@ internal static class AssetManager
     internal const string Metadata_ShopkeepThemeBoosts = $"{ModEntry.ModId}/ShopkeepThemeBoosts";
     internal const string Metadata_ShopkeepCondition = $"{ModEntry.ModId}/ShopkeepCondition";
     internal const string Metadata_ShopkeepNotAllowedMessage = $"{ModEntry.ModId}/ShopkeepNotAllowedMessage";
-    internal const string Default_TourismWave = "Default";
 
     private const AssetEditPriority ReallyEarly = AssetEditPriority.Early - 100;
 
@@ -117,10 +116,6 @@ internal static class AssetManager
         {
             e.Edit(Edit_Events_FishShop, AssetEditPriority.Default);
         }
-        else if (name.IsEquivalentTo(Asset_ShopkeepThemeBoostData))
-        {
-            e.LoadFrom(() => new Dictionary<string, ShopkeepThemeBoostData>(), AssetLoadPriority.Exclusive);
-        }
         else if (name.IsEquivalentTo(Asset_CustomerData))
         {
             e.LoadFromModFile<Dictionary<string, CustomerData>>(
@@ -129,19 +124,17 @@ internal static class AssetManager
             );
             e.Edit(Edit_CustomerData, ReallyEarly);
         }
-        else if (name.IsEquivalentTo(Asset_TourismWavesData))
-        {
-            e.LoadFromModFile<Dictionary<string, TourismWaveData>>(
-                "assets/data_tourism_waves.json",
-                AssetLoadPriority.Exclusive
-            );
-        }
         else if (name.IsEquivalentTo(Asset_Tourists))
         {
-            e.LoadFromModFile<Dictionary<string, TourismWaveData>>(
-                "assets/data_tourists.json",
-                AssetLoadPriority.Exclusive
-            );
+            e.LoadFrom(Load_Tourists, AssetLoadPriority.Exclusive);
+        }
+        else if (name.IsEquivalentTo(Asset_TourismWavesData))
+        {
+            e.LoadFrom(Load_TourismWaves, AssetLoadPriority.Exclusive);
+        }
+        else if (name.IsEquivalentTo(Asset_ShopkeepThemeBoostData))
+        {
+            e.LoadFrom(Load_ShopkeepThemeBoosts, AssetLoadPriority.Exclusive);
         }
         else if (name.IsEquivalentTo(Asset_TextureCraftables))
         {
@@ -159,6 +152,48 @@ internal static class AssetManager
                 e.LoadFromModFile<Dictionary<string, string>>("i18n/default/strings.json", AssetLoadPriority.Exclusive);
             }
         }
+    }
+
+    private static object Load_ShopkeepThemeBoosts()
+    {
+        throw new NotImplementedException();
+    }
+
+    private static Dictionary<string, TourismWaveData> Load_TourismWaves()
+    {
+        return new Dictionary<string, TourismWaveData>()
+        {
+            [$"{ModEntry.ModId}_BooksellerDay"] = new()
+            {
+                Condition = "mushymato.Merchant_BOOK_SELLER_IN_TOWN",
+                DisplayName = "[LocalizedText mushymato.Merchant.i18n:Tourism_BooksellerDay_Name]",
+                Description = "[LocalizedText mushymato.Merchant.i18n:Tourism_BooksellerDay_Desc]",
+                DesiredContextTags = ["book_item"],
+            },
+        };
+    }
+
+    private static object Load_Tourists()
+    {
+        return new Dictionary<string, TouristData>()
+        {
+            [$"{ModEntry.ModId}_Marcello"] = new()
+            {
+                AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
+                DisplayName = $"[LocalizedText {Asset_Strings}:Marcello_Name]",
+                Sprite = "Characters/Marcello",
+            },
+            [$"{ModEntry.ModId}_Booklover_Penny"] = new()
+            {
+                AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
+                NPC = "Penny",
+            },
+            [$"{ModEntry.ModId}_Booklover_Elliott"] = new()
+            {
+                AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
+                NPC = "Elliott",
+            },
+        };
     }
 
     private static void Edit_CustomerData(IAssetData asset)

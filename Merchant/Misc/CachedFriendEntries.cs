@@ -10,19 +10,28 @@ namespace Merchant.Misc;
 
 internal sealed class CachedFriendEntries(Farmer player)
 {
-    private List<FriendEntry>? sortedFriends = null;
+    private bool populated = false;
+    private readonly List<FriendEntry> sortedFriends = [];
+    private readonly List<FriendEntry> nonFriends = [];
     private int sortedFriendsBisect = -1;
     private readonly GameStateQueryContext gsqContext = new(null, player, null, null, Random.Shared);
 
-    internal void ResetFriends()
+    internal void Reset()
     {
-        sortedFriends = null;
+        populated = false;
+        sortedFriends.Clear();
+        nonFriends.Clear();
         sortedFriendsBisect = -1;
     }
 
-    private List<FriendEntry> PopulateSortedFriends()
+    private void Repopulate()
     {
-        List<FriendEntry> newSortedList = [];
+        if (populated)
+            return;
+
+        sortedFriends.Clear();
+        nonFriends.Clear();
+
         Utility.ForEachVillager(npc =>
         {
             if (npc.Name != null && npc.CanSocialize)
@@ -30,37 +39,55 @@ internal sealed class CachedFriendEntries(Farmer player)
                 if (!player.friendshipData.TryGetValue(npc.Name, out Friendship? friendship))
                 {
                     if (!ModEntry.config.AllowUnmetCustomers)
+                    {
+                        nonFriends.Add(
+                            new(
+                                npc,
+                                AssetManager.Customers.Get(npc.Name),
+                                null,
+                                Utility.GetMaximumHeartsForCharacter(npc)
+                            )
+                        );
                         return true;
+                    }
                 }
-                FriendEntry friendEntry = new(
-                    npc,
-                    AssetManager.Customers.Get(npc.Name),
-                    friendship,
-                    Utility.GetMaximumHeartsForCharacter(npc)
-                );
-                if (friendEntry.WillComeToShop(gsqContext))
-                    newSortedList.Add(friendEntry);
+                CustomerData? cxData = AssetManager.Customers.Get(npc.Name);
+                FriendEntry? friendEntry = new(npc, cxData, friendship, Utility.GetMaximumHeartsForCharacter(npc));
+                if (cxData?.WillComeToShop(gsqContext) ?? true)
+                    sortedFriends.Add(friendEntry);
+                else
+                    nonFriends.Add(friendEntry);
             }
             return true;
         });
-        newSortedList.Sort((npcA, npcB) => npcA.FrenPercent.CompareTo(npcB.FrenPercent));
-        sortedFriendsBisect = newSortedList.Count;
-        for (int i = 0; i < newSortedList.Count; i++)
+
+        sortedFriends.Sort((npcA, npcB) => npcA.FrenPercent.CompareTo(npcB.FrenPercent));
+        sortedFriendsBisect = sortedFriends.Count;
+        for (int i = 0; i < sortedFriends.Count; i++)
         {
-            if (newSortedList[i].IsMaxedHeart)
+            if (sortedFriends[i].IsMaxedHeart)
             {
                 sortedFriendsBisect = i;
                 break;
             }
         }
-        return newSortedList;
+
+        populated = true;
     }
 
-    internal bool TryGetFriendByName(string name, [NotNullWhen(true)] out FriendEntry? friend)
+    internal bool TryGetFriendByName(
+        string name,
+        [NotNullWhen(true)] out FriendEntry? friend,
+        bool includeNonFriends = false
+    )
     {
-        sortedFriends ??= PopulateSortedFriends();
-
-        foreach (FriendEntry friendEntry in sortedFriends)
+        Repopulate();
+        IEnumerable<FriendEntry> friendEntries;
+        if (includeNonFriends)
+            friendEntries = sortedFriends.Concat(nonFriends);
+        else
+            friendEntries = sortedFriends;
+        foreach (FriendEntry friendEntry in friendEntries)
         {
             if (friendEntry.Name == name)
             {
@@ -68,6 +95,7 @@ internal sealed class CachedFriendEntries(Farmer player)
                 return true;
             }
         }
+
         friend = null;
         return false;
     }
@@ -82,31 +110,30 @@ internal sealed class CachedFriendEntries(Farmer player)
     {
         if (friend.Npc.IsInvisible)
             return;
-        if (excluding.Contains(friend.Npc.Name))
+        if (excluding.Contains(friend.Name))
             return;
         if (friend.CxData != null && Random.Shared.NextSingle() > friend.CxData.Chance)
             return;
         if (forSaleTargets.All(forSale => friend.GetGiftTasteForSaleItem(forSale) == NPC.gift_taste_hate))
             return;
         pickedActors.Add(new(friend, entryPoint));
-        excluding.Add(friend.Npc.Name);
+        excluding.Add(friend.Name);
     }
 
     internal List<CustomerActor> MakeCustomerActors(
         int maxCount,
         Point entryPoint,
         List<ForSaleTarget> forSaleTargets,
-        HashSet<string> excluding
+        HashSet<string> excluding,
+        ref List<CustomerActor> pickedActors
     )
     {
-        List<CustomerActor> pickedActors = [];
-        sortedFriends ??= PopulateSortedFriends();
+        Repopulate();
 
         int bffs = Math.Max(1, maxCount / 3);
         List<int> range = Random.Shared.GetShuffledIdx(sortedFriendsBisect, sortedFriends.Count);
         foreach (int idx in range)
         {
-            ModEntry.Log($"Bffs: {idx}");
             FriendEntry friendEntry = sortedFriends[idx];
             MakeCustomerActor(friendEntry, forSaleTargets, excluding, entryPoint, ref pickedActors);
             if (pickedActors.Count >= bffs)
@@ -116,7 +143,6 @@ internal sealed class CachedFriendEntries(Farmer player)
         range = Random.Shared.GetShuffledIdx(0, sortedFriends.Count);
         foreach (int idx in range)
         {
-            ModEntry.Log($"Norm: {idx}");
             FriendEntry friendEntry = sortedFriends[idx];
             MakeCustomerActor(friendEntry, forSaleTargets, excluding, entryPoint, ref pickedActors);
             if (pickedActors.Count >= maxCount)

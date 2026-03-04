@@ -1,3 +1,4 @@
+using Merchant.Misc;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
@@ -126,11 +127,30 @@ public sealed class SessionReportMenu : IClickableMenu
             string characterName = record.Buyer;
             string? SpriteAssetName = null;
             Rectangle mugshotSourceRect;
-            if (ModEntry.FriendEntries.TryGetFriendByName(record.Buyer, out FriendEntry? friend))
+
+            BaseFriendEntry? fren = null;
+
+            if (record.IsTourist)
             {
-                characterName = friend.DisplayName;
-                SpriteAssetName = friend.SpriteAssetName;
-                mugshotSourceRect = friend.MugShotSourceRect;
+                if (AssetManager.Tourists.Data.TryGetValue(record.Buyer, out TouristData? touristData))
+                {
+                    TouristEntry touristEntry = new(record.Buyer, touristData, null);
+                    fren = touristEntry;
+                }
+            }
+            else
+            {
+                if (ModEntry.FriendEntries.TryGetFriendByName(record.Buyer, out FriendEntry? friendEntry))
+                {
+                    fren = friendEntry;
+                }
+            }
+
+            if (fren != null)
+            {
+                characterName = fren.DisplayName;
+                SpriteAssetName = fren.SpriteAssetName;
+                mugshotSourceRect = fren.MugShotSourceRect;
             }
             else
             {

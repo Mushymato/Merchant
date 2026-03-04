@@ -1,4 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
+using StardewValley;
+using StardewValley.Delegates;
 using StardewValley.Extensions;
 
 namespace Merchant.Models;
@@ -33,6 +35,13 @@ public abstract class BaseCustomerData
             return false;
         dialogueText = Random.Shared.ChooseFrom(MergedDialogues[(int)kind]);
         return dialogueText != null;
+    }
+
+    public virtual bool WillComeToShop(GameStateQueryContext context)
+    {
+        if (Condition == null)
+            return true;
+        return GameStateQuery.CheckConditions(Condition, context);
     }
 }
 

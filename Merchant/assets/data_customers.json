@@ -1,6 +1,6 @@
 {
   "Krobus": {
-    // "Condition": "PLAYER_HAS_MAIL Current ccMovieTheater",
+    "Condition": "PLAYER_HAS_MAIL Current ccMovieTheater",
     "OverrideAppearanceId": "MovieTheater",
     "Dialogue": {
       "mushymato.Merchant_Thug": {

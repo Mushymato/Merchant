@@ -14,7 +14,9 @@
   "Haggle_Success_Krobus": "Knew you'd come through for ya old pal. Here's {1}$, get ya self something nice.$8",
   "Haggle_Fail_Krobus": "Ya ain't fooling no-one bud.$8",
   // bookseller day
-  "Tourism_BooksellerDay": "Bookseller in Town: Booklovers may visit your shop!",
+  "Tourism_BooksellerDay_Name": "Bookseller in Town",
+  "Tourism_BooksellerDay_Desc": "If you have books on sale, booklovers may visit your shop!",
+  "Marcello_Name": "Marcello",
   // willy event
   "WillyWalrus.Willy.01": "Ah... come in, ${lad^miss}$. Close the door behind ye...",
   "WillyWalrus.Willy.02": "Aye, that's it.",

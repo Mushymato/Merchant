@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Extensions;
-using StardewValley.GameData.Characters;
 using StardewValley.Menus;
 using StardewValley.Pathfinding;
 using StardewValley.TokenizableStrings;
@@ -19,10 +18,13 @@ public sealed class CustomerActor : NPC
     internal readonly BaseFriendEntry sourceFriend;
 
     public CustomerActor(BaseFriendEntry sourceFriend, Point entryPoint)
-        : base(new(Game1.content, sourceFriend.SpriteAssetName), Vector2.Zero, 2, sourceFriend.Name)
+        : base(sourceFriend.Sprite, Vector2.Zero, 2, sourceFriend.Name)
     {
         this.sourceFriend = sourceFriend;
         this.entryPoint = entryPoint;
+
+        Portrait = Game1.mouseCursors;
+        portraitOverridden = true;
 
         forceOneTileWide.Value = true;
         followSchedule = false;
@@ -82,6 +84,7 @@ public sealed class CustomerActor : NPC
         );
         if (specificEmotion != null)
             dialogue.CurrentEmotion = specificEmotion;
+
         return dialogue;
     }
     #endregion

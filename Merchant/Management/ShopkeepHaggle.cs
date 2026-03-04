@@ -101,6 +101,10 @@ public sealed record ShopkeepHaggle(
             transitioning = transitioning,
             transitionInitialized = !transitioning,
         };
+        if (Buyer.Portrait == Game1.mouseCursors)
+        {
+            haggleDialogueBox.characterDialogue.showPortrait = false;
+        }
     }
 
     private void BeginHaggleRound()

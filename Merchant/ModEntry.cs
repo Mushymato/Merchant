@@ -26,6 +26,8 @@ public sealed class ModEntry : Mod
     internal static MerchantProgressData? ProgressData => progressData.Value;
     private static readonly PerScreen<CachedFriendEntries?> friendEntries = new();
     internal static CachedFriendEntries FriendEntries => friendEntries.Value ??= new CachedFriendEntries(Game1.player);
+    private static readonly PerScreen<CachedTourismWaves?> tourismWaves = new();
+    internal static CachedTourismWaves TourismWaves => tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
 
     internal static bool HasBETAS = false;
 
@@ -114,12 +116,12 @@ public sealed class ModEntry : Mod
 
     private void OnDayEnding(object? sender, DayEndingEventArgs e)
     {
-        friendEntries.Value?.ResetFriends();
+        friendEntries.Value?.Reset();
     }
 
     private void OnWarped(object? sender, WarpedEventArgs e)
     {
-        friendEntries.Value?.ResetFriends();
+        friendEntries.Value?.Reset();
     }
 
     /// <summary>SMAPI static monitor Log wrapper</summary>

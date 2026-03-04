@@ -1,4 +1,3 @@
-using Merchant.Misc;
 using Microsoft.Xna.Framework;
 
 namespace Merchant.Models;
@@ -7,7 +6,7 @@ public sealed class TouristData : BaseCustomerData
 {
     public override bool IsTourist() => true;
 
-    public List<string> AppearsDuring { get; set; } = [AssetManager.Default_TourismWave];
+    public List<string> AppearsDuring { get; set; } = [TourismWaveData.DefaultWave];
     public List<string>? DesiredContextTags { get; set; } = null;
 
     public string? NPC { get; set; } = null;
@@ -21,9 +20,12 @@ public sealed class TouristData : BaseCustomerData
 
 public sealed class TourismWaveData
 {
+    internal const string DefaultWave = "Default";
+
     public string? Condition { get; set; } = null;
     public string? DisplayName { get; set; } = null;
+    public string? Description { get; set; } = null;
     public List<string>? DesiredContextTags { get; set; } = null;
     public int TouristMinCount { get; set; } = 4;
-    public int TouristMaxCount { get; set; } = 8;
+    public int TouristMaxCount { get; set; } = 4;
 }
