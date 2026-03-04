@@ -2,6 +2,15 @@
 
 The happenings of 1 shopkeeping session depends on a variety of factors. This describes the maths behind everything and if you don't want to be spoiled, don't read this.
 
+### Decor Bonus Calculation
+
+Decor bonus is internally a number between 0.0 and 1.0 and the sum of these two values:
+- Standing decor adds up to 0.7. It is calculated as number of non-table decor / number of tables and full bonus is earned by having at least one decor per table.
+- Rug/floor adds up to 0.3. It is calculated as total tiles covered by something / (2/3 times number of reachable tiles).
+
+The base haggle minimum multiplier is 0.5x, add 1/2 of decor bonus to get the final multiplier (i.e. up to 1.0x).
+The base haggle maximum multiplier is 0.5x, add decor bonus to get the final multiplier (i.e. up to 2.5x).
+
 ### Customers
 The standard kind of customers is a sociable NPC (i.e. appears on the social tab with hearts, can accept gifts) that the farmer has met.
 
@@ -34,7 +43,7 @@ What price you actually get is a combination of several factors:
     - Friendship with customer: up to 20%
     - Gift taste (Loved: +30%, Liked: +15%, Neutral: 0%, Disliked: -15%, Hated: won't buy)
 3. Willingness to Haggle (i.e. the barrier above which negotiation does not work):
-    - Base: 10%~30%
+    - Base: 15%~30%
     - Friendship with customer: up to 20%
 4. Themed Bonuses:
     - These apply on a per building and per item basis, and increases the minimum multiplier.

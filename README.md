@@ -12,11 +12,11 @@ Place down the cash register in a valid farm building and interact with it to ge
 To put something out for sale, place the item on a table. It **must** be reachable from the building's entrance in order to be sold.
 Besides having the goods, you will want to have an appealing store. This directly boosts the overall multiplier on sell prices.
 
-This is evaluated in 2 ways:
-* **Decor** counts up all your non-table and non-rug furniture, plus certain craftables (Scarecrows, Indoor Pots, Mannequins). To get full bonus on decor, you should have 1 decor per table. Large furniture count for more points.
-* **Rug/Floor** counts how much of the floor is covered by rugs, paths, grass, crops and bush. To get full bonus on rug/floor, you should cover over 2/3rd of reachable tiles (up to 225).
+Decor bonus is evaluated in 2 ways:
+* **Decor** earned by having non-table and non-rug furniture, plus certain craftables (Scarecrows, Indoor Pots, Mannequins, Mini-Jukebox).
+* **Rug/Floor** earned by covering the floor with rugs, paths, grass, crops and bush.
 
-You can check your current bonuses in the `Decor Bonuses` menu.
+You can check your current bonuses in the in-game decor bonuses menu.
 
 ## Shopkeeping
 
