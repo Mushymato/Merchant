@@ -252,6 +252,13 @@ public sealed record ShopkeepHaggle(
             player: Player,
             targetItem: thing
         );
+        if (ModEntry.HasBETAS)
+            TriggerActionManager.Raise(
+                "Spiderbuttons.BETAS_ItemShipped",
+                location: Buyer.currentLocation,
+                player: Player,
+                targetItem: thing
+            );
     }
 
     private void SetupHaggleFailed(uint pickedPrice)

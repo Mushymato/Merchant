@@ -181,6 +181,7 @@ internal static class AssetManager
             {
                 AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
                 DisplayName = $"[LocalizedText {Asset_Strings}:Marcello_Name]",
+                Portrait = ModEntry.HasTDITExtras ? "Portraits/Marcello" : null,
                 Sprite = "Characters/Marcello",
             },
             [$"{ModEntry.ModId}_Booklover_Penny"] = new()

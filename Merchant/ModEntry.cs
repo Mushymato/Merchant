@@ -30,6 +30,7 @@ public sealed class ModEntry : Mod
     internal static CachedTourismWaves TourismWaves => tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
 
     internal static bool HasBETAS = false;
+    internal static bool HasTDITExtras = false;
 
     internal static ITableShim tableShim = new TableShimBase();
 
@@ -95,6 +96,7 @@ public sealed class ModEntry : Mod
         }
 
         HasBETAS = Helper.ModRegistry.IsLoaded("Spiderbuttons.BETAS");
+        HasTDITExtras = Helper.ModRegistry.IsLoaded("DolphINaF.ExtraPortraits");
     }
 
     private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)
