@@ -21,18 +21,18 @@
   "Haggle_Fail_Bookseller": "算了我还是邮购吧…$s",
   // bookseller day
   "Tourism_BooksellerDay_Name": "书摊开业日：",
-  "Tourism_BooksellerDay_Desc": "yu你有出售书籍，阅读爱好者会光临你的店铺！",
+  "Tourism_BooksellerDay_Desc": "如果你有出售书籍，阅读爱好者会光临你的店铺！",
   "Marcello_Name": "马塞罗",
   // flower shopkeep theme boost
   "Theme_Flowers": "花朵盛开：花类物品售价增加20%",
   "Theme_Eggs": "大满蛋：蛋类物品售价增加10%",
   "Theme_Milk": "A42鲜奶：奶类物品售价增加10%",
   // willy event
-  "WillyWalrus.Willy.01": "嘿… 进来吧，${小伙子^小姑娘}$. 把门关上……",
+  "WillyWalrus.Willy.01": "嘿… 进来吧，${小伙子^小姑娘}$。 把门关上……",
   "WillyWalrus.Willy.02": "对，就这样",
   "WillyWalrus.Willy.03": "过来吧… 我有好东西给你看。",
   "WillyWalrus.Willy.04": "哼！",
-  "Willa s da s daly.05": "这玩意在我这闲置已久… 想着你或许能用得上。$1",
+  "WillyWalrus.Willy.05": "这玩意在我这闲置已久… 想着你或许能用得上。$1",
   "WillyWalrus.Willy.06": "你有没有想过开一家小店？",
   "WillyWalrus.Player.A1": "我有路易斯帮忙出货。",
   "WillyWalrus.Player.A2": "资本主义？",
@@ -41,9 +41,9 @@
   "WillyWalrus.Willy.07": "你知道吗… 我最近在想一个问题。",
   "WillyWalrus.Willy.08": "感觉镇上所有东西都得从那几家店里买。#$b#这年头没几个人愿意自己经商…$2",
   "WillyWalrus.Willy.09": "在我看来… 只要愿意干活… 商机总是会有的。#$b#嘿嘿，就像我老爸以前喜欢的那句法语…",
-  "WillyWalrus.Willy.10": "… 「laissez faire, laissez passer」。$1",
+  "WillyWalrus.Willy.10": "… laissez-faire。$1",
   "WillyWalrus.Willy.11": "我看你干着各种活… 耕地… 下矿… 钓鱼… 肯定有收集各种七七八八的玩意。#$b#整个柜台… 摆出各种东西… 让大家看看你卖什么玩意。",
   "WillyWalrus.Willy.12": "或许能给山谷添加一些生机。",
   "WillyWalrus.Willy.13": "只是说说而已，别在意。#$b#不过嘛… 你如果真能开个店铺… 也许我这能给你进点新鲜海货。",
-  "WillyWalrus.Willy.14": "毕竟这可是「laissez faire, laissez passer」！$1",
+  "WillyWalrus.Willy.14": "毕竟这可是laissez-faire！$1",
 }
