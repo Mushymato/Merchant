@@ -23,7 +23,15 @@ public sealed class ModEntry : Mod
     internal static IModHelper help = null!;
     internal static ModConfig config = null!;
     private static readonly PerScreen<MerchantProgressData?> progressData = new();
-    internal static MerchantProgressData? ProgressData => progressData.Value;
+    internal static MerchantProgressData ProgressData
+    {
+        get
+        {
+            if (Context.IsWorldReady)
+                return progressData.Value ??= MerchantProgressData.Read();
+            throw new NullReferenceException("Accessed progress data before save load");
+        }
+    }
     private static readonly PerScreen<CachedFriendEntries?> friendEntries = new();
     internal static CachedFriendEntries FriendEntries => friendEntries.Value ??= new CachedFriendEntries(Game1.player);
     private static readonly PerScreen<CachedTourismWaves?> tourismWaves = new();

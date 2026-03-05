@@ -12,6 +12,7 @@ public static class GameDelegates
         $"Merchant.Models.{nameof(GameDelegates)}, Merchant: {nameof(InteractCashRegister)}";
     private const string TileAction_CashRegister = $"{ModEntry.ModId}_CashRegister";
     private const string GSQ_BOOK_SELLER_IN_TOWN = $"{ModEntry.ModId}_BOOK_SELLER_IN_TOWN";
+    private const string GSQ_IN_HAGGLING = $"{ModEntry.ModId}_IN_HAGGLING";
     internal const string Trigger_Merchant_Sold = $"{ModEntry.ModId}_Sold";
     internal const string ModData_SoldPrice = $"{ModEntry.ModId}/Sold/Price";
     internal const string ModData_SoldBuyer = $"{ModEntry.ModId}/Sold/Buyer";
@@ -46,10 +47,16 @@ public static class GameDelegates
             new("merchant_startgame", I18n.Menu_StartMinigame()),
             new("merchant_checkbonus", I18n.Menu_CheckBonus()),
         ];
-        ShopkeepSessionLog? log = null;
+        if (ModEntry.TourismWaves.ActiveWaves.Any())
+        {
+            responses.Add(new("merchant_tourism", I18n.Menu_TourismWave()));
+        }
         if (
-            ModEntry.ProgressData?.TryGetMostRecentLogForLocation(location.NameOrUniqueName, out log, out int logIdx)
-            ?? false
+            ModEntry.ProgressData.TryGetMostRecentLogForLocation(
+                location.NameOrUniqueName,
+                out ShopkeepSessionLog? log,
+                out int logIdx
+            )
         )
         {
             responses.Add(new("merchant_sessionlog", I18n.Menu_SessionLog()));
@@ -79,6 +86,9 @@ public static class GameDelegates
                         break;
                     case "merchant_checkbonus":
                         Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatSummary());
+                        break;
+                    case "merchant_tourism":
+                        Game1.drawDialogueNoTyping(ModEntry.TourismWaves.FormatSummary());
                         break;
                     case "merchant_sessionlog":
                         Game1.activeClickableMenu = SessionReportMenu.Make(log!);

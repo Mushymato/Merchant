@@ -134,7 +134,7 @@ public sealed class SessionReportMenu : IClickableMenu
             {
                 if (AssetManager.Tourists.Data.TryGetValue(record.Buyer, out TouristData? touristData))
                 {
-                    TouristEntry touristEntry = new(record.Buyer, touristData, null);
+                    TouristEntry touristEntry = new(record.Buyer, touristData, null!);
                     fren = touristEntry;
                 }
             }

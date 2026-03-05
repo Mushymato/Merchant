@@ -22,7 +22,7 @@ public sealed record ShopBonusStats(
     );
     public float TotalBonus => StandingDecorBonus * 0.7f + FloorCoverageBonusRaw * 0.3f;
 
-    private const string LINEBREAK = "  ^--------------------------------------------------";
+    internal const string LINEBREAK = "  ^--------------------------------------------------";
 
     public string FormatSummary()
     {

@@ -15,6 +15,7 @@
   "menu.prompt": "Shopkeeping",
   "menu.start-minigame": "Open the Shop",
   "menu.check-bonus": "Decor Bonuses",
+  "menu.tourism-wave": "Tourism News",
   "menu.session-log": "Last Session Report",
   "bonus.title": "Decorate your store to sell for higher prices!",
   "bonus.decor": "Decor:",
@@ -25,6 +26,7 @@
   "bonus.capped": " =",
   "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
   "bonus.theme-boost": "Shop Themes:",
+  "tourism.title": "Tourists are in town for:",
   "quit-confirm": "Close up the shop early?",
   "report.total-earnings": "Total Earnings: {{totalEarnings}}$",
   "report.hover.bought-by": "Bought by {{chara}}."

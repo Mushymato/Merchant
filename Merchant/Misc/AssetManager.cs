@@ -60,8 +60,6 @@ internal static class AssetManager
     internal const string Metadata_ShopkeepCondition = $"{ModEntry.ModId}/ShopkeepCondition";
     internal const string Metadata_ShopkeepNotAllowedMessage = $"{ModEntry.ModId}/ShopkeepNotAllowedMessage";
 
-    private const AssetEditPriority ReallyEarly = AssetEditPriority.Early - 100;
-
     public static void Register()
     {
         ModEntry.help.Events.Content.AssetRequested += OnAssetRequested;
@@ -118,11 +116,12 @@ internal static class AssetManager
         }
         else if (name.IsEquivalentTo(Asset_CustomerData))
         {
-            e.LoadFromModFile<Dictionary<string, CustomerData>>(
-                "assets/data_customers.json",
-                AssetLoadPriority.Exclusive
-            );
-            e.Edit(Edit_CustomerData, ReallyEarly);
+            // e.LoadFromModFile<Dictionary<string, CustomerData>>(
+            //     "assets/data_customers.json",
+            //     AssetLoadPriority.Exclusive
+            // );
+            // e.Edit(Edit_CustomerData, ReallyEarly);
+            e.LoadFrom(Load_CustomerData, AssetLoadPriority.Exclusive);
         }
         else if (name.IsEquivalentTo(Asset_Tourists))
         {
@@ -154,9 +153,17 @@ internal static class AssetManager
         }
     }
 
-    private static object Load_ShopkeepThemeBoosts()
+    private static Dictionary<string, ShopkeepThemeBoostData> Load_ShopkeepThemeBoosts()
     {
-        throw new NotImplementedException();
+        return new Dictionary<string, ShopkeepThemeBoostData>()
+        {
+            [$"{ModEntry.ModId}_Flowers"] = new()
+            {
+                Description = $"[LocalizedText {Asset_Strings}:Theme_Flowers]",
+                RequiredContextTags = ["flower_item"],
+                Value = 0.2f,
+            },
+        };
     }
 
     private static Dictionary<string, TourismWaveData> Load_TourismWaves()
@@ -166,9 +173,10 @@ internal static class AssetManager
             [$"{ModEntry.ModId}_BooksellerDay"] = new()
             {
                 Condition = "mushymato.Merchant_BOOK_SELLER_IN_TOWN",
-                DisplayName = "[LocalizedText mushymato.Merchant.i18n:Tourism_BooksellerDay_Name]",
-                Description = "[LocalizedText mushymato.Merchant.i18n:Tourism_BooksellerDay_Desc]",
+                DisplayName = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Name]",
+                Description = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Desc]",
                 DesiredContextTags = ["book_item"],
+                TouristMinCount = 3,
             },
         };
     }
@@ -177,6 +185,7 @@ internal static class AssetManager
     {
         return new Dictionary<string, TouristData>()
         {
+            // Booklovers
             [$"{ModEntry.ModId}_Marcello"] = new()
             {
                 AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
@@ -188,24 +197,59 @@ internal static class AssetManager
             {
                 AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
                 NPC = "Penny",
+                Chance = 0.5f,
             },
             [$"{ModEntry.ModId}_Booklover_Elliott"] = new()
             {
                 AppearsDuring = [$"{ModEntry.ModId}_BooksellerDay"],
                 NPC = "Elliott",
+                Chance = 0.5f,
+            },
+            // Bear
+            [$"{ModEntry.ModId}_Bear"] = new()
+            {
+                AppearsDuring = [TourismWaveData.DefaultWave],
+                DesiredContextTags = ["id_o_724"],
+                DisplayName = $"[LocalizedText Strings/NPCNames:Bear]",
+                Portrait = "Portraits/Bear",
+                Sprite = "Characters/Bear",
+                MugShotSourceRect = new(8, 0, 16, 32),
+                Size = new(32, 32),
             },
         };
     }
 
-    private static void Edit_CustomerData(IAssetData asset)
+    private static object Load_CustomerData()
     {
-        IDictionary<string, CustomerData> data = asset.AsDictionary<string, CustomerData>().Data;
+        Dictionary<string, CustomerData> customerData = [];
         foreach ((string key, CharacterData charaData) in Game1.characterData)
         {
             if (GameStateQuery.IsImmutablyFalse(charaData.CanSocialize))
                 continue;
-            data.TryAdd(key, new CustomerData());
+            customerData[key] = new CustomerData();
         }
+        customerData["Krobus"] = new()
+        {
+            // Condition = "PLAYER_HAS_MAIL Current ccMovieTheater",
+            OverrideAppearanceId = "MovieTheater",
+            Dialogue = new Dictionary<string, CustomerDialogue>
+            {
+                [$"{ModEntry.ModId}_Mafia"] = new()
+                {
+                    Haggle_Ask = $"[LocalizedText {Asset_Strings}:Haggle_Ask_Krobus]",
+                    Haggle_Compromise = $"[LocalizedText {Asset_Strings}:Haggle_Compromise_Krobus]",
+                    Haggle_Overpriced = $"[LocalizedText {Asset_Strings}:Haggle_Overpriced_Krobus]",
+                    Haggle_Success = $"[LocalizedText {Asset_Strings}:Haggle_Success_Krobus]",
+                    Haggle_Fail = $"[LocalizedText {Asset_Strings}:Haggle_Fail_Krobus]",
+                },
+            },
+        };
+        customerData["Geroge"] = new() { Condition = "FALSE" };
+        customerData["Dwarf"] = new() { Condition = "FALSE" };
+        customerData["Sandy"] = new() { Chance = 0.5f };
+        customerData["Wizard"] = new() { Chance = 0.2f };
+        customerData["Linus"] = new() { Chance = 0.2f };
+        return customerData;
     }
 
     private static void Edit_Events_FishShop(IAssetData asset)

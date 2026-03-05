@@ -184,7 +184,7 @@ public sealed record ShopkeepBrowsing(
         );
         forSaleTargetsCount -= waitingActors.Count;
         // customers
-        int customerCount = Math.Min(32, Math.Min(forSaleTargetsCount, 4 + (ModEntry.ProgressData?.Logs.Count ?? 0)));
+        int customerCount = Math.Min(32, Math.Min(forSaleTargetsCount, 4 + ModEntry.ProgressData.Logs.Count));
         ModEntry.FriendEntries.MakeCustomerActors(
             customerCount,
             entryPoint,
@@ -362,7 +362,7 @@ public sealed record ShopkeepBrowsing(
             Date = Game1.Date.TotalDays,
             Sales = sales,
         };
-        ModEntry.ProgressData?.SaveShopkeepSession(newLog, totalEarnings);
+        ModEntry.ProgressData.SaveShopkeepSession(newLog, totalEarnings);
         return SessionReportMenu.Make(newLog);
     }
 

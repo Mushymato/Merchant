@@ -1,6 +1,7 @@
 using Merchant.Misc;
 using Merchant.Models;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Extensions;
@@ -325,6 +326,12 @@ public sealed class CustomerActor : NPC
         LeavingTheShop();
         update(time, location);
         DynamicMethods.Set_Game1_activeClickableMenu(menu);
+    }
+
+    public override void DrawShadow(SpriteBatch b)
+    {
+        if (sourceFriend.ShowShadow)
+            base.DrawShadow(b);
     }
     #endregion
 }

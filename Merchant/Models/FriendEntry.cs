@@ -22,6 +22,7 @@ public abstract record BaseFriendEntry(BaseCustomerData? BaseCxData, Friendship?
     public abstract string SpriteAssetName { get; }
     public abstract AnimatedSprite Sprite { get; }
     public abstract Rectangle MugShotSourceRect { get; }
+    public abstract bool ShowShadow { get; }
 
     public abstract float GetHaggleBaseTargetPointer(ForSaleTarget forSale);
 
@@ -37,10 +38,26 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
 {
     public override string Name => Npc.Name;
     public override string DisplayName => Npc.displayName;
-    public override string SpriteAssetName => Npc.Sprite.textureName.Value;
+    public override string SpriteAssetName
+    {
+        get
+        {
+            if (
+                CxData?.OverrideAppearanceId is string apprId
+                && Npc.GetData().Appearance?.FirstOrDefault(appear => appear.Id == apprId)
+                    is CharacterAppearanceData overrideAppearance
+            )
+            {
+                return overrideAppearance.Sprite ?? Npc.Sprite.textureName.Value;
+            }
+            return Npc.Sprite.textureName.Value;
+        }
+    }
     public override AnimatedSprite Sprite =>
         new(Game1.content, Npc.Sprite.textureName.Value, 0, Npc.Sprite.SpriteWidth, Npc.Sprite.SpriteHeight);
     public override Rectangle MugShotSourceRect => Npc.getMugShotSourceRect();
+    private readonly bool showShadow = Npc.GetData()?.Shadow?.Visible ?? true;
+    public override bool ShowShadow => showShadow;
 
     public override float GetHaggleBaseTargetPointer(ForSaleTarget forSale)
     {
@@ -114,7 +131,7 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
     }
 }
 
-public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWaveData? WaveData)
+public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWaveData WaveData)
     : BaseFriendEntry(TrstData, null, -2)
 {
     private readonly FriendEntry? friendEntry =
@@ -131,6 +148,7 @@ public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWa
         friendEntry?.Sprite ?? new(Game1.content, SpriteAssetName, 0, TrstData.Size.X, TrstData.Size.Y);
     public override Rectangle MugShotSourceRect =>
         friendEntry?.MugShotSourceRect ?? TrstData.MugShotSourceRect ?? new(0, 0, 16, 24);
+    public override bool ShowShadow => TrstData.ShowShadow;
 
     public override float GetHaggleBaseTargetPointer(ForSaleTarget forSale) => 0.6f;
 
@@ -138,10 +156,12 @@ public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWa
 
     public override int GetGiftTasteForSaleItem(ForSaleTarget forSale)
     {
+        if (WaveData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
+            return NPC.gift_taste_love;
         if (TrstData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
             return NPC.gift_taste_love;
-        if (WaveData?.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
-            return NPC.gift_taste_love;
+        if (!TrstData.UseNPCGiftTastes && friendEntry != null)
+            return friendEntry.GetGiftTasteForSaleItem(forSale);
         return NPC.gift_taste_hate;
     }
 

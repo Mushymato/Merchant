@@ -10,12 +10,14 @@ public sealed class TouristData : BaseCustomerData
     public List<string>? DesiredContextTags { get; set; } = null;
 
     public string? NPC { get; set; } = null;
+    public bool UseNPCGiftTastes { get; set; } = true;
 
     public string? DisplayName { get; set; } = null;
     public string? Portrait { get; set; } = null;
     public string? Sprite { get; set; } = null;
     public Point Size { get; set; } = new Point(16, 32);
     public Rectangle? MugShotSourceRect { get; set; } = null;
+    public bool ShowShadow { get; set; } = false;
 }
 
 public sealed class TourismWaveData
@@ -27,5 +29,5 @@ public sealed class TourismWaveData
     public string? Description { get; set; } = null;
     public List<string>? DesiredContextTags { get; set; } = null;
     public int TouristMinCount { get; set; } = 4;
-    public int TouristMaxCount { get; set; } = 4;
+    public int TouristMaxCount { get; set; } = -1;
 }

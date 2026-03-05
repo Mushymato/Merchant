@@ -1,8 +1,10 @@
+using System.Text;
 using Merchant.Management;
 using Merchant.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
+using StardewValley.TokenizableStrings;
 
 namespace Merchant.Misc;
 
@@ -85,7 +87,18 @@ internal sealed class CachedTourismWaves(Farmer player)
     {
         foreach (ActiveTourismWave wave in ActiveWaves.Values)
         {
-            int waveCount = Random.Shared.Next(wave.WaveData.TouristMinCount, wave.WaveData.TouristMaxCount);
+            int totalMatchingItems = int.MaxValue;
+            if (wave.WaveData.DesiredContextTags != null)
+                totalMatchingItems = forSaleTargets.Count(forSale =>
+                    wave.WaveData.DesiredContextTags.All(forSale.Thing.HasContextTag)
+                );
+            if (totalMatchingItems == 0)
+                continue;
+
+            int waveCount = Math.Min(
+                totalMatchingItems,
+                Random.Shared.Next(wave.WaveData.TouristMinCount, wave.WaveData.TouristMaxCount)
+            );
             if (waveCount <= 0)
                 continue;
 
@@ -101,5 +114,25 @@ internal sealed class CachedTourismWaves(Farmer player)
         }
 
         return pickedActors;
+    }
+
+    internal string FormatSummary()
+    {
+        StringBuilder sb = new();
+        sb.Append(I18n.Tourism_Title());
+        sb.Append(ShopBonusStats.LINEBREAK);
+        foreach (ActiveTourismWave wave in ActiveWaves.Values)
+        {
+            if (wave.WaveId == TourismWaveData.DefaultWave)
+                continue;
+            sb.Append('^');
+            sb.Append(TokenParser.ParseText(wave.WaveData.DisplayName) ?? wave.WaveId);
+            if (TokenParser.ParseText(wave.WaveData.Description) is string desc)
+            {
+                sb.Append("^  ");
+                sb.Append(desc);
+            }
+        }
+        return sb.ToString();
     }
 }
