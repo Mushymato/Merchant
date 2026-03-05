@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 
 namespace Merchant.Models;
@@ -10,7 +11,6 @@ public sealed class TouristData : BaseCustomerData
     public List<string>? ContextTags { get; set; } = null;
 
     public string? NPC { get; set; } = null;
-    public bool UseNPCGiftTastes { get; set; } = true;
 
     public string? DisplayName { get; set; } = null;
     public string? Portrait { get; set; } = null;
@@ -32,6 +32,13 @@ public sealed class TourismWaveData
     public List<string>? ContextTags { get; set; } = null;
     public int TouristMinCount { get; set; } = 4;
     public int TouristMaxCount { get; set; } = -1;
+    public Dictionary<string, CustomerDialogue> Dialogue = [];
 
     internal List<string[]> SplitContextTags => field ??= ContextTags.SplitContextTags();
+
+    // Haggle Dialogue
+    internal List<string>[]? MergedDialogues => field ??= CustomerDialogue.GetMergedDialogues(Dialogue);
+
+    internal bool TryGetDialogueText(CustomerDialogueKind kind, [NotNullWhen(true)] out string? dialogueText) =>
+        CustomerDialogue.TryGetDialogueText(MergedDialogues, kind, out dialogueText);
 }

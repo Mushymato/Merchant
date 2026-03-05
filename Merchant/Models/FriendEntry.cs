@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Merchant.Management;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -31,6 +32,8 @@ public abstract record BaseFriendEntry(BaseCustomerData? BaseCxData, Friendship?
     public abstract int GetGiftTasteForSaleItem(ForSaleTarget forSale);
 
     public abstract void ApplyChangesToActor(CustomerActor actor);
+
+    public abstract bool TryGetDialogueText(CustomerDialogueKind kind, [NotNullWhen(true)] out string? dialogueText);
 }
 
 public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren, int MaxHeartCount)
@@ -129,6 +132,9 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
             }
         }
     }
+
+    public override bool TryGetDialogueText(CustomerDialogueKind kind, [NotNullWhen(true)] out string? dialogueText) =>
+        CustomerDialogue.TryGetDialogueText(BaseCxData?.MergedDialogues, kind, out dialogueText);
 }
 
 public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWaveData WaveData)
@@ -160,8 +166,6 @@ public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWa
             return NPC.gift_taste_love;
         if (TrstData.SplitContextTags.CheckContextTags(forSale.Thing))
             return NPC.gift_taste_love;
-        if (!TrstData.UseNPCGiftTastes && friendEntry != null)
-            return friendEntry.GetGiftTasteForSaleItem(forSale);
         return NPC.gift_taste_hate;
     }
 
@@ -180,5 +184,12 @@ public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWa
                 actor.Portrait = Game1.content.Load<Texture2D>(TrstData.Portrait);
             }
         }
+    }
+
+    public override bool TryGetDialogueText(CustomerDialogueKind kind, [NotNullWhen(true)] out string? dialogueText)
+    {
+        if (CustomerDialogue.TryGetDialogueText(TrstData.MergedDialogues, kind, out dialogueText))
+            return true;
+        return CustomerDialogue.TryGetDialogueText(WaveData.MergedDialogues, kind, out dialogueText);
     }
 }

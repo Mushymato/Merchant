@@ -25,17 +25,7 @@ public abstract class BaseCustomerData
 
     // Haggle Dialogue
     public Dictionary<string, CustomerDialogue> Dialogue = [];
-
     internal List<string>[]? MergedDialogues => field ??= CustomerDialogue.GetMergedDialogues(Dialogue);
-
-    internal bool TryGetDialogueText(CustomerDialogueKind kind, [NotNullWhen(true)] out string? dialogueText)
-    {
-        dialogueText = null;
-        if (MergedDialogues == null || (int)kind >= MergedDialogues.Length)
-            return false;
-        dialogueText = Random.Shared.ChooseFrom(MergedDialogues[(int)kind]);
-        return dialogueText != null;
-    }
 
     public virtual bool WillComeToShop(GameStateQueryContext context)
     {
@@ -78,6 +68,19 @@ public sealed class CustomerDialogue
                 merged[(int)CustomerDialogueKind.Haggle_Fail].Add(dialogue.Haggle_Fail);
         }
         return merged;
+    }
+
+    internal static bool TryGetDialogueText(
+        List<string>[]? MergedDialogues,
+        CustomerDialogueKind kind,
+        [NotNullWhen(true)] out string? dialogueText
+    )
+    {
+        dialogueText = null;
+        if (MergedDialogues == null || (int)kind >= MergedDialogues.Length)
+            return false;
+        dialogueText = Random.Shared.ChooseFrom(MergedDialogues[(int)kind]);
+        return dialogueText != null;
     }
 }
 

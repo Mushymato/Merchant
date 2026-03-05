@@ -24,15 +24,22 @@ Choice of which customers will come happen in 2 steps:
 
 A customer will not come to a shop if everything on sale is a hated gift.
 
+### Tourists
+Sometimes, a tourism wave will be in town, and tourists come to your shop.
+They do not count towards the 32 total customers, and will only buy specific items associated with the tourism wave.
+
+There is one built-in tourism wave "Bookseller Day", which appears when the bookseller is in town.
+During this tourism wave, Marcello (the bookseller) along with Penny and Elliott will come to your shop for books.
+
 ### Purchase Decisions
 
 Once in the shop, a customer will rank everything that is for sale using their gift tastes, and walk towards the item.
 
-They then decide whether they will buy the item. Base chance of purchase is 20%~50% (40%~70% for loved items), and it increases by 10% for every item browsed.
+They then decide whether they will buy the item. Base chance of purchase is 20%~50% (50%~80% for loved items), and it increases by 10% for every item browsed.
 
 Customers will never buy items they hate. If all remaining items in the shop are hated , they will leave without purchasing.
 
-### Haggling 
+### Haggling
 
 What price you actually get is a combination of several factors:
 
@@ -46,7 +53,7 @@ What price you actually get is a combination of several factors:
     - Base: 15%~30%
     - Friendship with customer: up to 20%
 4. Themed Bonuses:
-    - These apply on a per building and per item basis, and increases the minimum multiplier.
+    - These apply on a per building and per item basis, and increases the minimum multiplier up to 50%. This is visible as a bar.
 5. Where you clicked during the minigame:
     - Customer will only accept a price below their target.
     - Going above the target but below the haggle line means they will consider raising prices

@@ -177,6 +177,17 @@ internal static class AssetManager
                 Description = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Desc]",
                 ContextTags = ["book_item"],
                 TouristMinCount = 3,
+                Dialogue = new Dictionary<string, CustomerDialogue>
+                {
+                    [$"{ModEntry.ModId}_Bookbuyer"] = new()
+                    {
+                        Haggle_Ask = $"[LocalizedText {Asset_Strings}:Haggle_Ask_Bookseller]",
+                        Haggle_Compromise = $"[LocalizedText {Asset_Strings}:Haggle_Compromise_Bookseller]",
+                        Haggle_Overpriced = $"[LocalizedText {Asset_Strings}:Haggle_Overpriced_Bookseller]",
+                        Haggle_Success = $"[LocalizedText {Asset_Strings}:Haggle_Success_Bookseller]",
+                        Haggle_Fail = $"[LocalizedText {Asset_Strings}:Haggle_Fail_Bookseller]",
+                    },
+                },
             },
         };
     }
@@ -208,7 +219,7 @@ internal static class AssetManager
             // Bear
             [$"{ModEntry.ModId}_Bear"] = new()
             {
-                AppearsDuring = [TourismWaveData.DefaultWave],
+                Condition = "PLAYER_HAS_SEEN_EVENT Current 2120303",
                 ContextTags = ["id_o_724", "id_o_731"],
                 DisplayName = $"[LocalizedText Strings/NPCNames:Bear]",
                 Portrait = "Portraits/Bear",
@@ -216,6 +227,7 @@ internal static class AssetManager
                 MugShotSourceRect = new(8, 0, 16, 28),
                 Size = new(32, 32),
                 ShowShadow = false,
+                Chance = 0.1f,
             },
         };
     }
@@ -231,7 +243,7 @@ internal static class AssetManager
         }
         customerData["Krobus"] = new()
         {
-            // Condition = "PLAYER_HAS_MAIL Current ccMovieTheater",
+            Condition = "PLAYER_HAS_MAIL Current ccMovieTheater",
             OverrideAppearanceId = "MovieTheater",
             Dialogue = new Dictionary<string, CustomerDialogue>
             {

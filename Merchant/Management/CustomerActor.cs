@@ -55,7 +55,7 @@ public sealed class CustomerActor : NPC
         dummySpeaker.Portrait = Portrait;
         dummySpeaker.displayName = displayName;
         string? rawDialogueText = null;
-        if (sourceFriend.BaseCxData?.TryGetDialogueText(kind, out string? dialogueText) ?? false)
+        if (sourceFriend.TryGetDialogueText(kind, out string? dialogueText))
         {
             rawDialogueText = string.Format(TokenParser.ParseText(dialogueText) ?? dialogueText, substitutions);
         }
@@ -248,7 +248,11 @@ public sealed class CustomerActor : NPC
                 LeavingTheShop();
                 return;
             }
-            float bonusChanceToBuy = giftTaste == gift_taste_love ? 0.2f : 0f;
+            float bonusChanceToBuy;
+            if (sourceFriend.IsTourist)
+                bonusChanceToBuy = giftTaste == gift_taste_love ? 1f : 0f;
+            else
+                bonusChanceToBuy = giftTaste == gift_taste_love ? 0.3f : 0f;
             if (Random.Shared.NextSingle() < chanceToBuy + bonusChanceToBuy + browsedCount * 0.1f)
             {
                 doEmote(giftTaste == gift_taste_love ? heartEmote : exclamationEmote);
