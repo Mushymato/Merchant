@@ -6,6 +6,8 @@ using StardewValley.Pathfinding;
 
 namespace Merchant.Misc;
 
+public sealed record LocationTopology(Point EntryPoint, HashSet<Point> ReachablePoints);
+
 public static class Topology
 {
     public static List<(Point, int)> FormBrowseAround(Rectangle boundingBox, HashSet<Point> reachable)
