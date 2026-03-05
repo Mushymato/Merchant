@@ -160,7 +160,7 @@ internal static class AssetManager
             [$"{ModEntry.ModId}_Flowers"] = new()
             {
                 Description = $"[LocalizedText {Asset_Strings}:Theme_Flowers]",
-                RequiredContextTags = ["flower_item"],
+                ContextTags = ["flower_item"],
                 Value = 0.2f,
             },
         };
@@ -175,7 +175,7 @@ internal static class AssetManager
                 Condition = "mushymato.Merchant_BOOK_SELLER_IN_TOWN",
                 DisplayName = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Name]",
                 Description = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Desc]",
-                DesiredContextTags = ["book_item"],
+                ContextTags = ["book_item"],
                 TouristMinCount = 3,
             },
         };
@@ -209,12 +209,13 @@ internal static class AssetManager
             [$"{ModEntry.ModId}_Bear"] = new()
             {
                 AppearsDuring = [TourismWaveData.DefaultWave],
-                DesiredContextTags = ["id_o_724"],
+                ContextTags = ["id_o_724", "id_o_731"],
                 DisplayName = $"[LocalizedText Strings/NPCNames:Bear]",
                 Portrait = "Portraits/Bear",
                 Sprite = "Characters/Bear",
-                MugShotSourceRect = new(8, 0, 16, 32),
+                MugShotSourceRect = new(8, 0, 16, 28),
                 Size = new(32, 32),
+                ShowShadow = false,
             },
         };
     }

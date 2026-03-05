@@ -88,9 +88,9 @@ internal sealed class CachedTourismWaves(Farmer player)
         foreach (ActiveTourismWave wave in ActiveWaves.Values)
         {
             int totalMatchingItems = int.MaxValue;
-            if (wave.WaveData.DesiredContextTags != null)
+            if (wave.WaveData.SplitContextTags.Any())
                 totalMatchingItems = forSaleTargets.Count(forSale =>
-                    wave.WaveData.DesiredContextTags.All(forSale.Thing.HasContextTag)
+                    wave.WaveData.SplitContextTags.CheckContextTags(forSale.Thing)
                 );
             if (totalMatchingItems == 0)
                 continue;

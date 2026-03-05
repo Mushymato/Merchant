@@ -156,9 +156,9 @@ public sealed record TouristEntry(string TrstId, TouristData TrstData, TourismWa
 
     public override int GetGiftTasteForSaleItem(ForSaleTarget forSale)
     {
-        if (WaveData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
+        if (WaveData.SplitContextTags.CheckContextTags(forSale.Thing))
             return NPC.gift_taste_love;
-        if (TrstData.DesiredContextTags?.All(forSale.Thing.HasContextTag) ?? false)
+        if (TrstData.SplitContextTags.CheckContextTags(forSale.Thing))
             return NPC.gift_taste_love;
         if (!TrstData.UseNPCGiftTastes && friendEntry != null)
             return friendEntry.GetGiftTasteForSaleItem(forSale);

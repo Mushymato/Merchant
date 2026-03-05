@@ -182,17 +182,20 @@ public sealed record ShopkeepBrowsing(
             excludingSet,
             ref waitingActors
         );
+        int touristCounts = waitingActors.Count;
+        if (touristCounts > 0)
+            ModEntry.Log($"Picked {waitingActors.Count} tourists");
         forSaleTargetsCount -= waitingActors.Count;
         // customers
         int customerCount = Math.Min(32, Math.Min(forSaleTargetsCount, 4 + ModEntry.ProgressData.Logs.Count));
         ModEntry.FriendEntries.MakeCustomerActors(
-            customerCount,
+            customerCount + touristCounts,
             entryPoint,
             forSaleTargets,
             excludingSet,
             ref waitingActors
         );
-        ModEntry.Log($"Picked {waitingActors.Count} actors");
+        ModEntry.Log($"Picked {waitingActors.Count - touristCounts} customers");
         Random.Shared.ShuffleInPlace(waitingActors);
 
         ShopBonusStats bonusStats = new(

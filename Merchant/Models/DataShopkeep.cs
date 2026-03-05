@@ -10,7 +10,8 @@ public sealed class ShopkeepThemeBoostData
         set => field = value;
     } = null;
     public string? Description;
-    public List<string>? RequiredContextTags { get; set; } = null;
+    public List<string>? ContextTags { get; set; } = null;
+
     public float Value
     {
         get => field;
@@ -19,20 +20,18 @@ public sealed class ShopkeepThemeBoostData
 
     public override string ToString()
     {
-        return string.Concat(
-            $"{Value:P2} ",
-            RequiredContextTags != null ? string.Join(',', RequiredContextTags) : "ANY"
-        );
+        return string.Concat($"{Value:P2} ", ContextTags != null ? string.Join(',', ContextTags) : "ANY");
     }
+
+    private List<string[]> SplitContextTags => field ??= ContextTags.SplitContextTags();
 
     public static ShopkeepThemeBoostData? GetThemedBoostForItem(List<ShopkeepThemeBoostData>? themedBoosts, Item item)
     {
         if (themedBoosts == null || themedBoosts.Count == 0)
             return null;
-        SObject? obj = item as SObject;
         foreach (ShopkeepThemeBoostData curBoost in themedBoosts)
         {
-            if (curBoost.RequiredContextTags?.All((obj ?? item).HasContextTag) ?? false)
+            if (curBoost.SplitContextTags.CheckContextTags(item))
             {
                 return curBoost;
             }
