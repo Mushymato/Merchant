@@ -5,16 +5,16 @@ The happenings of 1 shopkeeping session depends on a variety of factors. This de
 ### Decor Bonus Calculation
 
 Decor bonus is internally a number between 0.0 and 1.0 and the sum of these two values:
-* Standing decor adds up to 0.7. It is calculated as number of non-table decor / number of tables and full bonus is earned by having at least one decor per table.
-* Rug/floor adds up to 0.3. It is calculated as total tiles covered by something / (2/3 times number of reachable tiles).
+* Standing decor can go up to 0.7. It is calculated as number of non-table decor / number of tables and full bonus is earned by having at least one decor per table.
+* Rug/floor can go up to 0.3. It is calculated as total tiles covered by something / (2/3 times number of reachable tiles).
 
 The base haggle minimum multiplier is 0.5x, add 1/2 of decor bonus to get the final multiplier (i.e. up to 1.0x).
-The base haggle maximum multiplier is 0.5x, add decor bonus to get the final multiplier (i.e. up to 2.5x).
+The base haggle maximum multiplier is 1.5x, add decor bonus to get the final multiplier (i.e. up to 2.5x).
 
 ### Customers
 The standard kind of customers is a sociable NPC (i.e. appears on the social tab with hearts, can accept gifts) that the farmer has met.
 
-Initially you get a maximum of 4 customers in each shopkeeping session, and every shopkeeping session you play add 1 to this max, up to 32
+Initially you get a maximum of 4 customers in each shopkeeping session. This number can be increased with the advertisement upgrade, up to 32.
 
  You will not get more customers in 1 session than number of items you have for sale.
 
@@ -57,8 +57,8 @@ What price you actually get is a combination of several factors:
     * Only one boost can apply at a time.
     * There are 3 built-in boosts:
         * Greenhouse: +20% to flower items.
-        * All Coops: +10% to egg items.
-        * All Barns: +10% to milk items.
+        * All Coops: +20% to egg items.
+        * All Barns: +20% to milk items.
 5. Where you clicked during the minigame:
     * Customer will only accept a price below their target.
     * Going above the target but below the haggle line means they will consider raising prices

@@ -61,6 +61,16 @@ This mod supports GMCM:
 * Haggle Auto-click: When enabled, automatically click on haggle. This is the same effect as give up.
 * Haggle UI Offset: Adjust the position of the haggle bar here.
 
+## Extending Merchant
+
+Aside from the built-in content, mod authors can:
+
+* Add more haggling dialogue
+* Add shop themes to custom buildings
+* Add non-social customers and tourism waves
+
+See [../author-guide.md] for details.
+
 ## Installation
 
 1. Install SMAPI
@@ -84,3 +94,5 @@ Feel free to translate this mod and post as separate page.
 * [Nostalgic Old Furniture Collection](https://www.nexusmods.com/stardewvalley/mods/22767)
 * [PC's Victorian Furniture](https://www.nexusmods.com/stardewvalley/mods/39745)
 * [Baubles](https://www.nexusmods.com/stardewvalley/mods/29720)
+
+## [Source Code](https://github.com/Mushymato/Merchant)
