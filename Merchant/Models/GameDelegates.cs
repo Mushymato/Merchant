@@ -1,4 +1,5 @@
 using Merchant.Management;
+using Merchant.Misc;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
@@ -12,7 +13,6 @@ public static class GameDelegates
         $"Merchant.Models.{nameof(GameDelegates)}, Merchant: {nameof(InteractCashRegister)}";
     private const string TileAction_CashRegister = $"{ModEntry.ModId}_CashRegister";
     private const string GSQ_BOOK_SELLER_IN_TOWN = $"{ModEntry.ModId}_BOOK_SELLER_IN_TOWN";
-    private const string GSQ_IN_HAGGLING = $"{ModEntry.ModId}_IN_HAGGLING";
     internal const string Trigger_Merchant_Sold = $"{ModEntry.ModId}_Sold";
     internal const string ModData_SoldPrice = $"{ModEntry.ModId}/Sold/Price";
     internal const string ModData_SoldBuyer = $"{ModEntry.ModId}/Sold/Buyer";
@@ -45,8 +45,13 @@ public static class GameDelegates
         List<Response> responses =
         [
             new("merchant_startgame", I18n.Menu_StartMinigame()),
-            new("merchant_checkbonus", I18n.Menu_CheckBonus()),
+            new("merchant_manageupgrades", I18n.Menu_ManageUpgrades()),
+            new("merchant_viewbonus", I18n.Menu_ViewBonus()),
         ];
+        if (browsing.ShopBonus.ThemeBoostDatas?.Any() ?? false)
+        {
+            responses.Add(new("merchant_viewthemes", I18n.Menu_ViewThemes()));
+        }
         if (ModEntry.TourismWaves.HasActiveWaves())
         {
             responses.Add(new("merchant_tourism", I18n.Menu_TourismWave()));
@@ -84,8 +89,14 @@ public static class GameDelegates
                         )
                             Game1.drawObjectDialogue(failReason);
                         break;
-                    case "merchant_checkbonus":
-                        Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatSummary());
+                    case "merchant_manageupgrades":
+                        Utility.TryOpenShopMenu(AssetManager.UpgradeShopId, "AnyOrNone");
+                        break;
+                    case "merchant_viewbonus":
+                        Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatStats());
+                        break;
+                    case "merchant_viewthemes":
+                        Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatThemes());
                         break;
                     case "merchant_tourism":
                         Game1.drawDialogueNoTyping(ModEntry.TourismWaves.FormatSummary());

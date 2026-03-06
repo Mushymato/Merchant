@@ -66,6 +66,7 @@ public sealed class ModEntry : Mod
 
         AssetManager.Register();
         GameDelegates.Register();
+        Upgrades.Register();
     }
 
     private void ConsoleForceQuit(string arg1, string[] arg2)

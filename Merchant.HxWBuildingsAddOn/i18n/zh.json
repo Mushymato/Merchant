@@ -1,0 +1,7 @@
+{
+  // {0:P2} will get replaced by Value%
+  "Theme_TeaShop": "茶之宁静：茶物品售价增加{0:P2}",
+  "Theme_Bakery": "新鲜出炉：烘培面包和甜品类物品售价增加{0:P2}",
+  "Theme_Restaurant": "主厨特选：烹饪类物品售价增加{0:P2}",
+  "Theme_WineryBrewery": "生啤排队: 酿造酒类物品售价增加{0:P2}"
+}

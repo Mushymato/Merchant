@@ -1,6 +1,4 @@
 {
-  "config.auto-restock.name": "启用自动补货",
-  "config.auto-restock.desc": "自动补货功能会在每次店铺运营后把箱子里的物品自动放置到空桌子上。",
   "config.unmet-npc.name": "允许不认识的NPC成为客人",
   "config.unmet-npc.desc": "启用后，你不认识的NPC也有可能出现在你的店铺，这并不算“打招呼”",
   "config.haggle-autoclick.name": "讨价还价：自动点击",

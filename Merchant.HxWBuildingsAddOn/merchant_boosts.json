@@ -1,0 +1,148 @@
+{
+  "$schema": "https://smapi.io/schemas/content-patcher.json",
+  "Changes": [
+    // boost definitions
+    {
+      "Action": "EditData",
+      "Target": "mushymato.Merchant/ShopkeepThemeBoosts",
+      "Entries": {
+        "{{ModId}}_TeaShop": {
+          "Description": "{{i18n:Theme_TeaShop}}",
+          "RequiredContextTags": [
+            "food_tea",
+            "wildflour_tea"
+          ],
+          "Value": 0.2,
+        },
+        "{{ModId}}_Bakery": {
+          "Description": "{{i18n:Theme_Bakery}}",
+          "RequiredContextTags": [
+            "food_bakery",
+            "food_cake",
+            "food_sweet",
+            "food_coffee",
+            "bread_item",
+            "wildflour_bakery",
+            "wildflour_coffee_item",
+          ],
+          "Value": 0.2,
+        },
+        "{{ModId}}_Restaurant": {
+          "Description": "{{i18n:Theme_Restaurant}}",
+          "RequiredContextTags": [
+            "food_pasta",
+            "food_breakfast",
+            "food_salad",
+            "food_soup",
+            "food_sushi",
+            "food_seafood",
+          ],
+          "Value": 0.2,
+        },
+        "{{ModId}}_WineryBrewery": {
+          "Description": "{{i18n:Theme_WineryBrewery}}",
+          "RequiredContextTags": [
+            "alcohol_item",
+            "wildflour_ale_item",
+            "wildflour_mead_item",
+          ],
+          "Value": 0.2,
+        }
+      }
+    },
+    // apply boosts to buildings
+    // im going to be lazy and just use fields here
+    // since you can eventually just put it on the building edit
+    {
+      "Action": "EditData",
+      "Target": "Data/Buildings",
+      "Fields": {
+        "HXW.Buildings_Complete_TeaShop": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_TeaShop"
+          }
+        },
+        "HXW.Buildings_Complete_TeaShop_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_TeaShop,{{ModId}}_Bakery"
+          }
+        },
+        "HXW.Buildings_Complete_Conservatory": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_TeaShop,mushymato.Merchant_Flowers"
+          }
+        },
+        "HXW.Buildings_Complete_Bakery": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_Bakery"
+          }
+        },
+        "HXW.Buildings_Complete_Bakery_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_Bakery,{{ModId}}_Restaurant"
+          }
+        },
+        "HXW.Buildings_Complete_Restaurant": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_Restaurant"
+          }
+        },
+        "HXW.Buildings_Complete_Restaurant_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_Restaurant,{{ModId}}_TeaShop"
+          }
+        },
+        "HXW.Buildings_Complete_Restaurant_XL": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_Restaurant,{{ModId}}_TeaShop"
+          }
+        },
+        "HXW.Buildings_Complete_Brewery": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Brewery_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Brewery_XL": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Winery": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Winery_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Winery_XL": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "{{ModId}}_WineryBrewery"
+          }
+        },
+        "HXW.Buildings_Complete_Florist": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "mushymato.Merchant_Flowers"
+          }
+        },
+        "HXW.Buildings_Complete_Florist_Large": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "mushymato.Merchant_Flowers"
+          }
+        },
+        "HXW.Buildings_Complete_Florist_XL": {
+          "Metadata": {
+            "mushymato.Merchant/ShopkeepThemeBoosts": "mushymato.Merchant_Flowers"
+          }
+        }
+      }
+    },
+  ]
+}

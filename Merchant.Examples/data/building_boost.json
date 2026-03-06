@@ -6,7 +6,6 @@
       "Target": "mushymato.Merchant/ShopkeepThemeBoosts",
       "Entries": {
         "{{ModId}}_EggZone": {
-          "Id": "{{ModId}}_EggBoost",
           "Description": "Gib Egg",
           "RequiredContextTags": [
             "egg_item"

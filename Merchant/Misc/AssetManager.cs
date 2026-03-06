@@ -59,6 +59,7 @@ internal static class AssetManager
     internal const string Metadata_ShopkeepThemeBoosts = $"{ModEntry.ModId}/ShopkeepThemeBoosts";
     internal const string Metadata_ShopkeepCondition = $"{ModEntry.ModId}/ShopkeepCondition";
     internal const string Metadata_ShopkeepNotAllowedMessage = $"{ModEntry.ModId}/ShopkeepNotAllowedMessage";
+    internal const string UpgradeShopId = $"{ModEntry.ModId}_Upgrades";
 
     private const string ThemeBoost_Flowers = $"{ModEntry.ModId}_Flowers";
     private const string ThemeBoost_Eggs = $"{ModEntry.ModId}_Eggs";
@@ -333,6 +334,29 @@ internal static class AssetManager
         IDictionary<string, ShopData> data = asset.AsDictionary<string, ShopData>().Data;
         if (data.ContainsKey("Carpenter"))
             data["Carpenter"].Items.Add(new() { Id = CashRegisterQId, ItemId = CashRegisterQId });
+        data[UpgradeShopId] = new()
+        {
+            Items =
+            [
+                new()
+                {
+                    Id = Upgrades.IQ_ADVERTISE,
+                    ItemId = Upgrades.IQ_ADVERTISE,
+                    UseObjectDataPrice = true,
+                    MinStack = 1,
+                    MaxStack = 1,
+                },
+                new()
+                {
+                    Id = Upgrades.IQ_AUTO_RESTOCK,
+                    ItemId = Upgrades.IQ_AUTO_RESTOCK,
+                    UseObjectDataPrice = true,
+                    MinStack = 1,
+                    MaxStack = 1,
+                },
+                new() { Id = CashRegisterQId, ItemId = CashRegisterQId },
+            ],
+        };
     }
 
     public static void Edit_Machines(IAssetData asset)

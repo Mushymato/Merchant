@@ -16,12 +16,12 @@
   // bookseller day haggle dialogues
   "Haggle_Ask_Bookseller": "{1}$买一本{0}？",
   "Haggle_Compromise_Bookseller": "{1}$挺贵的，就算是畅销书…$s",
-  "Haggle_Overpriced_Bookseller": "{1}$！？！如今出版商的版税简直高得离谱！$s",
+  "Haggle_Overpriced_Bookseller": "{1}$！？！这零销商提成简直高得离谱！$s",
   "Haggle_Success_Bookseller": "我要回家读书了,付你{1}$！$h",
   "Haggle_Fail_Bookseller": "算了我还是邮购吧…$s",
   // bookseller day
   "Tourism_BooksellerDay_Name": "书摊开业日：",
-  "Tourism_BooksellerDay_Desc": "如果你有出售书籍，阅读爱好者会光临你的店铺！",
+  "Tourism_BooksellerDay_Desc": "如果你有书籍出售，阅读爱好者会光临你的店铺！",
   "Marcello_Name": "马塞罗",
   // flower shopkeep theme boost
   "Theme_Flowers": "花朵盛开：花类物品售价增加{0:P2}",

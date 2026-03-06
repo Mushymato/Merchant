@@ -24,7 +24,7 @@ public sealed record ShopBonusStats(
 
     internal const string LINEBREAK = "  ^--------------------------------------------------";
 
-    public string FormatSummary()
+    public string FormatStats()
     {
         StringBuilder sb = new();
         sb.Append(I18n.Bonus_Title());
@@ -65,21 +65,26 @@ public sealed record ShopBonusStats(
                 $"{totalBonus + ShopkeepHaggle.MAX_MULT:0.00}"
             )
         );
-        if (ThemeBoostDatas?.Count > 0)
-        {
-            sb.Append(LINEBREAK);
-            sb.Append('^');
-            sb.Append(I18n.Bonus_ThemeBoost());
-            foreach (ShopkeepThemeBoostData boost in ThemeBoostDatas)
-            {
-                sb.Append("^  ");
-                if (string.Format(TokenParser.ParseText(boost.Description), boost.Value) is string desc)
-                    sb.Append(desc);
-                else
-                    sb.Append(boost.ToString());
-            }
-        }
 
+        return sb.ToString();
+    }
+
+    public string FormatThemes()
+    {
+        if (ThemeBoostDatas == null)
+            return string.Empty;
+
+        StringBuilder sb = new();
+        sb.Append(I18n.ThemeBoost_Title());
+        sb.Append(LINEBREAK);
+        foreach (ShopkeepThemeBoostData boost in ThemeBoostDatas)
+        {
+            sb.Append("^  ");
+            if (string.Format(TokenParser.ParseText(boost.Description), boost.Value) is string desc)
+                sb.Append(desc);
+            else
+                sb.Append(boost.ToString());
+        }
         return sb.ToString();
     }
 }

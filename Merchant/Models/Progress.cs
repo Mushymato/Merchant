@@ -82,12 +82,17 @@ public sealed class ShopkeepSessionLog
 
 public sealed class MerchantProgressData
 {
+    #region saved progress
+    public List<ShopkeepSessionLog> Logs { get; set; } = [];
+    public int AdvertiseLevel = 4;
+    public bool AutoRestockUnlocked = false;
+    public bool AutoRestockEnabled = false;
+    #endregion
+
     private const string Stat_Sessions = $"{ModEntry.ModId}_ShopkeepSessions";
     private const string Stat_Earnings = $"{ModEntry.ModId}_ShopkeepEarnings";
     private string key = "merchant";
     internal ulong TotalEarnings { get; set; } = 0;
-
-    public List<ShopkeepSessionLog> Logs { get; set; } = [];
 
     private void FinishLoading()
     {

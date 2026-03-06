@@ -1,0 +1,20 @@
+{
+  "Name": "H&W Custom Buildings - Merchant Add-on",
+  "Author": "HimeTarts & WildflourMods",
+  "Version": "1.0.0",
+  "Description": "Adds themed boosts for Merchant to H&W Custom Buildings",
+  "UniqueID": "HXW.Buildings_Complete.Merchant",
+  "MinimumApiVersion": "4.0",
+  "UpdateKeys": [],
+  "ContentPackFor": {
+    "UniqueID": "Pathoschild.ContentPatcher"
+  },
+  "Dependencies": [
+    {
+      "UniqueID": "HXW.Buildings_Complete"
+    },
+    {
+      "UniqueID": "mushymato.Merchant"
+    }
+  ]
+}

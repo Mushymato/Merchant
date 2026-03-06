@@ -191,7 +191,7 @@ public sealed class ShopkeepGame : IMinigame
     public void unload()
     {
         browsing.Cleanup();
-        if (ModEntry.config.EnableAutoRestock)
+        if (ModEntry.ProgressData.AutoRestockEnabled)
             AutoRestockEmptyTables();
         haggling = null;
 

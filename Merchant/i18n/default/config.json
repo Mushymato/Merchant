@@ -1,6 +1,4 @@
 {
-  "config.auto-restock.name": "Enable Auto-Restock",
-  "config.auto-restock.desc": "When auto-restock is enabled and there are chests in the shop location, items inside will be automatically placed onto empty tables when you close the shop.",
   "config.unmet-npc.name": "Allow Unmet NPC Customers",
   "config.unmet-npc.desc": "When enabled, NPC you haven't met are allowed to come visit your shop (this doesn't count as meeting them).",
   "config.haggle-autoclick.name": "Haggle Auto-click",

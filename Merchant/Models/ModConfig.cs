@@ -7,7 +7,6 @@ namespace Merchant.Models;
 
 public sealed class ModConfig
 {
-    public bool EnableAutoRestock { get; set; } = true;
     public bool AllowUnmetCustomers { get; set; } = false;
     public bool HaggleAutoClick { get; set; } = false;
     public int HaggleSpeed { get; set; } = 1500;
@@ -15,7 +14,6 @@ public sealed class ModConfig
 
     private void Reset()
     {
-        EnableAutoRestock = true;
         AllowUnmetCustomers = false;
         HaggleAutoClick = false;
         HaggleSpeed = 1500;
@@ -30,13 +28,6 @@ public sealed class ModConfig
     public void Register(IManifest mod, IGenericModConfigMenuApi gmcm)
     {
         gmcm.Register(mod, Reset, Save);
-        gmcm.AddBoolOption(
-            mod,
-            () => EnableAutoRestock,
-            (value) => EnableAutoRestock = value,
-            I18n.Config_AutoRestock_Name,
-            I18n.Config_AutoRestock_Desc
-        );
         gmcm.AddBoolOption(
             mod,
             () => AllowUnmetCustomers,

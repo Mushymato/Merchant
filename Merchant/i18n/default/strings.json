@@ -16,7 +16,7 @@
   // bookseller day haggle dialogues
   "Haggle_Ask_Bookseller": "{1}$ for the next {0} volume?",
   "Haggle_Compromise_Bookseller": "{1}$ is a lot even for a bestseller...$s",
-  "Haggle_Overpriced_Bookseller": "{1}$!?! Publisher royalties are insane these days!$s",
+  "Haggle_Overpriced_Bookseller": "{1}$!?! Retail markups are insane these days!$s",
   "Haggle_Success_Bookseller": "I can't wait to read this, here's {1}$!$h",
   "Haggle_Fail_Bookseller": "I'll just order it by mail...$s",
   // bookseller day

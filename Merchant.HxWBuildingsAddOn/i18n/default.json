@@ -1,0 +1,7 @@
+{
+  // {0:P2} will get replaced by Value%
+  "Theme_TeaShop": "Steeped Serenity: {0:P2} boost to tea items",
+  "Theme_Bakery": "Freshly Baked: {0:P2} boost to baked goods and sweets",
+  "Theme_Restaurant": "Chef's Special: {0:P2} boost to prepared meals",
+  "Theme_WineryBrewery": "On Tap: {0:P2} boost to brewed and fermented drinks"
+}
