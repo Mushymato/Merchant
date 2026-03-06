@@ -14,7 +14,8 @@ Place down the cash register in a valid farm building and interact with it to ge
 To put something out for sale, place the item on a (furniture) table. It **must** be reachable from the building's entrance in order to be sold.
 Besides having the goods, you also want to have an appealing store. This directly boosts the overall multiplier on sell prices.
 
-Decor bonus is evaluated in 2 ways:
+Shop bonus is evaluated in 2 ways:
+
 * **Decor** earned by having non-table and non-rug furniture, plus certain craftables (Scarecrows, Indoor Pots, Mannequins, Mini-Jukebox).
 * **Rug/Floor** earned by covering the floor with rugs, paths, grass, crops and bush.
 
@@ -39,6 +40,19 @@ Shopkeeping is a strenuous activity. It costs 10 energy to begin a session, and 
 * WASD / Left Thumb Stick: Pan the camera around your shop.
 * Menu Button (E, Escape, Gamepad Y) to prematurely end the shopkeeping session.
 
+## What can you sell?
+
+Right now, you can sell essentially anything you can put in the shipping bin.
+Modded items are treated the same as vanilla items.
+Selling things via your shop counts for shipping special orders and full shipment.
+
+## Upgrades
+
+You can improve your shop by purchasing upgrades, accessible via Manage Upgrades
+
+* Advertisement: increases number of customers, up to 32
+* Auto-Restock: if you have any chests in the shop, sell-able items inside will be automatically placed on tables whenever you complete a shopkeeping session.
+
 ## Configuration
 
 This mod supports GMCM:
@@ -55,7 +69,6 @@ This mod supports GMCM:
 ## Translations
 
 * English
-
 * 简体中文
 
 Feel free to translate this mod and post as separate page.
