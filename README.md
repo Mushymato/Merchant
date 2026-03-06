@@ -34,18 +34,18 @@ Shopkeeping is a strenuous activity. It costs 10 energy to begin a session, and 
 
 ### Controls
 
-* Tool Use Button (Left Click, C, Gamepad A) to pick haggle.
-* Action Button (Right Click, X, Gamepad X) to give up on haggle and take a low offer.
+* Action Button (Left Click, C, Gamepad A) to pick haggle.
+* Tool Use Button (Right Click, X, Gamepad X) to give up on haggle and take a low offer.
 * WASD / Left Thumb Stick: Pan the camera around your shop.
 * Menu Button (E, Escape, Gamepad Y) to prematurely end the shopkeeping session.
 
 ## Configuration
 
-This mod supports GMCM, and there are a few things you can tune there.
+This mod supports GMCM:
 
 * Allow Unmet NPC Customers: Normally only NPCs that you've met will come to the shop, this let NPCs you never met come shop as well.
 * Haggle Auto-click: When enabled, automatically click on haggle. This is the same effect as give up.
-* 
+* Haggle UI Offset: Adjust the position of the haggle bar here.
 
 ## Installation
 
@@ -63,5 +63,11 @@ Feel free to translate this mod and post as separate page.
 ## Special Thanks:
 
 * [DolphinIsNotaFish](https://www.nexusmods.com/profile/DolphinIsNotaFish) for thumbnail and event help
-* [boxosoup](https://www.nexusmods.com/profile/boxosoup) for in-depth testing
-* [nancyxdrewx](https://www.nexusmods.com/profile/nancyxdrewx) for help with decorating shop
+* [boxosoup](https://www.nexusmods.com/profile/boxosoup) for in-depth testing help
+* [nancyxdrewx](https://www.nexusmods.com/profile/nancyxdrewx) for cute shop graphics
+
+## Mods in Screenshots
+
+* [Nostalgic Old Furniture Collection](https://www.nexusmods.com/stardewvalley/mods/22767)
+* [PC's Victorian Furniture](https://www.nexusmods.com/stardewvalley/mods/39745)
+* [Baubles](https://www.nexusmods.com/stardewvalley/mods/29720)

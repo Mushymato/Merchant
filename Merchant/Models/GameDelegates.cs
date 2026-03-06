@@ -1,6 +1,7 @@
 using Merchant.Management;
 using Merchant.Misc;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.Triggers;
@@ -13,6 +14,8 @@ public static class GameDelegates
         $"Merchant.Models.{nameof(GameDelegates)}, Merchant: {nameof(InteractCashRegister)}";
     private const string TileAction_CashRegister = $"{ModEntry.ModId}_CashRegister";
     private const string GSQ_BOOK_SELLER_IN_TOWN = $"{ModEntry.ModId}_BOOK_SELLER_IN_TOWN";
+    private const string GSQ_SOLD_BUYER = $"{ModEntry.ModId}_SOLD_BUYER";
+    private const string GSQ_SOLD_PRICE = $"{ModEntry.ModId}_SOLD_PRICE";
     internal const string Trigger_Merchant_Sold = $"{ModEntry.ModId}_Sold";
     internal const string ModData_SoldPrice = $"{ModEntry.ModId}/Sold/Price";
     internal const string ModData_SoldBuyer = $"{ModEntry.ModId}/Sold/Buyer";
@@ -22,6 +25,38 @@ public static class GameDelegates
         GameLocation.RegisterTileAction(TileAction_CashRegister, TileActionCashRegister);
         TriggerActionManager.RegisterTrigger(Trigger_Merchant_Sold);
         GameStateQuery.Register(GSQ_BOOK_SELLER_IN_TOWN, BOOK_SELLER_IN_TOWN);
+        GameStateQuery.Register(GSQ_SOLD_BUYER, SOLD_BUYER);
+        GameStateQuery.Register(GSQ_SOLD_PRICE, SOLD_PRICE);
+    }
+
+    private static bool SOLD_PRICE(string[] query, GameStateQueryContext context)
+    {
+        if (!context.TargetItem.modData.TryGetValue(ModData_SoldPrice, out string priceStr) || !uint.TryParse(priceStr, out uint price))
+        {
+            return false;
+        }
+        if (!ArgUtility.TryGetInt(query, 1, out int minValue, out string error, name: "int minValue")
+            || !ArgUtility.TryGetOptionalInt(query, 2, out int maxValue, out error, name: "int maxValue"))
+        {
+            ModEntry.Log(error, LogLevel.Error);
+            return false;
+        }
+        maxValue = Math.Max(minValue, maxValue);
+        return price >= minValue && price <= maxValue;
+    }
+
+    private static bool SOLD_BUYER(string[] query, GameStateQueryContext context)
+    {
+        if (!context.TargetItem.modData.TryGetValue(ModData_SoldBuyer, out string buyer))
+        {
+            return false;
+        }
+        if (!ArgUtility.TryGet(query, 1, out string buyerExpect, out string error, name: "string buyerExpect"))
+        {
+            ModEntry.Log(error, LogLevel.Error);
+            return false;
+        }
+        return buyer == buyerExpect;
     }
 
     private static bool BOOK_SELLER_IN_TOWN(string[] query, GameStateQueryContext context)
