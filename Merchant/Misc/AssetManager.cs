@@ -163,20 +163,20 @@ internal static class AssetManager
             [ThemeBoost_Flowers] = new()
             {
                 Description = $"[LocalizedText {Asset_Strings}:Theme_Flowers]",
-                ContextTags = ["flower_item"],
+                ContextTags = ["flower_item", "edible_flower_item", "wildflour_floral_item"],
                 Value = 0.2f,
             },
             [ThemeBoost_Eggs] = new()
             {
                 Description = $"[LocalizedText {Asset_Strings}:Theme_Eggs]",
                 ContextTags = ["egg_item"],
-                Value = 0.1f,
+                Value = 0.2f,
             },
             [ThemeBoost_Milk] = new()
             {
                 Description = $"[LocalizedText {Asset_Strings}:Theme_Milk]",
                 ContextTags = ["milk_item"],
-                Value = 0.1f,
+                Value = 0.2f,
             },
         };
     }
