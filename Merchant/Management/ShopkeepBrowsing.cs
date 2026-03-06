@@ -185,7 +185,7 @@ public sealed record ShopkeepBrowsing(
             ModEntry.Log($"Picked {waitingActors.Count} tourists");
         forSaleTargetsCount -= waitingActors.Count;
         // customers
-        int customerCount = Math.Min(32, Math.Min(forSaleTargetsCount, 4 + ModEntry.ProgressData.Logs.Count));
+        int customerCount = Math.Min(forSaleTargetsCount, ModEntry.ProgressData.AdvertiseLevel);
         ModEntry.FriendEntries.MakeCustomerActors(
             customerCount + touristCounts,
             locationTopology,
