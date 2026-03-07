@@ -250,6 +250,11 @@ public sealed class ShopkeepGame : IMinigame
     public bool tick(GameTime time)
     {
         // general updates
+        if (Game1.player.health <= 0)
+        {
+            state.Current = GameLoopState.Unload;
+            return true;
+        }
         if (Game1.activeClickableMenu != null)
         {
             Game1.PushUIMode();

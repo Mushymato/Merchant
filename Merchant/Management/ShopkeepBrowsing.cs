@@ -324,8 +324,12 @@ public sealed record ShopkeepBrowsing(
         Game1.playSound(AssetManager.DoorbellCue, 1100 + (int)(300 * Random.Shared.NextSingle()));
     }
 
+    private bool MadeReport = false;
+
     internal void Cleanup()
     {
+        if (!MadeReport)
+            FinalizeAndReport();
         WaitingActors.Clear();
         dispatchedActors.Clear();
     }
@@ -347,7 +351,7 @@ public sealed record ShopkeepBrowsing(
 
             sb.Append($"\n- {forSale.Thing.DisplayName} {forSale.Sold}");
         }
-
+        MadeReport = true;
         if (sales.Count <= 0)
         {
             return null;
