@@ -1,6 +1,8 @@
 {
   "CashRegister_Name": "Cash Register",
   "CashRegister_Desc": "A cash register for managing your own shop! Place it down in a farm building to use it.",
+  "RoboShopkeep_Name": "Robo-Shopkeeper 3000",
+  "RoboShopkeep_Desc": "This automated retail bot will sell your things to customers all around the world each night! Place it down in a farm building to use it.",
   // default haggle dialogues
   "Haggle_Ask": "How about {1}$ for {0}?",
   "Haggle_Compromise": "{1}$ is a little too much...$s",

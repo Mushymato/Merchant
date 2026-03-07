@@ -26,8 +26,7 @@ public sealed record ShopkeepHaggle(
     #region make
     public static ShopkeepHaggle Make(Farmer player, CustomerActor buyer, ForSaleTarget forSale, float decorBonus)
     {
-        float minMult = MIN_MULT + decorBonus / 2f;
-        float maxMult = MAX_MULT + decorBonus;
+        GetMinAndMaxMult(decorBonus, out float minMult, out float maxMult);
 
         Func<float, float> patternFn = Random.Shared.NextBool() ? Ease.InQuad : Ease.InOutQuad;
 
@@ -36,6 +35,12 @@ public sealed record ShopkeepHaggle(
         newHaggle.CalculateBounds();
 
         return newHaggle;
+    }
+
+    internal static void GetMinAndMaxMult(float decorBonus, out float minMult, out float maxMult)
+    {
+        minMult = MIN_MULT + decorBonus / 2f;
+        maxMult = MAX_MULT + decorBonus;
     }
 
     internal static readonly NPC dummySpeaker = new(
@@ -72,17 +77,19 @@ public sealed record ShopkeepHaggle(
 
     private float pointer = 0f;
 
-    public float periodMS = ModEntry.config.HaggleSpeed / (1f - ThemeBoost * 0.5f);
+    public float periodMS = ModEntry.config.HaggleSpeed / (1f - ThemeBoost * 0.25f);
     public int Tries { get; private set; } = 0;
     private float targetPointer = Buyer.sourceFriend.GetHaggleBaseTargetPointer(ForSale);
     private float targetOverRange = Buyer.sourceFriend.GetHaggleTargetOverRange(ForSale);
     private float nextTargetPointer = -1;
-    private readonly uint basePrice = (uint)Math.Max(ForSale.Thing.sellToStorePrice(Player.UniqueMultiplayerID), 1);
+    private readonly uint basePrice = ForSale.GetBasePrice(Player);
     private uint leewayPrice = 0;
     private float allowancePointer = -1f;
 
-    public uint PntToPrice(float pnt) =>
-        (uint)Math.Ceiling(Utility.Lerp(MinMult + ThemeBoost, MaxMult, pnt) * basePrice);
+    public uint PntToPrice(float pnt) => CalcPntToPrice(basePrice, pnt, MinMult, MaxMult, ThemeBoost);
+
+    public static uint CalcPntToPrice(uint basePrice, float pnt, float minMult, float maxMult, float themeBoost) =>
+        (uint)Math.Ceiling(Utility.Lerp(minMult + themeBoost, maxMult, pnt) * basePrice);
 
     public float PntToXPos(float pnt) =>
         Utility.Lerp(haggleBarSlideBounds.Left + ThemeBoost * haggleBarSlideWidth, haggleBarSlideBounds.Right, pnt);
@@ -242,22 +249,18 @@ public sealed record ShopkeepHaggle(
         ForSale.Sold = SoldRecord.Make(Buyer, pickedPrice, ForSale.Thing);
         Game1.playSound("reward");
         SetNextDialogue(CustomerDialogueKind.Haggle_Success, pickedPrice);
-        // mod triggers
-        Item thing = ForSale.Thing;
-        thing.modData[GameDelegates.ModData_SoldPrice] = pickedPrice.ToString();
-        thing.modData[GameDelegates.ModData_SoldBuyer] = Buyer.Name;
         TriggerActionManager.Raise(
             GameDelegates.Trigger_Merchant_Sold,
             location: Buyer.currentLocation,
             player: Player,
-            targetItem: thing
+            targetItem: ForSale.Thing
         );
         if (ModEntry.HasBETAS)
             TriggerActionManager.Raise(
                 "Spiderbuttons.BETAS_ItemShipped",
                 location: Buyer.currentLocation,
                 player: Player,
-                targetItem: thing
+                targetItem: ForSale.Thing
             );
     }
 

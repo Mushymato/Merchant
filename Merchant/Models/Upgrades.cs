@@ -23,11 +23,42 @@ public static class Upgrades
 {
     internal const string IQ_ADVERTISE = $"{ModEntry.ModId}_ADVERTISE";
     internal const string IQ_AUTO_RESTOCK = $"{ModEntry.ModId}_AUTO_RESTOCK";
+    internal const string IQ_ROBO_SHOPKEEP_LEVEL = $"{ModEntry.ModId}_ROBO_SHOPKEEP_LEVEL";
 
     public static void Register()
     {
         ItemQueryResolver.Register(IQ_ADVERTISE, ADVERTISE);
         ItemQueryResolver.Register(IQ_AUTO_RESTOCK, AUTO_RESTOCK);
+        ItemQueryResolver.Register(IQ_ROBO_SHOPKEEP_LEVEL, ROBO_SHOPKEEP_LEVEL);
+    }
+
+    private static IEnumerable<ItemQueryResult> ROBO_SHOPKEEP_LEVEL(
+        string key,
+        string arguments,
+        ItemQueryContext context,
+        bool avoidRepeat,
+        HashSet<string> avoidItemIds,
+        Action<string, string> logError
+    )
+    {
+        if (!Context.IsWorldReady)
+            return [];
+        int roboShopkeepLevel = ModEntry.ProgressData.RoboShopkeepLevel;
+        if (roboShopkeepLevel >= 20)
+            return [];
+        return
+        [
+            new ItemQueryResult(
+                new UpgradeSalable(
+                    I18n.Upgrade_Roboshopkeep_Name(roboShopkeepLevel / 5),
+                    I18n.Upgrade_Roboshopkeep_Desc($"{roboShopkeepLevel:P2}"),
+                    static () => ModEntry.ProgressData.RoboShopkeepLevel += 5
+                )
+                {
+                    Price = 500000,
+                }
+            ),
+        ];
     }
 
     private static IEnumerable<ItemQueryResult> ADVERTISE(
@@ -65,7 +96,7 @@ public static class Upgrades
         [
             new ItemQueryResult(
                 new UpgradeSalable(
-                    I18n.Upgrade_Advertisement_Name(),
+                    I18n.Upgrade_Advertisement_Name(advertiseLevel / 4),
                     I18n.Upgrade_Advertisement_Desc(advertiseLevel),
                     static () => ModEntry.ProgressData.AdvertiseLevel += 4
                 )

@@ -30,7 +30,7 @@
   "tourism.title": "镇上的游客为此而来：",
   "quit-confirm": "提前关闭商店？",
   "report.hover.bought-by": "购买者：{{chara}}",
-  "upgrade.advertisement.name": "给店铺打广告",
+  "upgrade.advertisement.name": "给店铺打广告（第{{nextLevel}}轮）",
   "upgrade.advertisement.desc": "通过打广告可提高客人数量\n（当前：{{count}}）",
   "upgrade.auto-restock.unlock": "解锁自动补货",
   "upgrade.auto-restock.enable": "开启自动补货",

@@ -1,3 +1,4 @@
+using Merchant.Management;
 using Merchant.Models;
 using Microsoft.Xna.Framework.Graphics;
 using StardewModdingAPI;
@@ -54,7 +55,9 @@ internal static class AssetManager
 
     internal const string CashRegisterId = $"{ModEntry.ModId}_CashRegister";
     internal const string CashRegisterQId = $"(BC){ModEntry.ModId}_CashRegister";
-    internal const string ContextTag_CashRegister = $"{ModEntry.ModId}_cash_register";
+    internal const string RoboShopkeepId = $"{ModEntry.ModId}_RoboShopkeep";
+    internal const string RoboShopkeepQId = $"(BC){ModEntry.ModId}_RoboShopkeep";
+    internal const string ContextTag_RoboShopkeep = $"{ModEntry.ModId}_robo_shopkeep_object";
     internal const string DoorbellCue = $"{ModEntry.ModId}_doorbell";
     internal const string Metadata_ShopkeepThemeBoosts = $"{ModEntry.ModId}/ShopkeepThemeBoosts";
     internal const string Metadata_ShopkeepCondition = $"{ModEntry.ModId}/ShopkeepCondition";
@@ -355,6 +358,15 @@ internal static class AssetManager
                     MaxStack = 1,
                 },
                 new() { Id = CashRegisterQId, ItemId = CashRegisterQId },
+                new()
+                {
+                    Id = Upgrades.IQ_ROBO_SHOPKEEP_LEVEL,
+                    ItemId = Upgrades.IQ_ROBO_SHOPKEEP_LEVEL,
+                    UseObjectDataPrice = true,
+                    MinStack = 1,
+                    MaxStack = 1,
+                },
+                new() { Id = RoboShopkeepQId, ItemId = RoboShopkeepQId },
             ],
         };
     }
@@ -362,7 +374,8 @@ internal static class AssetManager
     public static void Edit_Machines(IAssetData asset)
     {
         IDictionary<string, MachineData> data = asset.AsDictionary<string, MachineData>().Data;
-        data[CashRegisterQId] = new() { InteractMethod = GameDelegates.InteractMethod };
+        data[CashRegisterQId] = new() { InteractMethod = GameDelegates.InteractMethod_CashRegister };
+        data[RoboShopkeepQId] = new() { InteractMethod = GameDelegates.InteractMethod_RoboShopkeep };
     }
 
     public static void Edit_BigCraftables(IAssetData asset)
@@ -380,7 +393,22 @@ internal static class AssetManager
             IsLamp = false,
             Texture = Asset_TextureCraftables,
             SpriteIndex = 0,
-            ContextTags = [ContextTag_CashRegister],
+            ContextTags = [],
+            CustomFields = null,
+        };
+        data[RoboShopkeepId] = new()
+        {
+            Name = RoboShopkeepId,
+            DisplayName = $"[LocalizedText {Asset_Strings}:RoboShopkeep_Name]",
+            Description = $"[LocalizedText {Asset_Strings}:RoboShopkeep_Desc]",
+            Price = 50000,
+            Fragility = 0,
+            CanBePlacedOutdoors = true,
+            CanBePlacedIndoors = true,
+            IsLamp = false,
+            Texture = Asset_TextureCraftables,
+            SpriteIndex = 1,
+            ContextTags = [ContextTag_RoboShopkeep],
             CustomFields = null,
         };
     }

@@ -1,8 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Merchant.Management;
 using Merchant.Models;
-using Microsoft.Xna.Framework;
-using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Delegates;
 

@@ -21,7 +21,9 @@ public record ForSaleTarget(
 )
 {
     public CustomerActor? HeldBy { get; set; } = null;
-    public float ThemeBonus { get; set; } = 0f;
+
+    public uint GetBasePrice(Farmer player) => (uint)Math.Max(Thing.sellToStorePrice(player.UniqueMultiplayerID), 1);
+
     public SoldRecord? Sold
     {
         get => field;
@@ -50,11 +52,14 @@ public sealed record ShopkeepBrowsing(
 )
 {
     #region make
+    private static readonly Queue<CustomerActor> EmptyQueue = [];
+
     public static bool TryMake(
         GameLocation location,
         Farmer player,
         [NotNullWhen(true)] out ShopkeepBrowsing? browsing,
-        [NotNullWhen(false)] out string? failReason
+        [NotNullWhen(false)] out string? failReason,
+        bool getActors = true
     )
     {
         browsing = null;
@@ -166,6 +171,20 @@ public sealed record ShopkeepBrowsing(
         }
 
         floorDecorCount += location.terrainFeatures.Count();
+        ShopBonusStats bonusStats = new(
+            standingDecorCount,
+            forSaleTargets.Count,
+            floorDecorCount,
+            reachablePoints.Count,
+            unreachableTableCount,
+            themeBoostDatas
+        );
+
+        if (!getActors)
+        {
+            browsing = new(location, player, EmptyQueue, forSaleTargets, bonusStats);
+            return true;
+        }
 
         LocationTopology locationTopology = new(entryPoint, reachablePoints);
 
@@ -195,15 +214,6 @@ public sealed record ShopkeepBrowsing(
         );
         ModEntry.Log($"Picked {waitingActors.Count - touristCounts} customers");
         Random.Shared.ShuffleInPlace(waitingActors);
-
-        ShopBonusStats bonusStats = new(
-            standingDecorCount,
-            forSaleTargets.Count,
-            floorDecorCount,
-            reachablePoints.Count,
-            unreachableTableCount,
-            themeBoostDatas
-        );
 
         browsing = new(location, player, new Queue<CustomerActor>(waitingActors), forSaleTargets, bonusStats);
         return true;
@@ -336,44 +346,74 @@ public sealed record ShopkeepBrowsing(
 
     internal SessionReportMenu? FinalizeAndReport()
     {
-        List<SoldRecord> sales = [];
-        StringBuilder sb = new("===== SOLD =====");
+        if (
+            !TryMakeSessionLog(
+                Location,
+                ForSaleTargets,
+                "SOLD",
+                false,
+                out ulong sessionEarnings,
+                out ShopkeepSessionLog? newLog
+            )
+        )
+            return null;
 
-        ulong totalEarnings = 0;
         foreach (ForSaleTarget forSale in ForSaleTargets)
+        {
+            if (forSale.Sold == null)
+                continue;
+            ApplyShippedBehaviors(Player, forSale, forSale.Sold.Price);
+        }
+
+        MadeReport = true;
+        Player.Money += (int)sessionEarnings;
+
+        Game1.dayTimeMoneyBox.gotGoldCoin((int)sessionEarnings);
+        return SessionReportMenu.Make(newLog);
+    }
+
+    internal static bool TryMakeSessionLog(
+        GameLocation location,
+        List<ForSaleTarget> forSaleTargets,
+        string logName,
+        bool isRobo,
+        out ulong sessionEarnings,
+        [NotNullWhen(true)] out ShopkeepSessionLog? newLog
+    )
+    {
+        StringBuilder sb = new($"===== {logName} =====");
+        newLog = null;
+        List<SoldRecord> sales = [];
+        sessionEarnings = 0;
+        foreach (ForSaleTarget forSale in forSaleTargets)
         {
             if (forSale.Sold == null)
                 continue;
 
             sales.Add(forSale.Sold);
-            totalEarnings += forSale.Sold.Price;
-            ApplyShippedBehaviors(forSale, (int)forSale.Sold.Price);
+            sessionEarnings += forSale.Sold.Price;
 
             sb.Append($"\n- {forSale.Thing.DisplayName} {forSale.Sold}");
         }
-        MadeReport = true;
-        if (sales.Count <= 0)
+        if (sales.Count == 0)
         {
-            return null;
+            return false;
         }
 
         ModEntry.Log(sb.ToString(), LogLevel.Info);
 
-        Player.Money = Player.Money + (int)totalEarnings;
-        Game1.dayTimeMoneyBox.gotGoldCoin((int)totalEarnings);
-
-        ShopkeepSessionLog newLog = new()
+        newLog = new()
         {
-            Shop = Location.NameOrUniqueName,
-            IsAutoShopkeep = false,
+            Shop = location.NameOrUniqueName,
+            IsRoboShopkeep = isRobo,
             Date = Game1.Date.TotalDays,
             Sales = sales,
         };
-        ModEntry.ProgressData.SaveShopkeepSession(newLog, totalEarnings);
-        return SessionReportMenu.Make(newLog);
+        ModEntry.ProgressData.SaveShopkeepSession(newLog, sessionEarnings);
+        return true;
     }
 
-    private void ApplyShippedBehaviors(ForSaleTarget forSale, int price)
+    internal static void ApplyShippedBehaviors(Farmer player, ForSaleTarget forSale, uint price)
     {
         Item thing = forSale.Thing;
         Game1.stats.ItemsShipped += (uint)thing.Stack;
@@ -383,13 +423,13 @@ public sealed record ShopkeepBrowsing(
         }
         if (thing is SObject obj && obj.countsForShippedCollection())
         {
-            Player.shippedBasic(obj.ItemId, obj.Stack);
+            player.shippedBasic(obj.ItemId, obj.Stack);
         }
-        if (Player.team.specialOrders != null)
+        if (player.team.specialOrders != null)
         {
-            foreach (SpecialOrder specialOrder2 in Player.team.specialOrders)
+            foreach (SpecialOrder specialOrder2 in player.team.specialOrders)
             {
-                specialOrder2.onItemShipped?.Invoke(Player, forSale.Thing, price);
+                specialOrder2.onItemShipped?.Invoke(player, forSale.Thing, (int)price);
             }
         }
     }

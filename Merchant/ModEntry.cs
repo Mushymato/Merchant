@@ -127,6 +127,8 @@ public sealed class ModEntry : Mod
 
     private void OnDayEnding(object? sender, DayEndingEventArgs e)
     {
+        if (Context.IsMainPlayer)
+            Utility.ForEachBuilding(RoboSales.PerformRoboSaleOnBuilding);
         friendEntries.Value?.Reset();
     }
 

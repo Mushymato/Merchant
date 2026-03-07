@@ -16,7 +16,10 @@ public sealed record SoldRecord(
     byte[]? Color
 )
 {
-    public static SoldRecord Make(CustomerActor buyer, uint price, Item item)
+    public static SoldRecord Make(CustomerActor buyer, uint price, Item item) =>
+        Make(buyer.Name, buyer.sourceFriend.IsTourist, price, item);
+
+    public static SoldRecord Make(string buyerName, bool isTourist, uint price, Item item)
     {
         string? preserveId = null;
         byte[]? colorBytes = null;
@@ -29,14 +32,10 @@ public sealed record SoldRecord(
                 colorBytes = [color.R, color.G, color.B, color.A];
             }
         }
-        return new SoldRecord(
-            buyer.Name,
-            buyer.sourceFriend.IsTourist,
-            price,
-            item.QualifiedItemId,
-            preserveId,
-            colorBytes
-        );
+        Item thing = item;
+        thing.modData[GameDelegates.ModData_SoldPrice] = price.ToString();
+        thing.modData[GameDelegates.ModData_SoldBuyer] = buyerName;
+        return new SoldRecord(buyerName, isTourist, price, item.QualifiedItemId, preserveId, colorBytes);
     }
 
     public Item CreateReprItem()
@@ -75,7 +74,7 @@ public sealed record SoldRecord(
 public sealed class ShopkeepSessionLog
 {
     public string Shop = "Unknown";
-    public bool IsAutoShopkeep { get; set; } = false;
+    public bool IsRoboShopkeep { get; set; } = false;
     public int Date { get; set; } = 0; // days played
     public List<SoldRecord> Sales { get; set; } = [];
 }
@@ -85,6 +84,7 @@ public sealed class MerchantProgressData
     #region saved progress
     public List<ShopkeepSessionLog> Logs { get; set; } = [];
     public int AdvertiseLevel = 4;
+    public int RoboShopkeepLevel = 5;
     public bool AutoRestockUnlocked = false;
     public bool AutoRestockEnabled = false;
     #endregion
@@ -103,7 +103,7 @@ public sealed class MerchantProgressData
             {
                 totalEarnings += sale.Price;
             }
-            if (!log.IsAutoShopkeep)
+            if (!log.IsRoboShopkeep)
                 TotalEarnings += totalEarnings;
         }
         Game1.player.stats.Set(Stat_Sessions, Logs.Count);
@@ -128,7 +128,7 @@ public sealed class MerchantProgressData
 
     public ShopkeepSessionLog SaveShopkeepSession(ShopkeepSessionLog newLog, ulong totalEarnings)
     {
-        if (!newLog.IsAutoShopkeep)
+        if (!newLog.IsRoboShopkeep)
             TotalEarnings += totalEarnings;
         Logs.Add(newLog);
         Game1.player.stats.Set(Stat_Sessions, Logs.Count);
@@ -147,7 +147,7 @@ public sealed class MerchantProgressData
         for (int i = Logs.Count - 1; i >= 0; i--)
         {
             log = Logs[i];
-            if (log.Shop == locationName)
+            if (log.Shop == locationName && !log.IsRoboShopkeep)
             {
                 logIdx = i;
                 return true;

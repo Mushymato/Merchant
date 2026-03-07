@@ -14,3 +14,6 @@ Define special boosts that can be applied to buildings to boost earnings from ha
 
 Add and change logic for non-standard NPC customers.
 
+#### [Misc](./099-misc.md)
+
+Covers additional features like triggers and actions.

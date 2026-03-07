@@ -10,8 +10,10 @@ namespace Merchant.Models;
 
 public static class GameDelegates
 {
-    internal const string InteractMethod =
+    internal const string InteractMethod_CashRegister =
         $"Merchant.Models.{nameof(GameDelegates)}, Merchant: {nameof(InteractCashRegister)}";
+    internal const string InteractMethod_RoboShopkeep =
+        $"Merchant.Models.{nameof(GameDelegates)}, Merchant: {nameof(InteractRoboShopkeep)}";
     private const string TileAction_CashRegister = $"{ModEntry.ModId}_CashRegister";
     private const string GSQ_BOOK_SELLER_IN_TOWN = $"{ModEntry.ModId}_BOOK_SELLER_IN_TOWN";
     private const string GSQ_SOLD_BUYER = $"{ModEntry.ModId}_SOLD_BUYER";
@@ -69,13 +71,30 @@ public static class GameDelegates
         return Utility.getDaysOfBooksellerThisSeason().Contains(Game1.dayOfMonth);
     }
 
-    private static bool TileActionCashRegister(GameLocation location, string[] args, Farmer player, Point point) =>
-        ShowMerchantMenu(location, player, point);
+    private static bool TileActionCashRegister(GameLocation location, string[] args, Farmer player, Point point)
+    {
+        return ShowMerchantMenu(location, player, point, args.Skip(1).ToArray());
+    }
 
-    public static bool InteractCashRegister(SObject machine, GameLocation location, Farmer player) =>
-        ShowMerchantMenu(location, player, machine.TileLocation.ToPoint());
+    public static bool InteractCashRegister(SObject machine, GameLocation location, Farmer player)
+    {
+        string[] boostIds = [];
+        if (
+            machine
+                .GetMachineData()
+                ?.CustomFields?.TryGetValue(AssetManager.Metadata_ShopkeepThemeBoosts, out string? themeBoostIds)
+            ?? false
+        )
+            boostIds = themeBoostIds.Split(',');
+        return ShowMerchantMenu(location, player, machine.TileLocation.ToPoint(), boostIds);
+    }
 
-    public static bool ShowMerchantMenu(GameLocation location, Farmer player, Point cashRegisterPoint)
+    public static bool ShowMerchantMenu(
+        GameLocation location,
+        Farmer player,
+        Point cashRegisterPoint,
+        string[] boostIds
+    )
     {
         if (!ShopkeepBrowsing.TryMake(location, player, out ShopkeepBrowsing? browsing, out string? failReason))
         {
@@ -148,6 +167,63 @@ public static class GameDelegates
             },
             speaker: null
         );
+        return true;
+    }
+
+    public static bool InteractRoboShopkeep(SObject machine, GameLocation location, Farmer player)
+    {
+        if (machine.owner.Value != player.UniqueMultiplayerID)
+        {
+            Game1.drawObjectDialogue(I18n.FailReason_NotYourRobo());
+            return false;
+        }
+        if (
+            !ShopkeepBrowsing.TryMake(
+                location,
+                player,
+                out ShopkeepBrowsing? browsing,
+                out string? failReason,
+                getActors: false
+            )
+        )
+        {
+            Game1.drawObjectDialogue(failReason);
+            return false;
+        }
+        List<Response> responses =
+        [
+            new("merchant_manageupgrades", I18n.Menu_ManageUpgrades()),
+            new("merchant_viewbonus", I18n.Menu_ViewBonus()),
+        ];
+        if (browsing.ShopBonus.ThemeBoostDatas?.Any() ?? false)
+        {
+            responses.Add(new("merchant_viewthemes", I18n.Menu_ViewThemes()));
+        }
+        responses.Add(
+            new("merchant_cancel", Game1.content.LoadString("Strings\\Locations:MineCart_Destination_Cancel"))
+        );
+
+        location.createQuestionDialogue(
+            I18n.Roboshopkeep_Id(),
+            responses.ToArray(),
+            (who, response) =>
+            {
+                switch (response)
+                {
+                    case "merchant_viewbonus":
+                        Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatStats());
+                        break;
+                    case "merchant_manageupgrades":
+                        Utility.TryOpenShopMenu(AssetManager.UpgradeShopId, "AnyOrNone");
+                        break;
+                    case "merchant_viewthemes":
+                        Game1.drawDialogueNoTyping(browsing.ShopBonus.FormatThemes());
+                        break;
+                }
+            },
+            speaker: null
+        );
+
         return true;
     }
 }

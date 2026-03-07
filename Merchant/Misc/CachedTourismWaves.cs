@@ -1,7 +1,6 @@
 using System.Text;
 using Merchant.Management;
 using Merchant.Models;
-using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Delegates;
 using StardewValley.TokenizableStrings;
