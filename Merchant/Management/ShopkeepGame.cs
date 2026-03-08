@@ -16,8 +16,9 @@ using StardewValley.Objects;
 
 namespace Merchant.Management;
 
-public sealed class ShopkeepGame : IMinigame
+public sealed class ShopkeepGame
 {
+    internal IMinigame? ProxyInstance;
     internal const int STAMINA_COST_SHOPKEEPING = 10;
     internal const int STAMINA_COST_HAGGLING = 4;
 
@@ -42,7 +43,10 @@ public sealed class ShopkeepGame : IMinigame
         Unload,
     }
 
-    private readonly StateManager<GameLoopState> state = new(GameLoopState.Start, nameof(GameLoopState));
+    private readonly StateManager<GameLoopState> state = new(
+        GameLoopState.Start,
+        nameof(GameLoopState)
+    );
     #endregion
 
     #region settings
@@ -55,7 +59,12 @@ public sealed class ShopkeepGame : IMinigame
     #endregion
 
     #region setup teardown
-    private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing, Point tileAboveCashRegister)
+    private ShopkeepGame(
+        GameLocation location,
+        Farmer player,
+        ShopkeepBrowsing browsing,
+        Point tileAboveCashRegister
+    )
     {
         this.location = location;
         this.player = player;
@@ -71,7 +80,7 @@ public sealed class ShopkeepGame : IMinigame
                 this.toolbarToHide = toolbar;
             }
         }
-        if (this.toolbarToHideIndex > -1)
+        if (this.toolbarToHideIndex >= 0)
             Game1.onScreenMenus.RemoveAt(this.toolbarToHideIndex);
 
         ModEntry.help.Events.Display.Rendering += OnRendering;
@@ -103,7 +112,7 @@ public sealed class ShopkeepGame : IMinigame
         if (Unloaded)
             return;
         // adjust minigame rendering timing by nulling it before render
-        if (Game1.currentMinigame == this)
+        if (Game1.currentMinigame == ProxyInstance)
             DynamicMethods.Set_Game1_currentMinigame(null);
     }
 
@@ -114,7 +123,7 @@ public sealed class ShopkeepGame : IMinigame
         // restore minigame after render
         if (Game1.currentMinigame == null)
         {
-            DynamicMethods.Set_Game1_currentMinigame(this);
+            DynamicMethods.Set_Game1_currentMinigame(ProxyInstance);
         }
     }
 
@@ -183,7 +192,9 @@ public sealed class ShopkeepGame : IMinigame
         }
 
         ShopkeepGame shopkeepGame = new(location, player, browsing, tileAboveCashRegister);
-        Game1.currentMinigame = shopkeepGame;
+        var proxy = MinigameProxy.Create(shopkeepGame);
+        shopkeepGame.ProxyInstance = proxy;
+        Game1.currentMinigame = proxy;
         return true;
     }
 
@@ -435,7 +446,10 @@ public sealed class ShopkeepGame : IMinigame
                 tableQueue.Enqueue(table);
         }
 
-        while (tableQueue.TryPeek(out Furniture? table) && chestItemQueue.TryDequeue(out (Chest, int) chestItem))
+        while (
+            tableQueue.TryPeek(out Furniture? table)
+            && chestItemQueue.TryDequeue(out (Chest, int) chestItem)
+        )
         {
             Item? item = chestItem.Item1.Items[chestItem.Item2];
             string itemId = item.QualifiedItemId;
@@ -535,7 +549,11 @@ public sealed class ShopkeepGame : IMinigame
         if (Game1.activeClickableMenu is not null)
         {
             Game1.PushUIMode();
-            Game1.activeClickableMenu.receiveRightClick(Game1.getMouseX(), Game1.getMouseY(), playSound);
+            Game1.activeClickableMenu.receiveRightClick(
+                Game1.getMouseX(),
+                Game1.getMouseY(),
+                playSound
+            );
             Game1.PopUIMode();
         }
         else if (state.Current == GameLoopState.Haggle)
@@ -581,7 +599,10 @@ public sealed class ShopkeepGame : IMinigame
             }
             else if (state.Current != GameLoopState.Haggle)
             {
-                Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), ConfirmForceQuit);
+                Game1.activeClickableMenu = new ConfirmationDialog(
+                    I18n.QuitConfirm(),
+                    ConfirmForceQuit
+                );
             }
             return;
         }
@@ -605,6 +626,8 @@ public sealed class ShopkeepGame : IMinigame
     public void leftClickHeld(int x, int y) { }
 
     public void receiveEventPoke(int data) { }
+
+    public float GetForcedScaleFactor() => 1f;
 
     #endregion
 }
