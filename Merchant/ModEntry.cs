@@ -33,9 +33,11 @@ public sealed class ModEntry : Mod
         }
     }
     private static readonly PerScreen<CachedFriendEntries?> friendEntries = new();
-    internal static CachedFriendEntries FriendEntries => friendEntries.Value ??= new CachedFriendEntries(Game1.player);
+    internal static CachedFriendEntries FriendEntries =>
+        friendEntries.Value ??= new CachedFriendEntries(Game1.player);
     private static readonly PerScreen<CachedTourismWaves?> tourismWaves = new();
-    internal static CachedTourismWaves TourismWaves => tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
+    internal static CachedTourismWaves TourismWaves =>
+        tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
 
     internal static bool HasBETAS = false;
     internal static bool HasTDITExtras = false;
@@ -81,10 +83,10 @@ public sealed class ModEntry : Mod
 
     private void ConsoleForceQuit(string arg1, string[] arg2)
     {
-        if (Game1.currentMinigame is ShopkeepGame shopkeepGame)
+        if (Game1.currentMinigame is MinigameProxy proxy)
         {
-            shopkeepGame.Unloaded = true;
-            shopkeepGame.forceQuit();
+            proxy.Target.Unloaded = true;
+            proxy.Target.forceQuit();
             Game1.currentMinigame = null;
         }
     }
