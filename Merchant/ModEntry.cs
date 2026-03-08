@@ -126,6 +126,7 @@ public sealed class ModEntry : Mod
 
     private void OnSaveLoaded(object? sender, SaveLoadedEventArgs e)
     {
+        Cues.CueListSetup();
         progressData.Value = MerchantProgressData.Read();
         friendEntries.Value = null;
     }

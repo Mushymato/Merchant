@@ -29,3 +29,18 @@ To turn a custom big craftable into a cash register, you need to edit `Data/Mach
 
 This tile action works just like interacting with the cash register big craftable.
 You can create custom cash register items using a framework that attaches tile action to furniture, such as spacecore.
+
+### Sounds
+
+You can alter sounds used in the minigame by adding specific sound cues to [Data/AudioChanges](https://stardewvalleywiki.com/Modding:Audio).
+
+- `mushymato.Merchant_trackGameplay`: music during merchant game, default `event2`
+- `mushymato.Merchant_trackReport`: music during the report, default `harveys_theme_jazz`
+- `mushymato.Merchant_hagglePing`: sfx when pointer is about to hit target, default `junimoKart_coin`
+- `mushymato.Merchant_haggleSlide`: sfx played at different pitch while the pointer star moves across the bar, default `flute`
+- `mushymato.Merchant_haggleNegotiate`: sfx when renegotiating the price, default `smallSelect`
+- `mushymato.Merchant_haggleSuccess`: sfx when haggle is successful, default `reward`
+- `mushymato.Merchant_haggleFailure`: sfx when haggle has failed, default `fishEscape`
+
+Additionally, this cue is already a custom sound:
+- `mushymato.Merchant_doorbell`: sfx when a new customer arrives, default `mushymato.Merchant_doorbell`

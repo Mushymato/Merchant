@@ -12,7 +12,6 @@ public sealed class UpgradeSalable(string shopDisplayName, string shopDesc, Acti
 
     public override bool actionWhenPurchased(string shopId)
     {
-        Game1.playSound("purchaseClick", null);
         purchasedAction();
         Game1.exitActiveMenu();
         return true;

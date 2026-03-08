@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Merchant.Misc;
+using Merchant.Models;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -77,7 +78,7 @@ public sealed class ShopkeepGame
 
         Game1.activeClickableMenu = null;
 
-        PlayMusic("event2");
+        PlayMusic(CueType.trackGameplay);
 
         // ban other players from entering (hopefully)
         if (location.ParentBuilding.GetData() is BuildingData buildingData)
@@ -186,11 +187,10 @@ public sealed class ShopkeepGame
         return true;
     }
 
-    private void PlayMusic(string musicName)
+    private void PlayMusic(CueType music)
     {
-        Game1.stopMusicTrack(MusicContext.MiniGame);
         if (!location.IsMiniJukeboxPlaying())
-            Game1.changeMusicTrack(musicName, false, MusicContext.MiniGame);
+            Cues.PlayMusic(music);
     }
 
     public void unload()
@@ -406,7 +406,7 @@ public sealed class ShopkeepGame
 
     private void PrepareReport()
     {
-        PlayMusic("harveys_theme_jazz");
+        PlayMusic(CueType.trackReport);
         Game1.activeClickableMenu = browsing.FinalizeAndReport();
         state.SetAndLock(GameLoopState.Report);
     }

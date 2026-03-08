@@ -178,14 +178,14 @@ public sealed record ShopkeepHaggle(
         bool postState = pointer <= targetPtrBound;
         if (preState != postState)
         {
-            Game1.playSound("junimoKart_coin");
+            Cues.PlaySound(CueType.hagglePing);
         }
 
         int pitch = (int)(pointer * totalPitch) * 100;
         if (pointerPitch != pitch)
         {
             pointerSound?.Stop(AudioStopOptions.Immediate);
-            Game1.playSound("flute", pitch, out pointerSound);
+            Cues.PlaySound(CueType.haggleSlide, pitch, out pointerSound);
             pointerSound.Volume = 0.1f * Game1.options.soundVolumeLevel;
             pointerPitch = pitch;
         }
@@ -241,7 +241,7 @@ public sealed record ShopkeepHaggle(
                 state.SetNext(HaggleState.Begin, waitMS);
                 SetNextDialogue(CustomerDialogueKind.Haggle_Overpriced, pickedPrice);
             }
-            Game1.playSound("smallSelect");
+            Cues.PlaySound(CueType.haggleNegotiate);
         }
     }
 
@@ -259,7 +259,7 @@ public sealed record ShopkeepHaggle(
     {
         state.SetNext(HaggleState.Done, waitMS, DoneAndLock);
         ForSale.Sold = SoldRecord.Make(Buyer, pickedPrice, ForSale.Thing);
-        Game1.playSound("reward");
+        Cues.PlaySound(CueType.haggleSuccess);
         SetNextDialogue(CustomerDialogueKind.Haggle_Success, pickedPrice);
         TriggerActionManager.Raise(
             GameDelegates.Trigger_Merchant_Sold,
@@ -279,7 +279,7 @@ public sealed record ShopkeepHaggle(
     private void SetupHaggleFailed(uint pickedPrice)
     {
         state.SetNext(HaggleState.Done, waitMS, DoneAndLock);
-        Game1.playSound("fishEscape");
+        Cues.PlaySound(CueType.haggleFailure);
         SetNextDialogue(CustomerDialogueKind.Haggle_Fail, pickedPrice);
     }
 

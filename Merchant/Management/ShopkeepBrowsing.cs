@@ -343,7 +343,7 @@ public sealed record ShopkeepBrowsing(
         ModEntry.Log($"AddNewCustomer: '{nextActor.Name}' ({WaitingActors.Count} remaining)");
         dispatchedActors.Add(nextActor);
         nextActor.EnterShop(Location);
-        Game1.playSound(AssetManager.DoorbellCue, 1100 + (int)(300 * Random.Shared.NextSingle()));
+        Cues.PlaySound(CueType.doorbell, 1100 + (int)(300 * Random.Shared.NextSingle()));
     }
 
     private bool MadeReport = false;

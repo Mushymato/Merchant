@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - New robo shopkeeper that you can buy, for auto-selling things overnight
 - The cash register action now takes args to add boosts, which work just like existing theme boosts
 - Add new option haggle wait to change time to pause after haggling
+- Allow changing sound cues via content patcher.
 
 ### Changed
 

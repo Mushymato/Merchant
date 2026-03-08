@@ -59,6 +59,17 @@ public sealed class ModConfig
             250,
             (value) => $"{value / 1000f:0.00}s"
         );
+        gmcm.AddNumberOption(
+            mod,
+            () => HaggleWait,
+            (value) => HaggleWait = value,
+            I18n.Config_HaggleWait_Name,
+            I18n.Config_HaggleWait_Desc,
+            1000,
+            6000,
+            250,
+            (value) => $"{value / 1000f:0.00}s"
+        );
         gmcm.AddTextOption(
             mod,
             () => $"{HaggleUIOffset.X},{HaggleUIOffset.Y}",

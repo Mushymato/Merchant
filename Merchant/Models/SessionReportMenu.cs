@@ -262,10 +262,6 @@ public sealed class SessionReportMenu : IClickableMenu
             scrollIdx += ROWS;
             scrolled = true;
         }
-        if (scrolled)
-        {
-            Game1.playSound("shiny4");
-        }
         return scrolled;
     }
 
