@@ -106,6 +106,8 @@ public sealed class ModEntry : Mod
 
         HasBETAS = Helper.ModRegistry.IsLoaded("Spiderbuttons.BETAS");
         HasTDITExtras = Helper.ModRegistry.IsLoaded("DolphINaF.ExtraPortraits");
+
+        MerchantProgressData.ListProgressForDeletedSaves();
     }
 
     private void OnReturnedToTitle(object? sender, ReturnedToTitleEventArgs e)

@@ -26,6 +26,8 @@ public sealed class ShopkeepGame : IMinigame
     private readonly Point tileAboveCashRegister;
     private readonly (Point, int) playerPreviousPosition;
     private readonly Point playerPreviousViewport;
+    private readonly int toolbarToHideIndex = -1;
+    private readonly Toolbar? toolbarToHide;
 
     #region state
 
@@ -61,6 +63,37 @@ public sealed class ShopkeepGame : IMinigame
         this.tileAboveCashRegister = tileAboveCashRegister;
         this.playerPreviousPosition = (player.TilePoint, player.FacingDirection);
         this.playerPreviousViewport = new(Game1.viewport.X, Game1.viewport.Y);
+        for (int i = 0; i < Game1.onScreenMenus.Count; i++)
+        {
+            if (Game1.onScreenMenus[i] is Toolbar toolbar)
+            {
+                this.toolbarToHideIndex = i;
+                this.toolbarToHide = toolbar;
+            }
+        }
+        Game1.onScreenMenus.RemoveAt(this.toolbarToHideIndex);
+
+        ModEntry.help.Events.Display.Rendering += OnRendering;
+        ModEntry.help.Events.Display.RenderedStep += OnRenderedStep;
+        ModEntry.help.Events.Display.Rendered += OnRendered;
+
+        Game1.activeClickableMenu = null;
+
+        PlayMusic("event2");
+
+        // ban other players from entering (hopefully)
+        if (location.ParentBuilding.GetData() is BuildingData buildingData)
+        {
+            location.ParentBuilding.humanDoor.X = -1;
+            location.ParentBuilding.humanDoor.Y = -1;
+        }
+
+        player.completelyStopAnimatingOrDoingAction();
+        player.Stamina -= STAMINA_COST_SHOPKEEPING;
+        player.TemporaryItem = ItemRegistry.Create("(P)0");
+
+        player.setTileLocation(tileAboveCashRegister.ToVector2());
+        player.faceDirection(2);
         changeScreenSize();
     }
 
@@ -149,36 +182,8 @@ public sealed class ShopkeepGame : IMinigame
         }
 
         ShopkeepGame shopkeepGame = new(location, player, browsing, tileAboveCashRegister);
-        shopkeepGame.PostCreateSetup();
+        Game1.currentMinigame = shopkeepGame;
         return true;
-    }
-
-    private void PostCreateSetup()
-    {
-        ModEntry.help.Events.Display.Rendering += OnRendering;
-        ModEntry.help.Events.Display.RenderedStep += OnRenderedStep;
-        ModEntry.help.Events.Display.Rendered += OnRendered;
-
-        Game1.activeClickableMenu = null;
-        Game1.onScreenMenus.RemoveWhere(menu => menu is Toolbar);
-
-        PlayMusic("event2");
-
-        // ban other players from entering (hopefully)
-        if (location.ParentBuilding.GetData() is BuildingData buildingData)
-        {
-            location.ParentBuilding.humanDoor.X = -1;
-            location.ParentBuilding.humanDoor.Y = -1;
-        }
-
-        player.completelyStopAnimatingOrDoingAction();
-        player.Stamina -= STAMINA_COST_SHOPKEEPING;
-        player.TemporaryItem = ItemRegistry.Create("(P)0");
-
-        player.setTileLocation(tileAboveCashRegister.ToVector2());
-        player.faceDirection(2);
-
-        Game1.currentMinigame = this;
     }
 
     private void PlayMusic(string musicName)
@@ -200,8 +205,8 @@ public sealed class ShopkeepGame : IMinigame
         ModEntry.help.Events.Display.Rendered -= OnRendered;
 
         Game1.activeClickableMenu = null;
-        if (!Game1.onScreenMenus.Any(menu => menu is Toolbar))
-            Game1.onScreenMenus.Add(new Toolbar());
+        if (toolbarToHideIndex > -1 && this.toolbarToHide != null)
+            Game1.onScreenMenus.Insert(toolbarToHideIndex, this.toolbarToHide);
         Game1.stopMusicTrack(MusicContext.MiniGame);
 
         if (location.ParentBuilding.GetData() is BuildingData buildingData)

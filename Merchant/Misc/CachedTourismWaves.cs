@@ -126,7 +126,7 @@ internal sealed class CachedTourismWaves(Farmer player)
     internal string FormatSummary()
     {
         StringBuilder sb = new();
-        sb.Append(I18n.Tourism_Title());
+        sb.Append(I18n.Menu_TourismWave());
         sb.Append(ShopBonusStats.LINEBREAK);
         foreach (ActiveTourismWave wave in ActiveWaves.Values)
         {

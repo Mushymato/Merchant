@@ -1,6 +1,8 @@
 {
   "CashRegister_Name": "收银台",
   "CashRegister_Desc": "用于管理你的店铺的收银台！把它放在你的农场建筑里即可使用。",
+  "RoboShopkeep_Name": "机械掌柜3000",
+  "RoboShopkeep_Desc": "这个机械掌柜将在每天晚上把你摆放出的商品卖给世界各地的客人！把它放在你的农场建筑里即可使用。",
   // default haggle dialogues
   "Haggle_Ask": "{1}$来个{0}可以吗？",
   "Haggle_Compromise": "{1}$有点小贵…$s",

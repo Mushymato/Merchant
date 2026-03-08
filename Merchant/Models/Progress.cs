@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Merchant.Management;
 using Microsoft.Xna.Framework;
+using StardewModdingAPI;
 using StardewValley;
 using StardewValley.ItemTypeDefinitions;
 using StardewValley.Objects;
@@ -155,5 +156,47 @@ public sealed class MerchantProgressData
             log = null;
         }
         return false;
+    }
+
+    internal static void ListProgressForDeletedSaves()
+    {
+        string savesFolder = Program.GetSavesFolder();
+        List<string> saveFiles = [];
+        HashSet<ulong> allSaveIds = [];
+        foreach (string item in Directory.EnumerateDirectories(savesFolder))
+        {
+            string saveName = Path.GetFileName(item);
+            string pathToSave = Path.Combine(savesFolder, item, saveName);
+            if (File.Exists(pathToSave))
+            {
+                saveFiles.Add(pathToSave);
+                string[] split = saveName.Split('_', 2);
+                if (split.Length == 2 && ulong.TryParse(split[1], out ulong saveId))
+                {
+                    allSaveIds.Add(saveId);
+                }
+            }
+        }
+        ModEntry.Log($"Found save files:\n\t'{string.Join("\n\t", saveFiles)}'", LogLevel.Info);
+
+        List<string> progessFileWithoutSave = [];
+        string progressDataDir = Path.Combine(Constants.DataPath, ".smapi", "mod-data", ModEntry.ModId.ToLower());
+        foreach (string item in Directory.EnumerateFiles(progressDataDir))
+        {
+            string[] split = Path.GetFileName(item).Split('_', 3);
+            if (
+                split.Length == 3
+                && split[0] == "progress"
+                && ulong.TryParse(split[1], out ulong saveId)
+                && !allSaveIds.Contains(saveId)
+            )
+            {
+                progessFileWithoutSave.Add(item);
+            }
+        }
+        ModEntry.Log(
+            $"Progress files with no associated save files:\n\t{string.Join("\n\t", progessFileWithoutSave)}",
+            LogLevel.Info
+        );
     }
 }
