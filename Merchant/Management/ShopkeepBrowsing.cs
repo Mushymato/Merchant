@@ -60,7 +60,8 @@ public sealed record ShopkeepBrowsing(
         [NotNullWhen(true)] out ShopkeepBrowsing? browsing,
         [NotNullWhen(false)] out string? failReason,
         bool getActors = true,
-        string[]? boostIds = null)
+        string[]? boostIds = null
+    )
     {
         browsing = null;
         failReason = null;

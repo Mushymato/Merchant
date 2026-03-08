@@ -33,11 +33,9 @@ public sealed class ModEntry : Mod
         }
     }
     private static readonly PerScreen<CachedFriendEntries?> friendEntries = new();
-    internal static CachedFriendEntries FriendEntries =>
-        friendEntries.Value ??= new CachedFriendEntries(Game1.player);
+    internal static CachedFriendEntries FriendEntries => friendEntries.Value ??= new CachedFriendEntries(Game1.player);
     private static readonly PerScreen<CachedTourismWaves?> tourismWaves = new();
-    internal static CachedTourismWaves TourismWaves =>
-        tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
+    internal static CachedTourismWaves TourismWaves => tourismWaves.Value ??= new CachedTourismWaves(Game1.player);
 
     internal static bool HasBETAS = false;
     internal static bool HasTDITExtras = false;

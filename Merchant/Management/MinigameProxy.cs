@@ -1,4 +1,5 @@
 using System.Reflection;
+using StardewModdingAPI.Utilities;
 using StardewValley.Minigames;
 
 namespace Merchant.Management;
@@ -7,16 +8,24 @@ public class MinigameProxy : DispatchProxy
 {
     internal ShopkeepGame Target = null!;
 
+    private static readonly Dictionary<MethodInfo, MethodInfo?> cachedMethodInfo = [];
+    private static readonly PerScreen<IMinigame> proxyInstance = new(Create<IMinigame, MinigameProxy>);
+
     protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
     {
         if (targetMethod == null)
             return null;
 
-        var paramTypes = targetMethod.GetParameters().Select(p => p.ParameterType).ToArray();
-        var method = typeof(ShopkeepGame).GetMethod(targetMethod.Name, paramTypes);
+        if (!cachedMethodInfo.TryGetValue(targetMethod, out MethodInfo? method))
+        {
+            Type[] paramTypes = targetMethod.GetParameters().Select(p => p.ParameterType).ToArray();
+            method = typeof(ShopkeepGame).GetMethod(targetMethod.Name, paramTypes);
+            cachedMethodInfo[targetMethod] = method;
+        }
 
         if (method == null)
         {
+            ModEntry.LogOnce($"Unknown method {targetMethod}");
             // Return default for unknown methods (e.g. GetForcedScaleFactor on mobile)
             if (targetMethod.ReturnType == typeof(float))
                 return 1f;
@@ -30,10 +39,10 @@ public class MinigameProxy : DispatchProxy
         return method.Invoke(Target, args);
     }
 
-    internal static IMinigame Create(ShopkeepGame game)
+    internal static IMinigame GetProxy(ShopkeepGame game)
     {
-        var proxy = DispatchProxy.Create<IMinigame, MinigameProxy>();
-        ((MinigameProxy)(object)proxy).Target = game;
+        IMinigame proxy = proxyInstance.Value;
+        (proxy as MinigameProxy)!.Target = game;
         return proxy;
     }
 }

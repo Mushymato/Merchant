@@ -1,13 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Merchant.Misc;
-using Microsoft.CodeAnalysis;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewValley;
-using StardewValley.Extensions;
 using StardewValley.GameData;
 using StardewValley.GameData.Buildings;
 using StardewValley.Menus;
@@ -18,13 +16,12 @@ namespace Merchant.Management;
 
 public sealed class ShopkeepGame
 {
-    internal IMinigame? ProxyInstance;
+    internal IMinigame? proxyInstance;
     internal const int STAMINA_COST_SHOPKEEPING = 10;
     internal const int STAMINA_COST_HAGGLING = 4;
 
     private readonly GameLocation location;
     private readonly Farmer player;
-    private readonly Point tileAboveCashRegister;
     private readonly (Point, int) playerPreviousPosition;
     private readonly Point playerPreviousViewport;
     private readonly int toolbarToHideIndex = -1;
@@ -43,10 +40,7 @@ public sealed class ShopkeepGame
         Unload,
     }
 
-    private readonly StateManager<GameLoopState> state = new(
-        GameLoopState.Start,
-        nameof(GameLoopState)
-    );
+    private readonly StateManager<GameLoopState> state = new(GameLoopState.Start, nameof(GameLoopState));
     #endregion
 
     #region settings
@@ -59,17 +53,11 @@ public sealed class ShopkeepGame
     #endregion
 
     #region setup teardown
-    private ShopkeepGame(
-        GameLocation location,
-        Farmer player,
-        ShopkeepBrowsing browsing,
-        Point tileAboveCashRegister
-    )
+    private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing, Point tileAboveCashRegister)
     {
         this.location = location;
         this.player = player;
         this.browsing = browsing;
-        this.tileAboveCashRegister = tileAboveCashRegister;
         this.playerPreviousPosition = (player.TilePoint, player.FacingDirection);
         this.playerPreviousViewport = new(Game1.viewport.X, Game1.viewport.Y);
         for (int i = 0; i < Game1.onScreenMenus.Count; i++)
@@ -112,7 +100,7 @@ public sealed class ShopkeepGame
         if (Unloaded)
             return;
         // adjust minigame rendering timing by nulling it before render
-        if (Game1.currentMinigame == ProxyInstance)
+        if (Game1.currentMinigame == proxyInstance)
             DynamicMethods.Set_Game1_currentMinigame(null);
     }
 
@@ -123,7 +111,7 @@ public sealed class ShopkeepGame
         // restore minigame after render
         if (Game1.currentMinigame == null)
         {
-            DynamicMethods.Set_Game1_currentMinigame(ProxyInstance);
+            DynamicMethods.Set_Game1_currentMinigame(proxyInstance);
         }
     }
 
@@ -192,8 +180,8 @@ public sealed class ShopkeepGame
         }
 
         ShopkeepGame shopkeepGame = new(location, player, browsing, tileAboveCashRegister);
-        var proxy = MinigameProxy.Create(shopkeepGame);
-        shopkeepGame.ProxyInstance = proxy;
+        IMinigame proxy = MinigameProxy.GetProxy(shopkeepGame);
+        shopkeepGame.proxyInstance = proxy;
         Game1.currentMinigame = proxy;
         return true;
     }
@@ -446,10 +434,7 @@ public sealed class ShopkeepGame
                 tableQueue.Enqueue(table);
         }
 
-        while (
-            tableQueue.TryPeek(out Furniture? table)
-            && chestItemQueue.TryDequeue(out (Chest, int) chestItem)
-        )
+        while (tableQueue.TryPeek(out Furniture? table) && chestItemQueue.TryDequeue(out (Chest, int) chestItem))
         {
             Item? item = chestItem.Item1.Items[chestItem.Item2];
             string itemId = item.QualifiedItemId;
@@ -549,11 +534,7 @@ public sealed class ShopkeepGame
         if (Game1.activeClickableMenu is not null)
         {
             Game1.PushUIMode();
-            Game1.activeClickableMenu.receiveRightClick(
-                Game1.getMouseX(),
-                Game1.getMouseY(),
-                playSound
-            );
+            Game1.activeClickableMenu.receiveRightClick(Game1.getMouseX(), Game1.getMouseY(), playSound);
             Game1.PopUIMode();
         }
         else if (state.Current == GameLoopState.Haggle)
@@ -599,10 +580,7 @@ public sealed class ShopkeepGame
             }
             else if (state.Current != GameLoopState.Haggle)
             {
-                Game1.activeClickableMenu = new ConfirmationDialog(
-                    I18n.QuitConfirm(),
-                    ConfirmForceQuit
-                );
+                Game1.activeClickableMenu = new ConfirmationDialog(I18n.QuitConfirm(), ConfirmForceQuit);
             }
             return;
         }
