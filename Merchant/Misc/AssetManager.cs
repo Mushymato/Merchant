@@ -58,7 +58,6 @@ internal static class AssetManager
     internal const string RoboShopkeepId = $"{ModEntry.ModId}_RoboShopkeep";
     internal const string RoboShopkeepQId = $"(BC){ModEntry.ModId}_RoboShopkeep";
     internal const string ContextTag_RoboShopkeep = $"{ModEntry.ModId}_robo_shopkeep_object";
-    internal const string DoorbellCue = $"{ModEntry.ModId}_doorbell";
     internal const string Metadata_ShopkeepThemeBoosts = $"{ModEntry.ModId}/ShopkeepThemeBoosts";
     internal const string Metadata_ShopkeepCondition = $"{ModEntry.ModId}/ShopkeepCondition";
     internal const string Metadata_ShopkeepNotAllowedMessage = $"{ModEntry.ModId}/ShopkeepNotAllowedMessage";
@@ -295,9 +294,9 @@ internal static class AssetManager
     private static void Edit_AudioChanges(IAssetData asset)
     {
         IDictionary<string, AudioCueData> data = asset.AsDictionary<string, AudioCueData>().Data;
-        data[DoorbellCue] = new()
+        data[Cues.DoorbellCue] = new()
         {
-            Id = DoorbellCue,
+            Id = Cues.DoorbellCue,
             FilePaths =
             [
                 Path.Combine(ModEntry.help.DirectoryPath, "assets", "sfx_doorbell01.ogg"),
