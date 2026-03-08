@@ -8,7 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
-- Added a robo shop keeper
+- Android compatibility (thanks to [Ekyso](https://github.com/Mushymato/Merchant/pull/1))
+- New robo shopkeeper that you can buy, for auto-selling things overnight
+- The cash register action now takes args to add boosts, which work just like existing theme boosts
+- Add new option haggle wait to change time to pause after haggling
+
+### Changed
+
+- Adjusted price of auto-restock upgrade to 25000
+- Adjusted give up rate to 1/2, up from 1/3
+- Reduced pointer slowing effect from themed boost
+
+### Fixed
+
+- Incompatibility with custom backpack framework
+- Soft-lock if player somehow dies during shopkeeping
 
 ## [1.0.0] - 2026-01-06
 
