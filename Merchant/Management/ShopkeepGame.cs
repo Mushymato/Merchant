@@ -71,7 +71,8 @@ public sealed class ShopkeepGame : IMinigame
                 this.toolbarToHide = toolbar;
             }
         }
-        Game1.onScreenMenus.RemoveAt(this.toolbarToHideIndex);
+        if (this.toolbarToHideIndex > -1)
+            Game1.onScreenMenus.RemoveAt(this.toolbarToHideIndex);
 
         ModEntry.help.Events.Display.Rendering += OnRendering;
         ModEntry.help.Events.Display.RenderedStep += OnRenderedStep;
