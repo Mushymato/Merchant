@@ -67,9 +67,9 @@ public sealed record ShopkeepHaggle(
         Done,
     }
 
-    private const double pickedPauseMS = 1500.0;
     private const int totalPitch = 12;
     private const int maxTries = 3;
+    private const float nextPntMoveMS = 1500f;
 
     public readonly StateManager<HaggleState> state = new(HaggleState.Begin, nameof(HaggleState));
     public bool IsReadyToStart =>
@@ -78,6 +78,7 @@ public sealed record ShopkeepHaggle(
     private float pointer = 0f;
 
     public float periodMS = ModEntry.config.HaggleSpeed / (1f - ThemeBoost * 0.25f);
+    public float waitMS = ModEntry.config.HaggleWait;
     public int Tries { get; private set; } = 0;
     private float targetPointer = Buyer.sourceFriend.GetHaggleBaseTargetPointer(ForSale);
     private float targetOverRange = Buyer.sourceFriend.GetHaggleTargetOverRange(ForSale);
@@ -194,9 +195,20 @@ public sealed record ShopkeepHaggle(
 
     public bool HaggleExpired() => Tries >= maxTries;
 
-    public void Pick()
+    private bool CheckPickedState()
     {
         if (state.Current == HaggleState.Picked)
+        {
+            if (state.Next == HaggleState.Done || state.Next == HaggleState.Begin)
+                state.Current = state.Next;
+            return true;
+        }
+        return false;
+    }
+
+    public void Pick()
+    {
+        if (CheckPickedState())
             return;
 
         state.Current = HaggleState.Picked;
@@ -221,12 +233,12 @@ public sealed record ShopkeepHaggle(
             {
                 nextTargetPointer = targetPointer + delta / 3 + 2 * delta * Random.Shared.NextSingle() / 3;
                 targetOverRange -= nextTargetPointer - targetPointer;
-                state.SetNext(HaggleState.Begin, pickedPauseMS);
+                state.SetNext(HaggleState.Begin, waitMS);
                 SetNextDialogue(CustomerDialogueKind.Haggle_Compromise, pickedPrice);
             }
             else
             {
-                state.SetNext(HaggleState.Begin, pickedPauseMS);
+                state.SetNext(HaggleState.Begin, waitMS);
                 SetNextDialogue(CustomerDialogueKind.Haggle_Overpriced, pickedPrice);
             }
             Game1.playSound("smallSelect");
@@ -235,7 +247,7 @@ public sealed record ShopkeepHaggle(
 
     public void Giveup()
     {
-        if (state.Current == HaggleState.Picked)
+        if (CheckPickedState())
             return;
 
         pointer = targetPointer / 2;
@@ -245,7 +257,7 @@ public sealed record ShopkeepHaggle(
 
     private void SetupHaggleSuccess(uint pickedPrice)
     {
-        state.SetNext(HaggleState.Done, pickedPauseMS, DoneAndLock);
+        state.SetNext(HaggleState.Done, waitMS, DoneAndLock);
         ForSale.Sold = SoldRecord.Make(Buyer, pickedPrice, ForSale.Thing);
         Game1.playSound("reward");
         SetNextDialogue(CustomerDialogueKind.Haggle_Success, pickedPrice);
@@ -266,7 +278,7 @@ public sealed record ShopkeepHaggle(
 
     private void SetupHaggleFailed(uint pickedPrice)
     {
-        state.SetNext(HaggleState.Done, pickedPauseMS, DoneAndLock);
+        state.SetNext(HaggleState.Done, waitMS, DoneAndLock);
         Game1.playSound("fishEscape");
         SetNextDialogue(CustomerDialogueKind.Haggle_Fail, pickedPrice);
     }
@@ -362,7 +374,9 @@ public sealed record ShopkeepHaggle(
     {
         targetPointerPos = new(
             PntToXPos(
-                useNextTargetPnt ? Utility.Lerp(nextTargetPointer, targetPointer, state.TimerProgress) : targetPointer
+                useNextTargetPnt
+                    ? Utility.Lerp(targetPointer, nextTargetPointer, state.TimerProgressInRange(nextPntMoveMS))
+                    : targetPointer
             )
                 - buyerMugShotRect.Width * 2,
             haggleBarSlideBounds.Y - 16
@@ -478,7 +492,9 @@ public sealed record ShopkeepHaggle(
         );
         float pointerPos = PntToXPos(pointer);
         float rotate =
-            state.Current == HaggleState.Picked && ForSale.Sold != null ? 6 * MathF.PI * state.TimerProgress : 0f;
+            state.Current == HaggleState.Picked && ForSale.Sold != null
+                ? waitMS / 250 * MathF.PI * state.TimerProgress
+                : 0f;
         b.Draw(
             Game1.mouseCursors,
             new(pointerPos, haggleBarSlideBounds.Y + 16 + sourceRectHagglePointerA.Height * 2),

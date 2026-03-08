@@ -10,6 +10,7 @@ public sealed class ModConfig
     public bool AllowUnmetCustomers { get; set; } = false;
     public bool HaggleAutoClick { get; set; } = false;
     public int HaggleSpeed { get; set; } = 1500;
+    public int HaggleWait { get; set; } = 2000;
     public Point HaggleUIOffset { get; set; } = Point.Zero;
 
     private void Reset()
@@ -17,6 +18,7 @@ public sealed class ModConfig
         AllowUnmetCustomers = false;
         HaggleAutoClick = false;
         HaggleSpeed = 1500;
+        HaggleWait = 2000;
         HaggleUIOffset = Point.Zero;
     }
 

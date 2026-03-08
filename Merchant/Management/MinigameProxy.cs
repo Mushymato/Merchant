@@ -21,11 +21,12 @@ public class MinigameProxy : DispatchProxy
             Type[] paramTypes = targetMethod.GetParameters().Select(p => p.ParameterType).ToArray();
             method = typeof(ShopkeepGame).GetMethod(targetMethod.Name, paramTypes);
             cachedMethodInfo[targetMethod] = method;
+            if (method == null)
+                ModEntry.LogOnce($"MinigameProxy: unknown method {targetMethod}");
         }
 
         if (method == null)
         {
-            ModEntry.LogOnce($"Unknown method {targetMethod}");
             // Return default for unknown methods (e.g. GetForcedScaleFactor on mobile)
             if (targetMethod.ReturnType == typeof(float))
                 return 1f;

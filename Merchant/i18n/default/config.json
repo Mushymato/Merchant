@@ -4,7 +4,9 @@
   "config.haggle-autoclick.name": "Haggle Auto-click",
   "config.haggle-autoclick.desc": "When enabled, haggling automatically completes with a lower price (same as using right-click or cancel button).",
   "config.haggle-speed.name": "Haggle Speed",
-  "config.haggle-speed.desc": "Set the speed of the haggle minigame.",
+  "config.haggle-speed.desc": "Set the speed of the haggle minigame in terms of number of seconds it takes for the pointer star to cross the entire bar.",
+  "config.haggle-wait.name": "Haggle Wait",
+  "config.haggle-wait.desc": "Set the number of seconds to pause after picking something in haggling (you can click to end haggle wait early).",
   "config.haggle-ui-offset.name": "Haggle UI Offset",
   "config.haggle-ui-offset.desc": "Comma separated haggle UI offset coordinates",
 }

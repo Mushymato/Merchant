@@ -30,6 +30,15 @@ public sealed class StateManager<T>(T defaultValue, string? loggingName)
     public TimeSpan Timer { get; private set; } = TimeSpan.Zero;
     private double timerTotalMS = -1;
     public float TimerProgress => (float)(Timer.TotalMilliseconds / timerTotalMS);
+
+    public float TimerProgressInRange(float range)
+    {
+        double msLeft = timerTotalMS - Timer.TotalMilliseconds;
+        if (msLeft < range)
+            return (float)(msLeft / range);
+        return 1f;
+    }
+
     private stateChanged? changeCallback = null;
 
     public void SetNext(T next, double transition, stateChanged? onChange = null)

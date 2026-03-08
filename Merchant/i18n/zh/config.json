@@ -5,6 +5,8 @@
   "config.haggle-autoclick.desc": "启用后自动结算‘讨价还价’，效果和右键点击放弃‘讨价还价’一样",
   "config.haggle-speed.name": "讨价还价：指针速度",
   "config.haggle-speed.desc": "设置指针移动速度",
+  "config.haggle-wait.name": "讨价还价：待机时间",
+  "config.haggle-wait.desc": "指针选中后的等待时间（再点击一次跳过等待时间）",
   "config.haggle-ui-offset.name": "讨价还价：UI位置",
   "config.haggle-ui-offset.desc": "‘讨价还价’的UI位置，用逗号分隔的X和Y值",
 }
