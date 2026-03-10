@@ -195,6 +195,7 @@ internal static class AssetManager
                 Description = $"[LocalizedText {Asset_Strings}:Tourism_BooksellerDay_Desc]",
                 ContextTags = ["book_item"],
                 TouristMinCount = 3,
+                TouristMaxCount = 8,
                 Dialogue = new Dictionary<string, CustomerDialogue>
                 {
                     [$"{ModEntry.ModId}_Bookbuyer"] = new()

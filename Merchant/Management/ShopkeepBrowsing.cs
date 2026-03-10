@@ -115,6 +115,7 @@ public sealed record ShopkeepBrowsing(
                 }
             }
         }
+        themeBoostDatas?.OrderByDescending(boost => boost.Value);
 
         // tile accessibility
         if (location.warps.Count < 1)

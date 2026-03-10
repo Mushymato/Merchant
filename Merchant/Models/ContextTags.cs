@@ -12,7 +12,7 @@ internal static class ContextTags
         foreach (string tagGroup in rawTags)
         {
             if (!string.IsNullOrEmpty(tagGroup))
-                splitTags.Add(tagGroup.Split(','));
+                splitTags.Add(tagGroup.Split(',').Select(tag => tag.Trim()).ToArray());
         }
         return splitTags;
     }
