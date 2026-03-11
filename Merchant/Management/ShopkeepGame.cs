@@ -242,16 +242,7 @@ public sealed class ShopkeepGame
         return true;
     }
 
-    public void changeScreenSize()
-    {
-        Game1.viewport.X =
-            location.Map.Layers[0].LayerWidth * 64 / 2
-            - (int)(Game1.game1.localMultiplayerWindow.Width / 2 / Game1.options.zoomLevel);
-        Game1.viewport.Y =
-            location.Map.Layers[0].LayerHeight * 64 / 2
-            - (int)(Game1.game1.localMultiplayerWindow.Height / 2 / Game1.options.zoomLevel);
-        haggling?.CalculateBounds();
-    }
+    public void changeScreenSize() => haggling?.CalculateBounds();
     #endregion
 
     #region gameloop

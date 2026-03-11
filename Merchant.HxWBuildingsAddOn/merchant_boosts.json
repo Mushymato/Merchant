@@ -10,7 +10,8 @@
           "Description": "{{i18n:Theme_TeaShop}}",
           "ContextTags": [
             "food_tea",
-            "wildflour_tea"
+            "wildflour_tea",
+            "item_green_tea"
           ],
           "Value": 0.2,
         },
@@ -21,6 +22,7 @@
             "food_cake",
             "food_sweet",
             "food_coffee",
+            "coffee_item",
             "bread_item",
             "wildflour_bakery",
             "wildflour_coffee_item",

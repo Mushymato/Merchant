@@ -61,7 +61,9 @@ public static class GameDelegates
                 ModEntry.Log($"'{themeId}' is not a theme boost", LogLevel.Error);
                 return false;
             }
-            ModEntry.Log($"CTAG - {string.Join('#', themeBoostData.SplitContextTags)}");
+            ModEntry.Log(
+                $"CTAG - {string.Join('#', themeBoostData.SplitContextTags.Select(tg => string.Join(',', tg)))}"
+            );
             if (themeBoostData.SplitContextTags.CheckContextTags(item))
             {
                 ModEntry.Log($"TRUE - {string.Join(' ', query)}");
