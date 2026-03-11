@@ -375,7 +375,11 @@ public sealed record ShopkeepHaggle(
         targetPointerPos = new(
             PntToXPos(
                 useNextTargetPnt
-                    ? Utility.Lerp(targetPointer, nextTargetPointer, state.TimerProgressInRange(nextPntMoveMS))
+                    ? Utility.Lerp(
+                        targetPointer,
+                        nextTargetPointer,
+                        state.TimerProgressInRange(Math.Min(nextPntMoveMS, waitMS))
+                    )
                     : targetPointer
             )
                 - buyerMugShotRect.Width * 2,
