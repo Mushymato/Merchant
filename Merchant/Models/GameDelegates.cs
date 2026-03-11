@@ -61,11 +61,14 @@ public static class GameDelegates
                 ModEntry.Log($"'{themeId}' is not a theme boost", LogLevel.Error);
                 return false;
             }
+            ModEntry.Log($"CTAG - {string.Join('#', themeBoostData.SplitContextTags)}");
             if (themeBoostData.SplitContextTags.CheckContextTags(item))
             {
+                ModEntry.Log($"TRUE - {string.Join(' ', query)}");
                 return true;
             }
         }
+        ModEntry.Log($"FLSE - {string.Join(' ', query)}");
         return false;
     }
 
@@ -111,7 +114,7 @@ public static class GameDelegates
 
     private static bool TileActionCashRegister(GameLocation location, string[] args, Farmer player, Point point)
     {
-        return ShowMerchantMenu(location, player, point, args.Skip(1).ToArray());
+        return ShowMerchantMenu(location, player, point, args.Skip(1).ToArray(), relaxedTileStandLogic: true);
     }
 
     public static bool InteractCashRegister(SObject machine, GameLocation location, Farmer player)
@@ -131,7 +134,8 @@ public static class GameDelegates
         GameLocation location,
         Farmer player,
         Point cashRegisterPoint,
-        string[] boostIds
+        string[] boostIds,
+        bool relaxedTileStandLogic = false
     )
     {
         if (
@@ -189,7 +193,8 @@ public static class GameDelegates
                                 player,
                                 cashRegisterPoint,
                                 browsing,
-                                out string? failReason
+                                out string? failReason,
+                                relaxedTileStandLogic: relaxedTileStandLogic
                             )
                         )
                             Game1.drawObjectDialogue(failReason);

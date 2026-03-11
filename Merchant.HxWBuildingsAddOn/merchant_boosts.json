@@ -8,7 +8,7 @@
       "Entries": {
         "{{ModId}}_TeaShop": {
           "Description": "{{i18n:Theme_TeaShop}}",
-          "RequiredContextTags": [
+          "ContextTags": [
             "food_tea",
             "wildflour_tea"
           ],
@@ -16,7 +16,7 @@
         },
         "{{ModId}}_Bakery": {
           "Description": "{{i18n:Theme_Bakery}}",
-          "RequiredContextTags": [
+          "ContextTags": [
             "food_bakery",
             "food_cake",
             "food_sweet",
@@ -29,7 +29,7 @@
         },
         "{{ModId}}_Restaurant": {
           "Description": "{{i18n:Theme_Restaurant}}",
-          "RequiredContextTags": [
+          "ContextTags": [
             "food_pasta",
             "food_breakfast",
             "food_salad",
@@ -41,7 +41,7 @@
         },
         "{{ModId}}_WineryBrewery": {
           "Description": "{{i18n:Theme_WineryBrewery}}",
-          "RequiredContextTags": [
+          "ContextTags": [
             "alcohol_item",
             "wildflour_ale_item",
             "wildflour_mead_item",

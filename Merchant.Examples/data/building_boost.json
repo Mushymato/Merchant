@@ -7,7 +7,7 @@
       "Entries": {
         "{{ModId}}_EggZone": {
           "Description": "Gib Egg",
-          "RequiredContextTags": [
+          "ContextTags": [
             "egg_item"
           ],
           "Value": 0.2,

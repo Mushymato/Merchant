@@ -55,7 +55,7 @@ public sealed class ShopkeepGame
     #endregion
 
     #region setup teardown
-    private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing, Point tileAboveCashRegister)
+    private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing, Point tileToStandAt)
     {
         this.location = location;
         this.player = player;
@@ -92,7 +92,7 @@ public sealed class ShopkeepGame
         player.Stamina -= STAMINA_COST_SHOPKEEPING;
         player.TemporaryItem = ItemRegistry.Create("(P)0");
 
-        player.setTileLocation(tileAboveCashRegister.ToVector2());
+        player.setTileLocation(tileToStandAt.ToVector2());
         player.faceDirection(2);
         changeScreenSize();
     }
@@ -141,7 +141,8 @@ public sealed class ShopkeepGame
         Farmer? player,
         Point cashRegisterPoint,
         ShopkeepBrowsing browsing,
-        [NotNullWhen(false)] out string? failReason
+        [NotNullWhen(false)] out string? failReason,
+        bool relaxedTileStandLogic = false
     )
     {
         failReason = null;
@@ -179,14 +180,17 @@ public sealed class ShopkeepGame
             return false;
         }
 
-        Point tileAboveCashRegister = new(cashRegisterPoint.X, cashRegisterPoint.Y - 1);
-        if (!Topology.IsTileStandable(location, tileAboveCashRegister, CollisionMask.All))
+        Point tileToStandAt =
+            relaxedTileStandLogic && Topology.IsTileStandable(location, cashRegisterPoint)
+                ? cashRegisterPoint
+                : new(cashRegisterPoint.X, cashRegisterPoint.Y - 1);
+        if (!Topology.IsTileStandable(location, tileToStandAt, CollisionMask.All))
         {
             failReason = I18n.FailReason_TilePosition();
             return false;
         }
 
-        ShopkeepGame shopkeepGame = new(location, player, browsing, tileAboveCashRegister);
+        ShopkeepGame shopkeepGame = new(location, player, browsing, tileToStandAt);
         IMinigame proxy = MinigameProxy.GetProxy(shopkeepGame);
         shopkeepGame.proxyInstance = proxy;
         Game1.currentMinigame = proxy;
