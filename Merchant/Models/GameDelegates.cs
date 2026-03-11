@@ -18,6 +18,7 @@ public static class GameDelegates
     private const string GSQ_BOOK_SELLER_IN_TOWN = $"{ModEntry.ModId}_BOOK_SELLER_IN_TOWN";
     private const string GSQ_SOLD_BUYER = $"{ModEntry.ModId}_SOLD_BUYER";
     private const string GSQ_SOLD_PRICE = $"{ModEntry.ModId}_SOLD_PRICE";
+    private const string GSQ_ITEM_MATCHES_THEME = $"{ModEntry.ModId}_ITEM_MATCHES_THEME";
     internal const string Trigger_Merchant_Sold = $"{ModEntry.ModId}_Sold";
     internal const string ModData_SoldPrice = $"{ModEntry.ModId}/Sold/Price";
     internal const string ModData_SoldBuyer = $"{ModEntry.ModId}/Sold/Buyer";
@@ -29,6 +30,43 @@ public static class GameDelegates
         GameStateQuery.Register(GSQ_BOOK_SELLER_IN_TOWN, BOOK_SELLER_IN_TOWN);
         GameStateQuery.Register(GSQ_SOLD_BUYER, SOLD_BUYER);
         GameStateQuery.Register(GSQ_SOLD_PRICE, SOLD_PRICE);
+        GameStateQuery.Register(GSQ_ITEM_MATCHES_THEME, ITEM_MATCHES_THEME);
+    }
+
+    private static bool ITEM_MATCHES_THEME(string[] query, GameStateQueryContext context)
+    {
+        if (query.Length < 3)
+        {
+            ModEntry.Log("Expected at least 2 arguments", LogLevel.Error);
+            return false;
+        }
+        if (
+            !GameStateQuery.Helpers.TryGetItemArg(
+                query,
+                1,
+                context.TargetItem,
+                context.InputItem,
+                out Item item,
+                out string error
+            )
+        )
+        {
+            ModEntry.Log(error, LogLevel.Error);
+            return false;
+        }
+        foreach (string themeId in query.Skip(2))
+        {
+            if (!AssetManager.ThemeBoosts.Data.TryGetValue(themeId, out ShopkeepThemeBoostData? themeBoostData))
+            {
+                ModEntry.Log($"'{themeId}' is not a theme boost", LogLevel.Error);
+                return false;
+            }
+            if (themeBoostData.SplitContextTags.CheckContextTags(item))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static bool SOLD_PRICE(string[] query, GameStateQueryContext context)

@@ -18,7 +18,7 @@ public sealed class ShopkeepThemeBoostData
         return string.Concat(Value.ToString(), '#', ContextTags != null ? string.Join(',', ContextTags) : "ANY");
     }
 
-    private List<string[]> SplitContextTags => field ??= ContextTags.SplitContextTags();
+    internal List<string[]> SplitContextTags => field ??= ContextTags.SplitContextTags();
 
     public static ShopkeepThemeBoostData? GetThemedBoostForItem(List<ShopkeepThemeBoostData>? themedBoosts, Item item)
     {
@@ -26,7 +26,7 @@ public sealed class ShopkeepThemeBoostData
             return null;
         foreach (ShopkeepThemeBoostData curBoost in themedBoosts)
         {
-            if (curBoost.SplitContextTags.CheckContextTags(item))
+            if (curBoost.Value > 0f && curBoost.SplitContextTags.CheckContextTags(item))
             {
                 return curBoost;
             }

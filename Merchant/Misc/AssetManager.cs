@@ -75,16 +75,14 @@ internal static class AssetManager
 
     #region lazy loaders
     internal static readonly CachedLazyLoader<CustomerData> Customers = new(Asset_CustomerData);
-    internal static readonly CachedLazyLoader<ShopkeepThemeBoostData> ShopkeepContexts = new(
-        Asset_ShopkeepThemeBoostData
-    );
+    internal static readonly CachedLazyLoader<ShopkeepThemeBoostData> ThemeBoosts = new(Asset_ShopkeepThemeBoostData);
     internal static readonly CachedLazyLoader<TourismWaveData> TourismWaves = new(Asset_TourismWavesData);
     internal static readonly CachedLazyLoader<TouristData> Tourists = new(Asset_Tourists);
 
     private static void OnAssetInvalidated(object? sender, AssetsInvalidatedEventArgs e)
     {
         Customers.Invalidate(e.NamesWithoutLocale);
-        ShopkeepContexts.Invalidate(e.NamesWithoutLocale);
+        ThemeBoosts.Invalidate(e.NamesWithoutLocale);
         TourismWaves.Invalidate(e.NamesWithoutLocale);
         Tourists.Invalidate(e.NamesWithoutLocale);
     }

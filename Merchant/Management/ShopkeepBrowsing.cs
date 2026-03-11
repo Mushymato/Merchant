@@ -81,7 +81,7 @@ public sealed record ShopkeepBrowsing(
                 themeBoostDatas = [];
                 foreach (string themeBoost in themeBoostIds.Split(','))
                 {
-                    if (AssetManager.ShopkeepContexts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
+                    if (AssetManager.ThemeBoosts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
                     {
                         themeBoostDatas.Add(themeBoostData);
                     }
@@ -109,7 +109,7 @@ public sealed record ShopkeepBrowsing(
             themeBoostDatas ??= [];
             foreach (string themeBoost in boostIds)
             {
-                if (AssetManager.ShopkeepContexts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
+                if (AssetManager.ThemeBoosts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
                 {
                     themeBoostDatas.Add(themeBoostData);
                 }
