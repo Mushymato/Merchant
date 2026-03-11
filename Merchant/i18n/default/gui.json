@@ -10,6 +10,7 @@
   "fail-reason.no-items-for-sale": "Put out some items on tables for sale, and make sure customers can reach them.",
   "fail-reason.green-rain": "The green rain looks pretty bad out there, doubt anyone would come today.",
   "fail-reason.too-tired": "You are too tired to do any shopkeeping.",
+  "fail-reason.too-late": "It's too late in the day to open a shop.",
   "fail-reason.other-farmer": "You can't open a shop while another player is in the same location.",
   "fail-reason.tile-position": "Clear the space behind the cash register (i.e. one tile above).",
   "fail-reason.everyone-hate": "No one wants to buy the things you got on display, try selling something else.",

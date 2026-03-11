@@ -20,6 +20,7 @@ public sealed class ShopkeepGame
     internal IMinigame? proxyInstance;
     internal const int STAMINA_COST_SHOPKEEPING = 10;
     internal const int STAMINA_COST_HAGGLING = 4;
+    private const int CUTOFF_TIME = 2530;
 
     private readonly GameLocation location;
     private readonly Farmer player;
@@ -152,6 +153,11 @@ public sealed class ShopkeepGame
             return false;
         }
 
+        if (Game1.timeOfDay >= CUTOFF_TIME)
+        {
+            failReason = I18n.FailReason_TooLate();
+            return false;
+        }
         if (browsing.WaitingActors.Count == 0)
         {
             failReason = I18n.FailReason_EveryoneHate();
@@ -277,7 +283,7 @@ public sealed class ShopkeepGame
         else
         {
             Game1.UpdateGameClock(time);
-            if (Game1.timeOfDay >= 2500)
+            if (Game1.timeOfDay >= CUTOFF_TIME)
                 PrepareReport();
         }
         state.Update(time);
@@ -406,6 +412,8 @@ public sealed class ShopkeepGame
 
     private void PrepareReport()
     {
+        if (state.Current == GameLoopState.Report || state.Current == GameLoopState.Unload)
+            return;
         PlayMusic(CueType.trackReport);
         Game1.activeClickableMenu = browsing.FinalizeAndReport();
         state.SetAndLock(GameLoopState.Report);

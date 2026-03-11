@@ -10,6 +10,7 @@
   "fail-reason.no-items-for-sale": "把想售卖的商品放在桌子上，并确保客人能走过去。",
   "fail-reason.green-rain": "外面的绿雨看起来挺恶劣的，估计今天不会有人来买东西。",
   "fail-reason.too-tired": "你太累了，没精力运营店铺。",
+  "fail-reason.too-late": "天色已晚，还是别开店了吧。",
   "fail-reason.other-farmer": "无法在地点里另一个玩家时运营店铺。",
   "fail-reason.tile-position": "确保收银台上面一格有空位",
   "fail-reason.everyone-hate": "没人想买你你出卖的商品，试试卖其他东西吧。",
