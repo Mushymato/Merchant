@@ -176,11 +176,6 @@ public sealed record ShopkeepBrowsing(
                 standingDecorCount += Math.Clamp(furniture.getTilesHigh() * furniture.getTilesWide() / 2, 1, 4);
             }
         }
-        if (forSaleTargets.Count == 0)
-        {
-            failReason = I18n.FailReason_NoItemsForSale();
-            return false;
-        }
 
         floorDecorCount += location.terrainFeatures.Count();
         ShopBonusStats bonusStats = new(
@@ -223,7 +218,7 @@ public sealed record ShopkeepBrowsing(
             return field;
         }
     }
-    private readonly Lazy<Queue<CustomerActor>> laztWaitingActors = new(() =>
+    private readonly Lazy<Queue<CustomerActor>> lazyWaitingActors = new(() =>
         CreateWaitingActors(Location, TopologyInfo, ForSaleTargets)
     );
 
@@ -262,7 +257,7 @@ public sealed record ShopkeepBrowsing(
         return new(waitingActors);
     }
 
-    internal Queue<CustomerActor> WaitingActors => laztWaitingActors.Value;
+    internal Queue<CustomerActor> WaitingActors => lazyWaitingActors.Value;
 
     private readonly List<CustomerActor> dispatchedActors = [];
 

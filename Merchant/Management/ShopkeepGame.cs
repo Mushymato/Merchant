@@ -154,6 +154,11 @@ public sealed class ShopkeepGame
             return false;
         }
 
+        if (browsing.ForSaleTargets.Count == 0)
+        {
+            failReason = I18n.FailReason_NoItemsForSale();
+            return false;
+        }
         if (Game1.timeOfDay >= CUTOFF_TIME)
         {
             failReason = I18n.FailReason_TooLate();
