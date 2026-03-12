@@ -10,6 +10,7 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.SpecialOrders;
+using xTile.Dimensions;
 
 namespace Merchant.Management;
 
@@ -47,20 +48,17 @@ public record ForSaleTarget(
 public sealed record ShopkeepBrowsing(
     GameLocation Location,
     Farmer Player,
-    Queue<CustomerActor> WaitingActors,
+    LocationTopology TopologyInfo,
     List<ForSaleTarget> ForSaleTargets,
     ShopBonusStats ShopBonus
 )
 {
     #region make
-    private static readonly Queue<CustomerActor> EmptyQueue = [];
-
     public static bool TryMake(
         GameLocation location,
         Farmer player,
         [NotNullWhen(true)] out ShopkeepBrowsing? browsing,
         [NotNullWhen(false)] out string? failReason,
-        bool getActors = true,
         string[]? boostIds = null
     )
     {
@@ -194,42 +192,9 @@ public sealed record ShopkeepBrowsing(
             themeBoostDatas
         );
 
-        if (!getActors)
-        {
-            browsing = new(location, player, EmptyQueue, forSaleTargets, bonusStats);
-            return true;
-        }
-
         LocationTopology locationTopology = new(entryPoint, reachablePoints);
 
-        HashSet<string> excludingSet = location.characters.Select(chara => chara.Name).ToHashSet();
-        List<CustomerActor> waitingActors = [];
-        int forSaleTargetsCount = forSaleTargets.Count;
-        // tourists
-        ModEntry.TourismWaves.MakeTouristActors(
-            forSaleTargetsCount,
-            locationTopology,
-            forSaleTargets,
-            excludingSet,
-            ref waitingActors
-        );
-        int touristCounts = waitingActors.Count;
-        if (touristCounts > 0)
-            ModEntry.Log($"Picked {waitingActors.Count} tourists");
-        forSaleTargetsCount -= waitingActors.Count;
-        // customers
-        int customerCount = Math.Min(forSaleTargetsCount, ModEntry.ProgressData.AdvertiseLevel);
-        ModEntry.FriendEntries.MakeCustomerActors(
-            customerCount + touristCounts,
-            locationTopology,
-            forSaleTargets,
-            excludingSet,
-            ref waitingActors
-        );
-        ModEntry.Log($"Picked {waitingActors.Count - touristCounts} customers");
-        Random.Shared.ShuffleInPlace(waitingActors);
-
-        browsing = new(location, player, new Queue<CustomerActor>(waitingActors), forSaleTargets, bonusStats);
+        browsing = new(location, player, locationTopology, forSaleTargets, bonusStats);
         return true;
     }
 
@@ -258,6 +223,47 @@ public sealed record ShopkeepBrowsing(
             return field;
         }
     }
+    private readonly Lazy<Queue<CustomerActor>> laztWaitingActors = new(() =>
+        CreateWaitingActors(Location, TopologyInfo, ForSaleTargets)
+    );
+
+    private static Queue<CustomerActor> CreateWaitingActors(
+        GameLocation location,
+        LocationTopology locationTopology,
+        List<ForSaleTarget> forSaleTargets
+    )
+    {
+        HashSet<string> excludingSet = location.characters.Select(chara => chara.Name).ToHashSet();
+        List<CustomerActor> waitingActors = [];
+        int forSaleTargetsCount = forSaleTargets.Count;
+        // tourists
+        ModEntry.TourismWaves.MakeTouristActors(
+            forSaleTargetsCount,
+            locationTopology,
+            forSaleTargets,
+            excludingSet,
+            ref waitingActors
+        );
+        int touristCounts = waitingActors.Count;
+        if (touristCounts > 0)
+            ModEntry.Log($"Picked {waitingActors.Count} tourists");
+        forSaleTargetsCount -= waitingActors.Count;
+        // customers
+        int customerCount = Math.Min(forSaleTargetsCount, ModEntry.ProgressData.AdvertiseLevel);
+        ModEntry.FriendEntries.MakeCustomerActors(
+            customerCount + touristCounts,
+            locationTopology,
+            forSaleTargets,
+            excludingSet,
+            ref waitingActors
+        );
+        ModEntry.Log($"Picked {waitingActors.Count - touristCounts} customers");
+        Random.Shared.ShuffleInPlace(waitingActors);
+        return new(waitingActors);
+    }
+
+    internal Queue<CustomerActor> WaitingActors => laztWaitingActors.Value;
+
     private readonly List<CustomerActor> dispatchedActors = [];
 
     public bool Update(GameTime time, ref ShopkeepHaggle? haggling)

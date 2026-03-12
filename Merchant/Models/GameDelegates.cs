@@ -218,15 +218,7 @@ public static class GameDelegates
             Game1.drawObjectDialogue(I18n.FailReason_NotYourRobo());
             return false;
         }
-        if (
-            !ShopkeepBrowsing.TryMake(
-                location,
-                player,
-                out ShopkeepBrowsing? browsing,
-                out string? failReason,
-                getActors: false
-            )
-        )
+        if (!ShopkeepBrowsing.TryMake(location, player, out ShopkeepBrowsing? browsing, out string? failReason))
         {
             Game1.drawObjectDialogue(failReason);
             return false;

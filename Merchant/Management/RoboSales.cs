@@ -31,7 +31,7 @@ public static class RoboSales
         if (stakeholderFarmers.Count == 0 || sellingPlayer == null)
             return true;
 
-        if (!ShopkeepBrowsing.TryMake(location, sellingPlayer, out ShopkeepBrowsing? browsing, out _, getActors: false))
+        if (!ShopkeepBrowsing.TryMake(location, sellingPlayer, out ShopkeepBrowsing? browsing, out _))
             return true;
 
         ShopkeepHaggle.GetMinAndMaxMult(browsing.ShopBonus.TotalBonus, out float minMult, out float maxMult);
