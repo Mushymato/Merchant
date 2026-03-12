@@ -207,7 +207,7 @@ public sealed class ShopkeepGame
     {
         browsing.Cleanup();
         if (ModEntry.ProgressData.AutoRestockEnabled)
-            AutoRestockEmptyTables();
+            AutoRestockEmptyTables(location, player);
         haggling = null;
 
         ModEntry.help.Events.Display.Rendering -= OnRendering;
@@ -414,7 +414,7 @@ public sealed class ShopkeepGame
         state.SetAndLock(GameLoopState.Report);
     }
 
-    private void AutoRestockEmptyTables()
+    internal static void AutoRestockEmptyTables(GameLocation location, Farmer player)
     {
         Queue<(Chest, int)> chestItemQueue = [];
         foreach (SObject obj in location.objects.Values)

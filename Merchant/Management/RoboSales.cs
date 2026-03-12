@@ -75,6 +75,8 @@ public static class RoboSales
             }
         }
 
+        ShopkeepGame.AutoRestockEmptyTables(location, sellingPlayer);
+
         return true;
     }
 }

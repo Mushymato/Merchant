@@ -1,9 +1,11 @@
 using Merchant.Management;
+using Merchant.Menus;
 using Merchant.Misc;
 using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Delegates;
+using StardewValley.Menus;
 using StardewValley.Triggers;
 
 namespace Merchant.Models;
@@ -162,16 +164,7 @@ public static class GameDelegates
         {
             responses.Add(new("merchant_tourism", I18n.Menu_TourismWave()));
         }
-        if (
-            ModEntry.ProgressData.TryGetMostRecentLogForLocation(
-                location.NameOrUniqueName,
-                out ShopkeepSessionLog? log,
-                out int logIdx
-            )
-        )
-        {
-            responses.Add(new("merchant_sessionlog", I18n.Menu_SessionLog()));
-        }
+        responses.Add(new("merchant_sessionlog", I18n.Menu_SessionLog()));
         responses.Add(
             new("merchant_cancel", Game1.content.LoadString("Strings\\Locations:MineCart_Destination_Cancel"))
         );
@@ -209,7 +202,7 @@ public static class GameDelegates
                         Game1.drawDialogueNoTyping(ModEntry.TourismWaves.FormatSummary());
                         break;
                     case "merchant_sessionlog":
-                        Game1.activeClickableMenu = SessionReportMenu.Make(log!);
+                        SessionListingMenu.TryShow(location.NameOrUniqueName);
                         break;
                 }
             },

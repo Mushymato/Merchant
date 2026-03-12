@@ -137,27 +137,6 @@ public sealed class MerchantProgressData
         return newLog;
     }
 
-    public bool TryGetMostRecentLogForLocation(
-        string locationName,
-        [NotNullWhen(true)] out ShopkeepSessionLog? log,
-        out int logIdx
-    )
-    {
-        log = null;
-        logIdx = -1;
-        for (int i = Logs.Count - 1; i >= 0; i--)
-        {
-            log = Logs[i];
-            if (log.Shop == locationName && !log.IsRoboShopkeep)
-            {
-                logIdx = i;
-                return true;
-            }
-            log = null;
-        }
-        return false;
-    }
-
     internal static void ListProgressForDeletedSaves()
     {
         string savesFolder = Program.GetSavesFolder();
