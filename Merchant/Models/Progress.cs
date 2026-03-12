@@ -82,10 +82,12 @@ public sealed class ShopkeepSessionLog
 
 public sealed class MerchantProgressData
 {
+    internal const int BASE_ADVERTISE = 4;
+    internal const int BASE_ROBO_SHOPKEEP = 5;
     #region saved progress
     public List<ShopkeepSessionLog> Logs { get; set; } = [];
-    public int AdvertiseLevel = 4;
-    public int RoboShopkeepLevel = 5;
+    public int AdvertiseLevel = BASE_ADVERTISE;
+    public int RoboShopkeepLevel = BASE_ROBO_SHOPKEEP;
     public bool AutoRestockUnlocked = false;
     public bool AutoRestockEnabled = false;
     #endregion

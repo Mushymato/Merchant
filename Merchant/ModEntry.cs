@@ -111,6 +111,13 @@ public sealed class ModEntry : Mod
         }
 
         if (
+            Helper.ModRegistry.GetApi<ISpecialPowerAPI>("Spiderbuttons.SpecialPowerUtilities") is ISpecialPowerAPI spapi
+        )
+        {
+            spapi.RegisterPowerCategory(ModId, I18n.ModName, "TileSheets/Objects_2", new(48, 272), new(16, 16));
+        }
+
+        if (
             (
                 Helper
                     .ModRegistry.Get("leroymilo.FurnitureFramework")

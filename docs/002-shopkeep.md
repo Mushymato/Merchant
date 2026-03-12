@@ -26,3 +26,10 @@ To link a boost to a building, you need to edit the Metadata.
 | `"mushymato.Merchant/ShopkeepThemeBoosts"` | List of comma separated `mushymato.Merchant/ShopkeepThemeBoosts` keys for boosts associated with this building. |
 | `"mushymato.Merchant/ShopkeepCondition"` | A game state query that controls whether the building can be a shop. |
 | `"mushymato.Merchant/ShopkeepNotAllowedMessage"` | If this building cannot be a shop, this message is displayed if set. |
+
+### Custom Shop Locations
+
+Besides farm buildings, mods can make a location valid for shopkeeping too.
+This can be done by setting `mushymato.Merchant/ShopkeepCondition` to `TRUE` on the custom fields of a location.
+
+The location should has to be decoratable by the player (i.e. have tables) and customers will use the first warp into the location as the entry tile.

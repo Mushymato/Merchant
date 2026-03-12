@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-01-12
+
+### Added
+
+- Robo-shopkeeper now supports auto-restocking too
+- The session report menu has been improved and you can now browse all past reports
+- 
+
+### Changed
+
+- Minigame no-longer snaps the camera to the top left of map when you start. You can still pan the camera.
+
 ## [1.1.1] - 2026-01-10
 
 ### Added

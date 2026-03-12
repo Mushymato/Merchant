@@ -14,6 +14,10 @@ There are 2 GSQs you can use with this trigger:
 - `mushymato.Merchant_SOLD_BUYER <buyer>` checks if the item is sold to a particular buyer.
 - `mushymato.Merchant_SOLD_PRICE <minPrice> [maxPrice]` checks if the item's sold price is between min and max.
 
+### Game State Query `mushymato.Merchant_ITEM_MATCHES_THEME <Target|Input> [themeId]+`
+
+This game state query checks if the target or input item matches a given [theme](../002-shopkeep.md).
+
 ### Interact Method `Merchant.Models.GameDelegates, Merchant: InteractCashRegister`
 
 This is the interact method used to show the merchant minigame menu.

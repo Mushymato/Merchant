@@ -48,4 +48,11 @@
   "WillyWalrus.Willy.12": "Might bring a bit more life back to the valley.",
   "WillyWalrus.Willy.13": "Just a thought, mind. No pressure.#$b#But... if you ever do set up shop... I might know a fisherman with a steady supply o' fresh stock.",
   "WillyWalrus.Willy.14": "Purely laissez-faire, o' course.$1",
+  // upgrade powers
+  "UpgradePower_Advertisement_Name": "Shop Advertisement",
+  "UpgradePower_Advertisement_Desc": "Currently, {0} standard customers will come during each shopkeeping session.",
+  "UpgradePower_AutoRestock_Name": "Auto-Restock",
+  "UpgradePower_AutoRestock_Desc": "You can enable/disable auto-restock from the upgrades menu.",
+  "UpgradePower_RoboShopkeep_Name": "Robo-Shopkeep Firmware",
+  "UpgradePower_RoboShopkeep_Desc": "Currently, the robo-shopkeep will sell items at {0} above base multiplier.",
 }

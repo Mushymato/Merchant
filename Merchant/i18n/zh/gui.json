@@ -1,4 +1,5 @@
 {
+  "mod-name": "商人",
   "minigame.id": "商人：店铺运营",
   "roboshopkeep.id": "人机：自动销售",
   "fail-reason.cant-be-shop": "此农场建筑不能作为店铺。",
@@ -41,7 +42,7 @@
   "report.session.revenue": "，营业额{{earnings}}",
   "upgrade.advertisement.name": "给店铺打广告（第{{nextLevel}}轮）",
   "upgrade.advertisement.desc": "通过打广告可提高顾客数量\n（当前：{{count}}）",
-  "upgrade.roboshopkeep.name": "机械掌柜固件版本Lv.{{Level}}",
+  "upgrade.roboshopkeep.name": "机械掌柜固件版本Lv.{{nextLevel}}",
   "upgrade.roboshopkeep.desc": "升级机械掌柜的固件，提高售卖价格\n（当前：{{count}}）",
   "upgrade.auto-restock.unlock": "解锁自动补货",
   "upgrade.auto-restock.enable": "开启自动补货",

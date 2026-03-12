@@ -24,7 +24,7 @@ internal sealed class CachedTourismWaves(Farmer player)
             cacheDay = Game1.Date.TotalDays;
             ActiveTourismWave defaultWave = new(
                 TourismWaveData.DefaultWave,
-                new() { TouristMinCount = 1, TouristMaxCount = 4 },
+                new() { TouristMinCount = 0, TouristMaxCount = 4 },
                 []
             );
             activeWaves = [];
@@ -50,6 +50,7 @@ internal sealed class CachedTourismWaves(Farmer player)
                     }
                 }
             }
+            defaultWave.WaveData.TouristMaxCount = (int)Math.Max(4, Math.Ceiling(defaultWave.Tourists.Count / 2f));
             return activeWaves;
         }
     }

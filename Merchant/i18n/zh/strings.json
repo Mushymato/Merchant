@@ -48,4 +48,11 @@
   "WillyWalrus.Willy.12": "或许能给山谷添加一些生机。",
   "WillyWalrus.Willy.13": "只是说说而已，别在意。#$b#不过嘛… 你如果真能开个店铺… 也许我这能给你进点新鲜海货。",
   "WillyWalrus.Willy.14": "毕竟这可是laissez-faire！$1",
+  // upgrade powers
+  "UpgradePower_Advertisement_Name": "店铺广告",
+  "UpgradePower_Advertisement_Desc": "当前，每一轮店铺运营可吸引{0}位常规顾客光临。",
+  "UpgradePower_AutoRestock_Name": "自动补货",
+  "UpgradePower_AutoRestock_Desc": "你可以使用升级菜单开启或关闭自动补货。",
+  "UpgradePower_RoboShopkeep_Name": "机械掌柜固件",
+  "UpgradePower_RoboShopkeep_Desc": "当前，机械掌柜会以最低倍数加{0}%的价钱出售物品。",
 }

@@ -72,6 +72,11 @@ public static class GameDelegates
 
     private static bool SOLD_PRICE(string[] query, GameStateQueryContext context)
     {
+        if (context.TargetItem == null)
+        {
+            ModEntry.Log($"No target item set on GameStateQueryContext", LogLevel.Error);
+            return false;
+        }
         if (
             !context.TargetItem.modData.TryGetValue(ModData_SoldPrice, out string priceStr)
             || !uint.TryParse(priceStr, out uint price)
@@ -93,6 +98,11 @@ public static class GameDelegates
 
     private static bool SOLD_BUYER(string[] query, GameStateQueryContext context)
     {
+        if (context.TargetItem == null)
+        {
+            ModEntry.Log($"No target item set on GameStateQueryContext", LogLevel.Error);
+            return false;
+        }
         if (!context.TargetItem.modData.TryGetValue(ModData_SoldBuyer, out string buyer))
         {
             return false;

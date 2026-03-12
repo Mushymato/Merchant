@@ -9,6 +9,7 @@ using StardewValley.GameData.BigCraftables;
 using StardewValley.GameData.Buildings;
 using StardewValley.GameData.Characters;
 using StardewValley.GameData.Machines;
+using StardewValley.GameData.Powers;
 using StardewValley.GameData.Shops;
 
 namespace Merchant.Misc;
@@ -47,6 +48,7 @@ internal sealed class CachedLazyLoader<T>(string assetName, string? additionally
 internal static class AssetManager
 {
     private const string Asset_TextureCraftables = $"{ModEntry.ModId}/craftables";
+    private const string Asset_TexturePowers = $"{ModEntry.ModId}/powers";
     internal const string Asset_Strings = $"{ModEntry.ModId}.i18n";
     internal const string Asset_CustomerData = $"{ModEntry.ModId}/Customers";
     internal const string Asset_ShopkeepThemeBoostData = $"{ModEntry.ModId}/ShopkeepThemeBoosts";
@@ -88,6 +90,8 @@ internal static class AssetManager
     }
     #endregion
 
+    internal static Texture2D PowersTexture = Game1.content.Load<Texture2D>(Asset_TexturePowers);
+
     internal static string LoadString(string key) => Game1.content.LoadString($"{Asset_Strings}:{key}");
 
     internal static string LoadString(string key, params object[] substitutions) =>
@@ -123,6 +127,10 @@ internal static class AssetManager
         {
             e.Edit(Edit_Events_FishShop, AssetEditPriority.Default);
         }
+        else if (name.IsEquivalentTo("Data/Powers"))
+        {
+            e.Edit(Edit_Powers, AssetEditPriority.Default);
+        }
         else if (name.IsEquivalentTo(Asset_CustomerData))
         {
             e.LoadFrom(Load_Customers, AssetLoadPriority.Exclusive);
@@ -142,6 +150,10 @@ internal static class AssetManager
         else if (name.IsEquivalentTo(Asset_TextureCraftables))
         {
             e.LoadFromModFile<Texture2D>("assets/tx_craftables.png", AssetLoadPriority.Low);
+        }
+        else if (name.IsEquivalentTo(Asset_TexturePowers))
+        {
+            e.LoadFromModFile<Texture2D>("assets/tx_powers.png", AssetLoadPriority.Low);
         }
         else if (name.IsEquivalentTo(Asset_Strings))
         {
@@ -283,6 +295,37 @@ internal static class AssetManager
         return customerData;
     }
 
+    private static void Edit_Powers(IAssetData asset)
+    {
+        IDictionary<string, PowersData> data = asset.AsDictionary<string, PowersData>().Data;
+        data[$"{ModEntry.ModId}_AdvertiseLevel"] = new()
+        {
+            DisplayName = $"[LocalizedText {Asset_Strings}:UpgradePower_Advertisement_Name]",
+            Description =
+                $"[LocalizedText {Asset_Strings}:UpgradePower_Advertisement_Desc [{Upgrades.IQ_ADVERTISE_LEVEL}]]",
+            TexturePosition = new(0, 0),
+            UnlockedCondition = Upgrades.GSQ_HAS_ADVERTISE_LEVEL,
+            TexturePath = Asset_TexturePowers,
+        };
+        data[$"{ModEntry.ModId}_AutoRestock"] = new()
+        {
+            DisplayName = $"[LocalizedText {Asset_Strings}:UpgradePower_AutoRestock_Name]",
+            Description = $"[LocalizedText {Asset_Strings}:UpgradePower_AutoRestock_Desc]",
+            TexturePosition = new(16, 0),
+            UnlockedCondition = Upgrades.GSQ_HAS_AUTO_RESTOCK,
+            TexturePath = Asset_TexturePowers,
+        };
+        data[$"{ModEntry.ModId}_RoboShopkeepLevel"] = new()
+        {
+            DisplayName = $"[LocalizedText {Asset_Strings}:UpgradePower_RoboShopkeep_Name]",
+            Description =
+                $"[LocalizedText {Asset_Strings}:UpgradePower_RoboShopkeep_Desc [{Upgrades.IQ_ROBO_SHOPKEEP_LEVEL}]]",
+            TexturePosition = new(32, 0),
+            UnlockedCondition = Upgrades.GSQ_HAS_ROBO_SHOPKEEP_LEVEL,
+            TexturePath = Asset_TexturePowers,
+        };
+    }
+
     private static void Edit_Events_FishShop(IAssetData asset)
     {
         IDictionary<string, string> data = asset.AsDictionary<string, string>().Data;
@@ -341,8 +384,8 @@ internal static class AssetManager
             [
                 new()
                 {
-                    Id = Upgrades.IQ_ADVERTISE,
-                    ItemId = Upgrades.IQ_ADVERTISE,
+                    Id = Upgrades.IQ_ADVERTISE_LEVEL,
+                    ItemId = Upgrades.IQ_ADVERTISE_LEVEL,
                     UseObjectDataPrice = true,
                     MinStack = 1,
                     MaxStack = 1,

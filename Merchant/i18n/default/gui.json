@@ -1,4 +1,5 @@
 {
+  "mod-name": "Merchant",
   "minigame.id": "Merchant: Shopkeeping",
   "roboshopkeep.id": "Merchant: Robo-Shopkeep",
   "fail-reason.cant-be-shop": "This building can't be a shop.",
