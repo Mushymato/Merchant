@@ -60,12 +60,8 @@ public sealed record ShopBonusStats(
         );
         sb.Append('^');
         float totalBonus = TotalBonus;
-        sb.Append(
-            I18n.Bonus_Total(
-                $"{totalBonus / 2f + ShopkeepHaggle.MIN_MULT:0.00}",
-                $"{totalBonus + ShopkeepHaggle.MAX_MULT:0.00}"
-            )
-        );
+        ShopkeepHaggle.GetMinAndMaxMult(totalBonus, out float minMult, out float maxMult);
+        sb.Append(I18n.Bonus_Total($"{minMult:0.00}", $"{maxMult:0.00}"));
 
         return sb.ToString();
     }

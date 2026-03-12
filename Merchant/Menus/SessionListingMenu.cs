@@ -31,7 +31,7 @@ public sealed record SessionDateDisplay(int Date, long Revenue) : ISimpleGridDis
 
 public sealed record SessionLogDisplay(int Seq, ShopkeepSessionLog SessionLog, long Revenue) : ISimpleGridDisplay
 {
-    private const int TEXT_YOFFSET = (SimpleGridMenu.CELL_HEIGHT - 56) / 2;
+    private const int TEXT_YOFFSET = (SimpleGridMenu.CELL_HEIGHT - 50) / 2;
     private readonly string sessionText = I18n.Report_Session_Seq(
         Seq,
         SessionLog.IsRoboShopkeep

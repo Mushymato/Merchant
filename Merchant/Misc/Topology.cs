@@ -1,4 +1,5 @@
 using Merchant.Management;
+using Merchant.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Extensions;
@@ -67,7 +68,7 @@ public static class Topology
         return browseAround;
     }
 
-    internal static IEnumerable<Point> SurroundingTiles(Point nextPoint, int maxX, int maxY)
+    internal static IEnumerable<Point> Surrounding4Tiles(Point nextPoint, int maxX, int maxY)
     {
         if (nextPoint.X > 0)
             yield return new(nextPoint.X - 1, nextPoint.Y);
@@ -77,6 +78,38 @@ public static class Topology
             yield return new(nextPoint.X + 1, nextPoint.Y);
         if (nextPoint.Y < maxY - 1)
             yield return new(nextPoint.X, nextPoint.Y + 1);
+    }
+
+    internal static IEnumerable<Point> Surrounding8Tiles(Point nextPoint, int maxX, int maxY)
+    {
+        bool canLeft = nextPoint.X > 0;
+        bool canRight = nextPoint.X < maxX - 1;
+        bool canUp = nextPoint.Y > 0;
+        bool canDown = nextPoint.Y < maxY - 1;
+        // cardinal
+        if (canLeft)
+            yield return new(nextPoint.X - 1, nextPoint.Y);
+        if (canUp)
+            yield return new(nextPoint.X, nextPoint.Y - 1);
+        if (canRight)
+            yield return new(nextPoint.X + 1, nextPoint.Y);
+        if (canDown)
+            yield return new(nextPoint.X, nextPoint.Y + 1);
+        // other tiles
+        if (canLeft)
+        {
+            if (canUp)
+                yield return new(nextPoint.X - 1, nextPoint.Y - 1);
+            if (canDown)
+                yield return new(nextPoint.X - 1, nextPoint.Y + 1);
+        }
+        if (canRight)
+        {
+            if (canUp)
+                yield return new(nextPoint.X + 1, nextPoint.Y - 1);
+            if (canDown)
+                yield return new(nextPoint.X + 1, nextPoint.Y + 1);
+        }
     }
 
     internal static bool IsTileStandable(
@@ -151,7 +184,7 @@ public static class Topology
             (Point, int) next = tileQueue.Dequeue();
             Point nextPoint = next.Item1;
             int depth = next.Item2 + 1;
-            foreach (Point neighbour in SurroundingTiles(nextPoint, maxX, maxY))
+            foreach (Point neighbour in Surrounding4Tiles(nextPoint, maxX, maxY))
             {
                 if (!tileStandableState.ContainsKey(neighbour))
                 {
@@ -240,5 +273,24 @@ public static class Topology
             }
         }
         return null;
+    }
+
+    public static bool TileIsAdjacentToMerchantObject(GameLocation location, Point pointToCheck, int maxX, int maxY)
+    {
+        foreach (Point pnt in Surrounding8Tiles(pointToCheck, maxX, maxY))
+        {
+            if (
+                location.objects.TryGetValue(pnt.ToVector2(), out SObject obj)
+                && obj.GetMachineData().InteractMethod is string interactMethod
+                && (
+                    interactMethod == GameDelegates.InteractMethod_CashRegister
+                    || interactMethod == GameDelegates.InteractMethod_RoboShopkeep
+                )
+            )
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

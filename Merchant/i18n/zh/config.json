@@ -1,6 +1,10 @@
 {
   "config.unmet-npc.name": "允许不认识的NPC成为客人",
   "config.unmet-npc.desc": "启用后，你不认识的NPC也有可能出现在你的店铺，这并不算“打招呼”",
+  "config.auto-restock-restrict.name": "自动补货限制",
+  "config.auto-restock-restrict.desc": "启用后，只有放在收银台或机械掌柜旁边的箱子才会用于自动补货功能。",
+  "config.haggle-base-multiplier.name": "Haggle Base Multiplier",
+  "config.haggle-base-multiplier.desc": "Adjust the base multiplier for haggling, before decor bonuses.",
   "config.haggle-autoclick.name": "讨价还价：自动点击",
   "config.haggle-autoclick.desc": "启用后自动结算‘讨价还价’，效果和右键点击放弃‘讨价还价’一样",
   "config.haggle-speed.name": "讨价还价：指针速度",

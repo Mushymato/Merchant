@@ -32,6 +32,7 @@
   "bonus.total": "总和：{{minBonus}}x - {{maxMult}}x",
   "theme-boost.title": "店铺主题：",
   "quit-confirm": "提前关闭商店？",
+  "report.hover.sold-by-robo": "通过机械掌柜出售",
   "report.hover.bought-by": "购买者：{{chara}}",
   "report.session.date-total-revenue": "{{date}}：总营业额{{earnings}}",
   "report.session.seq": "第{{seq}}次开店：{{countings}}{{revenue}}",

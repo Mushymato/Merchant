@@ -10,7 +10,6 @@ using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Objects;
 using StardewValley.SpecialOrders;
-using xTile.Dimensions;
 
 namespace Merchant.Management;
 
@@ -65,28 +64,16 @@ public sealed record ShopkeepBrowsing(
         browsing = null;
         failReason = null;
         // map
-        if (location.Map == null)
+        if (location?.Map == null)
         {
             failReason = I18n.FailReason_InvalidMap();
             return false;
         }
         // location
+        string? themeBoostIds = null;
         List<ShopkeepThemeBoostData>? themeBoostDatas = null;
         if (location.ParentBuilding != null)
         {
-            string themeBoostIds = location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepThemeBoosts);
-            if (themeBoostIds != null)
-            {
-                themeBoostDatas = [];
-                foreach (string themeBoost in themeBoostIds.Split(','))
-                {
-                    if (AssetManager.ThemeBoosts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
-                    {
-                        themeBoostDatas.Add(themeBoostData);
-                    }
-                }
-            }
-
             if (
                 location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepCondition) is string shopkeepCondition
                 && !GameStateQuery.CheckConditions(shopkeepCondition, new(location, player, null, null, Random.Shared))
@@ -97,11 +84,38 @@ public sealed record ShopkeepBrowsing(
                     ?? I18n.FailReason_CantBeShop();
                 return false;
             }
+
+            themeBoostIds = location.ParentBuilding.GetMetadata(AssetManager.Metadata_ShopkeepThemeBoosts);
+        }
+        else if (
+            location.GetData()?.CustomFields is Dictionary<string, string> customFields
+            && customFields.TryGetValue(AssetManager.Metadata_ShopkeepCondition, out string? shopkeepCondition)
+        )
+        {
+            if (!GameStateQuery.CheckConditions(shopkeepCondition, new(location, player, null, null, Random.Shared)))
+            {
+                if (!customFields.TryGetValue(AssetManager.Metadata_ShopkeepNotAllowedMessage, out failReason))
+                    failReason = I18n.FailReason_CantBeShop();
+                return false;
+            }
+            customFields.TryGetValue(AssetManager.Metadata_ShopkeepThemeBoosts, out themeBoostIds);
         }
         else
         {
             failReason = I18n.FailReason_NotFarmBuilding();
             return false;
+        }
+
+        if (themeBoostIds != null)
+        {
+            themeBoostDatas = [];
+            foreach (string themeBoost in themeBoostIds.Split(','))
+            {
+                if (AssetManager.ThemeBoosts.Get(themeBoost) is ShopkeepThemeBoostData themeBoostData)
+                {
+                    themeBoostDatas.Add(themeBoostData);
+                }
+            }
         }
         if (boostIds != null)
         {
@@ -415,7 +429,7 @@ public sealed record ShopkeepBrowsing(
             return false;
         }
 
-        ModEntry.Log(sb.ToString(), LogLevel.Info);
+        ModEntry.LogDebug(sb.ToString());
 
         newLog = new()
         {

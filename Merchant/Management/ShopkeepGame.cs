@@ -421,10 +421,17 @@ public sealed class ShopkeepGame
 
     internal static void AutoRestockEmptyTables(GameLocation location, Farmer player)
     {
+        int maxX = location.Map.DisplayWidth / 64;
+        int maxY = location.Map.DisplayHeight / 64;
         Queue<(Chest, int)> chestItemQueue = [];
         foreach (SObject obj in location.objects.Values)
         {
             if (obj is not Chest chest)
+                continue;
+            if (
+                ModEntry.config.AutoRestockRestrict
+                && !Topology.TileIsAdjacentToMerchantObject(location, chest.TileLocation.ToPoint(), maxX, maxY)
+            )
                 continue;
             for (int i = 0; i < chest.Items.Count; i++)
             {

@@ -8,6 +8,8 @@ namespace Merchant.Models;
 public sealed class ModConfig
 {
     public bool AllowUnmetCustomers { get; set; } = false;
+    public bool AutoRestockRestrict { get; set; } = false;
+    public float HaggleBaseMultiplier { get; set; } = 0.5f;
     public bool HaggleAutoClick { get; set; } = false;
     public int HaggleSpeed { get; set; } = 1500;
     public int HaggleWait { get; set; } = 2000;
@@ -16,6 +18,8 @@ public sealed class ModConfig
     private void Reset()
     {
         AllowUnmetCustomers = false;
+        AutoRestockRestrict = false;
+        HaggleBaseMultiplier = 0.5f;
         HaggleAutoClick = false;
         HaggleSpeed = 1500;
         HaggleWait = 2000;
@@ -40,6 +44,24 @@ public sealed class ModConfig
             },
             I18n.Config_UnmetNpc_Name,
             I18n.Config_UnmetNpc_Desc
+        );
+        gmcm.AddBoolOption(
+            mod,
+            () => AutoRestockRestrict,
+            (value) => AutoRestockRestrict = value,
+            I18n.Config_AutoRestockRestrict_Name,
+            I18n.Config_AutoRestockRestrict_Desc
+        );
+        gmcm.AddNumberOption(
+            mod,
+            () => HaggleBaseMultiplier,
+            (value) => HaggleBaseMultiplier = value,
+            I18n.Config_HaggleBaseMultiplier_Name,
+            I18n.Config_HaggleBaseMultiplier_Desc,
+            0f,
+            1f,
+            0.05f,
+            (value) => $"{value:0.00}x-{value + 1f:0.00}"
         );
         gmcm.AddBoolOption(
             mod,

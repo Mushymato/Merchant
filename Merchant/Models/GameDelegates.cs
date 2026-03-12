@@ -5,7 +5,6 @@ using Microsoft.Xna.Framework;
 using StardewModdingAPI;
 using StardewValley;
 using StardewValley.Delegates;
-using StardewValley.Menus;
 using StardewValley.Triggers;
 
 namespace Merchant.Models;

@@ -20,9 +20,6 @@ public sealed record ShopkeepHaggle(
     Func<float, float> PatternFn
 )
 {
-    public const float MIN_MULT = 0.5f;
-    public const float MAX_MULT = 1.5f;
-
     #region make
     public static ShopkeepHaggle Make(Farmer player, CustomerActor buyer, ForSaleTarget forSale, float decorBonus)
     {
@@ -39,8 +36,8 @@ public sealed record ShopkeepHaggle(
 
     internal static void GetMinAndMaxMult(float decorBonus, out float minMult, out float maxMult)
     {
-        minMult = MIN_MULT + decorBonus / 2f;
-        maxMult = MAX_MULT + decorBonus;
+        minMult = ModEntry.config.HaggleBaseMultiplier + decorBonus / 2f;
+        maxMult = ModEntry.config.HaggleBaseMultiplier + 1f + decorBonus;
     }
 
     internal static readonly NPC dummySpeaker = new(
