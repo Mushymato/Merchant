@@ -34,6 +34,12 @@ To turn a custom big craftable into a cash register, you need to edit `Data/Mach
 This tile action works just like interacting with the cash register big craftable.
 You can create custom cash register items using a framework that attaches tile action to furniture, such as spacecore.
 
+### Textures
+
+You can edit custom textures from merchant by editing these targets:
+- `mushymato.Merchant/craftables`: cash register and robo-shopkeep 3000.
+- `mushymato.Merchant/powers`: upgrade/powers icons.
+
 ### Sounds
 
 You can alter sounds used in the minigame by adding specific sound cues to [Data/AudioChanges](https://stardewvalleywiki.com/Modding:Audio).

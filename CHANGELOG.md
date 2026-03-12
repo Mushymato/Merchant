@@ -10,11 +10,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Robo-shopkeeper now supports auto-restocking too
 - The session report menu has been improved and you can now browse all past reports
-- 
+- Merchant upgrades now appear as powers, and each have dedicated icons in the upgrade menu
 
 ### Changed
 
 - Minigame no-longer snaps the camera to the top left of map when you start. You can still pan the camera.
+
+### Fixed
+- (HxW Add-On) actually make these work oops
 
 ## [1.1.1] - 2026-01-10
 

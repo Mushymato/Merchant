@@ -54,5 +54,5 @@
   "UpgradePower_AutoRestock_Name": "Auto-Restock",
   "UpgradePower_AutoRestock_Desc": "You can enable/disable auto-restock from the upgrades menu.",
   "UpgradePower_RoboShopkeep_Name": "Robo-Shopkeep Firmware",
-  "UpgradePower_RoboShopkeep_Desc": "Currently, the robo-shopkeep will sell items at {0} above base multiplier.",
+  "UpgradePower_RoboShopkeep_Desc": "Currently, the robo-shopkeep will sell items at {0}% above base multiplier.",
 }
