@@ -10,7 +10,8 @@ public sealed record ShopBonusStats(
     int FloorDecorCount,
     int MapTileCount,
     int UnreachableTableCount,
-    List<ShopkeepThemeBoostData>? ThemeBoostDatas
+    List<ShopkeepThemeBoostData>? ThemeBoostDatas,
+    int UnaffectedByThemesCount
 )
 {
     private const float FLOOR_COVERAGE_TARGET = 2 / 3f;
@@ -76,11 +77,17 @@ public sealed record ShopBonusStats(
         sb.Append(LINEBREAK);
         foreach (ShopkeepThemeBoostData boost in ThemeBoostDatas)
         {
-            sb.Append("^  ");
+            sb.Append('^');
             if (string.Format(TokenParser.ParseText(boost.Description), boost.Value) is string desc)
                 sb.Append(desc);
             else
                 sb.Append(boost.ToString());
+        }
+        if (UnaffectedByThemesCount > 0)
+        {
+            sb.Append(LINEBREAK);
+            sb.Append('^');
+            sb.Append(I18n.ThemeBoost_Unaffected(UnaffectedByThemesCount));
         }
         return sb.ToString();
     }

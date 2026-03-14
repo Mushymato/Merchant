@@ -198,7 +198,8 @@ public sealed record ShopkeepBrowsing(
             floorDecorCount,
             reachablePoints.Count,
             unreachableTableCount,
-            themeBoostDatas
+            themeBoostDatas,
+            forSaleTargets.Count(forSale => forSale.Boost == null)
         );
 
         LocationTopology locationTopology = new(entryPoint, reachablePoints);

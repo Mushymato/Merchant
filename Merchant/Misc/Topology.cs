@@ -124,8 +124,7 @@ public static class Topology
                 tile.ToVector2(),
                 collisionMask: collisionMask,
                 ignorePassables: CollisionMask.All
-            )
-            && (location is not DecoratableLocation decoLoc || !decoLoc.isTileOnWall(tile.X, tile.Y));
+            );
     }
 
     /// <summary>Get whether players can walk on a map tile.</summary>

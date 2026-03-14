@@ -32,6 +32,7 @@
   "bonus.capped": " =",
   "bonus.total": "Total: {{minBonus}}x - {{maxMult}}x",
   "theme-boost.title": "Shop Themes:",
+  "theme-boost.unaffected": "There are {{count}} items out for sale which are not within any themes.",
   "quit-confirm": "Close up the shop early?",
   "report.hover.sold-by-robo": "Sold by Robo-Shopkeep.",
   "report.hover.bought-by": "Bought by {{chara}}.",
