@@ -1,6 +1,7 @@
 {
   "$schema": "https://smapi.io/schemas/content-patcher.json",
   "Changes": [
+    // example for adding dialogue
     {
       "Action": "EditData",
       "Target": "mushymato.Merchant/Customers",
@@ -22,6 +23,17 @@
           "Haggle_Overpriced": "B - Overpriced - Price - {0} - Item {1}",
           "Haggle_Success": "B - Success - Price - {0} - Item {1}",
           "Haggle_Fail": "B - Fail - Price - {0} - Item {1}"
+        }
+      }
+    },
+    // example for changing whether customer appears in shop
+    {
+      "Action": "EditData",
+      "Target": "mushymato.Merchant/Customers",
+      "Fields": {
+        "Wizard": {
+          "Condition": "FALSE",
+          "Chance": 0.5
         }
       }
     }
