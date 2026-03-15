@@ -99,11 +99,11 @@ public sealed class ShopkeepGame
         changeScreenSize();
     }
 
+    private bool NotCurrentScreen => screenId != Context.ScreenId;
+
     private void OnRendering(object? sender, RenderingEventArgs e)
     {
-        if (Unloaded)
-            return;
-        if (screenId != Context.ScreenId)
+        if (Unloaded || NotCurrentScreen)
             return;
         // adjust minigame rendering timing by nulling it before render
         if (Game1.currentMinigame == proxyInstance)
@@ -112,9 +112,7 @@ public sealed class ShopkeepGame
 
     private void OnRendered(object? sender, RenderedEventArgs e)
     {
-        if (Unloaded)
-            return;
-        if (screenId != Context.ScreenId)
+        if (Unloaded || NotCurrentScreen)
             return;
         // restore minigame after render
         if (Game1.currentMinigame == null)
@@ -125,8 +123,9 @@ public sealed class ShopkeepGame
 
     private void OnRenderedStep(object? sender, RenderedStepEventArgs e)
     {
-        if (screenId != Context.ScreenId)
+        if (Unloaded || NotCurrentScreen)
             return;
+        // do each relevant render
         switch (e.Step)
         {
             case StardewValley.Mods.RenderSteps.World_Background:
@@ -268,6 +267,8 @@ public sealed class ShopkeepGame
 
     public bool tick(GameTime time)
     {
+        if (Unloaded)
+            return true;
         // general updates
         if (Game1.player.health <= 0)
         {

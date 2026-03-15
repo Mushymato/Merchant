@@ -6,10 +6,13 @@ The happenings of 1 shopkeeping session depends on a variety of factors. This de
 
 Decor bonus is internally a number between 0.0 and 1.0 and the sum of these two values:
 * Standing decor can go up to 0.7. It is calculated as number of non-table decor / number of tables and full bonus is earned by having at least one decor per table.
+    * Larger decor count for half of their tile size (width x height) in points, up to 4.
 * Rug/floor can go up to 0.3. It is calculated as total tiles covered by something / (2/3 times number of reachable tiles).
 
 The base haggle minimum multiplier is 0.5x, add 1/2 of decor bonus to get the final multiplier (i.e. up to 1.0x).
 The base haggle maximum multiplier is 1.5x, add decor bonus to get the final multiplier (i.e. up to 2.5x).
+
+You can change the minimum multiplier in the config (i.e. the 0.5x value).
 
 ### Customers
 The standard kind of customers is a sociable NPC (i.e. appears on the social tab with hearts, can accept gifts) that the farmer has met.

@@ -224,15 +224,7 @@ public sealed record ShopkeepBrowsing(
 
     private readonly StateManager<BrowsingState> state = new(BrowsingState.NewCustomer, nameof(BrowsingState));
     private const int newCustomerCooldown = 2000;
-    private PathingLocation? PathingLocation
-    {
-        get
-        {
-            field ??= new(Location, dispatchedActors);
-            field.map = Location.map;
-            return field;
-        }
-    }
+    private PathingLocation? PathingLocation => field ??= new(Location, dispatchedActors);
     private readonly Lazy<Queue<CustomerActor>> lazyWaitingActors = new(() =>
         CreateWaitingActors(Location, TopologyInfo, ForSaleTargets)
     );

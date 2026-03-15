@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Mod is now properly compatible with split-screen
 - Add missing zh translation
+- Add haggle picking debounce to avoid instantly moving to next state on a controller
+- Fix jittery animation on actors in multiplayer
 
 ## [1.2.2] - 2026-03-15
 

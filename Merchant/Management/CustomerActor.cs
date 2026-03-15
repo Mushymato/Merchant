@@ -306,6 +306,8 @@ public sealed class CustomerActor : NPC
         IsInvisible = true;
     }
 
+    protected override void updateSlaveAnimation(GameTime time) { }
+
     public override void update(GameTime time, GameLocation location)
     {
         if (state.Current == ActorState.Move && controller == null)

@@ -192,8 +192,12 @@ public sealed record ShopkeepHaggle(
 
     public bool HaggleExpired() => Tries >= maxTries;
 
+    private int pickDebounceTick = -1;
+
     private bool CheckPickedState()
     {
+        if (Game1.ticks == pickDebounceTick || state.Current == HaggleState.Done)
+            return true;
         if (state.Current == HaggleState.Picked)
         {
             if (state.Next == HaggleState.Done || state.Next == HaggleState.Begin)
@@ -209,6 +213,7 @@ public sealed record ShopkeepHaggle(
             return;
 
         state.Current = HaggleState.Picked;
+        pickDebounceTick = Game1.ticks;
         uint pickedPrice = PntToPrice(pointer);
         uint targetPrice = PntToPrice(targetPointer);
         ModEntry.Log(
@@ -249,6 +254,7 @@ public sealed record ShopkeepHaggle(
 
         pointer = targetPointer / 2;
         state.Current = HaggleState.Picked;
+        pickDebounceTick = Game1.ticks;
         SetupHaggleSuccess(PntToPrice(pointer));
     }
 

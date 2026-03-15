@@ -3,13 +3,23 @@ using Merchant.Models;
 using Microsoft.Xna.Framework;
 using StardewValley;
 using StardewValley.Extensions;
-using StardewValley.Locations;
 using StardewValley.Pathfinding;
 
 namespace Merchant.Misc;
 
-public sealed class PathingLocation(GameLocation location, List<CustomerActor> dispatchedActors) : GameLocation
+public sealed class PathingLocation : GameLocation
 {
+    private readonly GameLocation location;
+    private readonly List<CustomerActor> dispatchedActors;
+
+    public PathingLocation(GameLocation location, List<CustomerActor> dispatchedActors)
+    {
+        this.location = location;
+        this.dispatchedActors = dispatchedActors;
+        this.map = location.map;
+        IsTemporary = true;
+    }
+
     public override bool isCollidingPosition(
         Rectangle position,
         xTile.Dimensions.Rectangle viewport,
