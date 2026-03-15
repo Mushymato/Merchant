@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.2.1] - 2026-01-14
+## [1.2.2] - 2026-03-15
+
+### Fixed
+
+- Defer powers texture load on android.
+
+## [1.2.1] - 2026-03-14
 
 ### Added
 
@@ -14,7 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 - Wall tiles no longer count as impassable for purpose of collision check.
 
-## [1.2.0] - 2026-01-12
+## [1.2.0] - 2026-03-12
 
 ### Added
 
@@ -29,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Fixed
 - (HxW Add-On) actually make these work oops
 
-## [1.1.1] - 2026-01-10
+## [1.1.1] - 2026-03-10
 
 ### Added
 
@@ -41,7 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Soft-lock at 1am oops
 - Context tags are now trimmed
 
-## [1.1.0] - 2026-01-07
+## [1.1.0] - 2026-03-07
 
 ### Added
 
@@ -62,7 +68,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Incompatibility with custom backpack framework
 - Soft-lock if player somehow dies during shopkeeping
 
-## [1.0.0] - 2026-01-06
+## [1.0.0] - 2026-03-06
 
 ### Added
 

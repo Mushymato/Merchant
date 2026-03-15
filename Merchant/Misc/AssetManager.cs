@@ -90,7 +90,7 @@ internal static class AssetManager
     }
     #endregion
 
-    internal static Texture2D PowersTexture = Game1.content.Load<Texture2D>(Asset_TexturePowers);
+    internal static Texture2D PowersTexture => Game1.content.Load<Texture2D>(Asset_TexturePowers);
 
     internal static string LoadString(string key) => Game1.content.LoadString($"{Asset_Strings}:{key}");
 
