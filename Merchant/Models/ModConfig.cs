@@ -52,17 +52,6 @@ public sealed class ModConfig
             I18n.Config_AutoRestockRestrict_Name,
             I18n.Config_AutoRestockRestrict_Desc
         );
-        gmcm.AddNumberOption(
-            mod,
-            () => HaggleBaseMultiplier,
-            (value) => HaggleBaseMultiplier = value,
-            I18n.Config_HaggleBaseMultiplier_Name,
-            I18n.Config_HaggleBaseMultiplier_Desc,
-            0f,
-            1f,
-            0.05f,
-            (value) => $"{value:0.00}x-{value + 1f:0.00}"
-        );
         gmcm.AddBoolOption(
             mod,
             () => HaggleAutoClick,
@@ -115,13 +104,25 @@ public sealed class ModConfig
 
         gmcm.AddNumberOption(
             mod,
+            () => HaggleBaseMultiplier,
+            (value) => HaggleBaseMultiplier = value,
+            I18n.Config_HaggleBaseMultiplier_Name,
+            I18n.Config_HaggleBaseMultiplier_Desc,
+            0f,
+            1f,
+            0.05f,
+            (value) => $"{value:0.00}x-{value + 1f:0.00}x"
+        );
+        gmcm.AddNumberOption(
+            mod,
             () => Game1.player.difficultyModifier,
             (value) => Game1.player.difficultyModifier = value,
             () => Game1.content.LoadString("Strings\\UI:Character_Difficulty"),
             () => Game1.content.LoadString("Strings\\UI:AGO_ProfitMargin_Tooltip"),
             min: 0f,
             max: 1f,
-            interval: 0.05f
+            interval: 0.05f,
+            (value) => $"{value:P2}"
         );
     }
 }

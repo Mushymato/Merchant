@@ -22,6 +22,7 @@ public sealed class ShopkeepGame
     internal const int STAMINA_COST_HAGGLING = 4;
     private const int CUTOFF_TIME = 2530;
 
+    private readonly int screenId;
     private readonly GameLocation location;
     private readonly Farmer player;
     private readonly (Point, int) playerPreviousPosition;
@@ -57,6 +58,7 @@ public sealed class ShopkeepGame
     #region setup teardown
     private ShopkeepGame(GameLocation location, Farmer player, ShopkeepBrowsing browsing, Point tileToStandAt)
     {
+        this.screenId = Context.ScreenId;
         this.location = location;
         this.player = player;
         this.browsing = browsing;
@@ -101,6 +103,8 @@ public sealed class ShopkeepGame
     {
         if (Unloaded)
             return;
+        if (screenId != Context.ScreenId)
+            return;
         // adjust minigame rendering timing by nulling it before render
         if (Game1.currentMinigame == proxyInstance)
             DynamicMethods.Set_Game1_currentMinigame(null);
@@ -109,6 +113,8 @@ public sealed class ShopkeepGame
     private void OnRendered(object? sender, RenderedEventArgs e)
     {
         if (Unloaded)
+            return;
+        if (screenId != Context.ScreenId)
             return;
         // restore minigame after render
         if (Game1.currentMinigame == null)
@@ -119,6 +125,8 @@ public sealed class ShopkeepGame
 
     private void OnRenderedStep(object? sender, RenderedStepEventArgs e)
     {
+        if (screenId != Context.ScreenId)
+            return;
         switch (e.Step)
         {
             case StardewValley.Mods.RenderSteps.World_Background:
