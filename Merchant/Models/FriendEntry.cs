@@ -47,7 +47,7 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
         {
             if (
                 CxData?.OverrideAppearanceId is string apprId
-                && Npc.GetData().Appearance?.FirstOrDefault(appear => appear.Id == apprId)
+                && Npc.GetData()?.Appearance?.FirstOrDefault(appear => appear.Id == apprId)
                     is CharacterAppearanceData overrideAppearance
             )
             {
@@ -105,7 +105,7 @@ public sealed record FriendEntry(NPC Npc, CustomerData? CxData, Friendship? Fren
         actor.Portrait = Npc.Portrait;
         if (
             CxData?.OverrideAppearanceId is string apprId
-            && actor.GetData().Appearance?.FirstOrDefault(appear => appear.Id == apprId)
+            && actor.GetData()?.Appearance?.FirstOrDefault(appear => appear.Id == apprId)
                 is CharacterAppearanceData overrideAppearance
         )
         {

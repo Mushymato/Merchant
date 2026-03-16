@@ -138,7 +138,7 @@ public static class Upgrades
         string arguments,
         ItemQueryContext context,
         bool avoidRepeat,
-        HashSet<string> avoidItemIds,
+        HashSet<string>? avoidItemIds,
         Action<string, string> logError
     )
     {
@@ -169,7 +169,7 @@ public static class Upgrades
         string arguments,
         ItemQueryContext context,
         bool avoidRepeat,
-        HashSet<string> avoidItemIds,
+        HashSet<string>? avoidItemIds,
         Action<string, string> logError
     )
     {
@@ -216,7 +216,7 @@ public static class Upgrades
         string arguments,
         ItemQueryContext context,
         bool avoidRepeat,
-        HashSet<string> avoidItemIds,
+        HashSet<string>? avoidItemIds,
         Action<string, string> logError
     )
     {

@@ -47,8 +47,8 @@ public static class GameDelegates
                 1,
                 context.TargetItem,
                 context.InputItem,
-                out Item item,
-                out string error
+                out Item? item,
+                out string? error
             )
         )
         {
@@ -85,7 +85,7 @@ public static class GameDelegates
             return false;
         }
         if (
-            !ArgUtility.TryGetInt(query, 1, out int minValue, out string error, name: "int minValue")
+            !ArgUtility.TryGetInt(query, 1, out int minValue, out string? error, name: "int minValue")
             || !ArgUtility.TryGetOptionalInt(query, 2, out int maxValue, out error, name: "int maxValue")
         )
         {
@@ -107,7 +107,7 @@ public static class GameDelegates
         {
             return false;
         }
-        if (!ArgUtility.TryGet(query, 1, out string buyerExpect, out string error, name: "string buyerExpect"))
+        if (!ArgUtility.TryGet(query, 1, out string? buyerExpect, out string? error, name: "string buyerExpect"))
         {
             ModEntry.Log(error, LogLevel.Error);
             return false;

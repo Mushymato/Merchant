@@ -290,7 +290,7 @@ public static class Topology
         {
             if (
                 location.objects.TryGetValue(pnt.ToVector2(), out SObject obj)
-                && obj.GetMachineData().InteractMethod is string interactMethod
+                && obj.GetMachineData()?.InteractMethod is string interactMethod
                 && (
                     interactMethod == GameDelegates.InteractMethod_CashRegister
                     || interactMethod == GameDelegates.InteractMethod_RoboShopkeep
