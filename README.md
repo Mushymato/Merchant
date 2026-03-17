@@ -58,7 +58,11 @@ You can improve your shop by purchasing upgrades, accessible via Manage Upgrades
 This mod supports GMCM:
 
 * Allow Unmet NPC Customers: Normally only NPCs that you've met will come to the shop, this let NPCs you never met come shop as well.
+* Auto-Restock Restricted: Only use chests adjacent to a "cash register" for auto-restock.
+* Haggle Base Multiplier: Adjust the base multiplier for money earned during haggling, see mechanics article for details.
 * Haggle Auto-click: When enabled, automatically click on haggle. This is the same effect as give up.
+* Haggle Speed: Time in seconds needed for the haggle star to move across the whole bar, i.e. higher number is slower
+* Haggle Wait: Waiting time in seconds after clicking during haggling. Clicking again will skip the remainder of this timeout.
 * Haggle UI Offset: Adjust the position of the haggle bar here.
 
 ## Extending Merchant
