@@ -133,8 +133,21 @@ public sealed class TableShimFF(IFurnitureFrameworkAPI ffApi) : ITableShim
             bool unreachable = !browseAround.Any();
             if (unreachable)
             {
-                forSaleTargets.Add(null);
-                continue;
+                // retry with the full bounding box
+                boundingBox = new(
+                    (int)table.TileLocation.X,
+                    (int)table.TileLocation.Y,
+                    table.getTilesWide(),
+                    table.getTilesHigh()
+                );
+                browseAround = Topology.FormBrowseAround(boundingBox, reachableTiles);
+                unreachable = !browseAround.Any();
+                // still unreachable, continues
+                if (unreachable)
+                {
+                    forSaleTargets.Add(null);
+                    continue;
+                }
             }
             forSaleTargets.Add(
                 new(item, table, browseAround, ShopkeepThemeBoostData.GetThemedBoostForItem(themeBoostDatas, item), i)

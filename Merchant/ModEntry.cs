@@ -68,21 +68,10 @@ public sealed class ModEntry : Mod
             "Check for unused merchant progress files in global app data",
             ConsoleUnusedProg
         );
-        help.ConsoleCommands.Add("merchant-listct", "List active conversation topics", ConsoleListCT);
 
         AssetManager.Register();
         GameDelegates.Register();
         Upgrades.Register();
-    }
-
-    private void ConsoleListCT(string arg1, string[] arg2)
-    {
-        if (!Context.IsWorldReady)
-            return;
-        foreach ((string key, int count) in Game1.player.activeDialogueEvents.Pairs)
-        {
-            Log($"CT '{key}': {count}", LogLevel.Info);
-        }
     }
 
     private void ConsoleUnusedProg(string arg1, string[] arg2)
@@ -118,12 +107,8 @@ public sealed class ModEntry : Mod
         }
 
         if (
-            (
-                Helper
-                    .ModRegistry.Get("leroymilo.FurnitureFramework")
-                    ?.Manifest.Version.IsNewerThan(new SemanticVersion("3.3.0"))
-                ?? false
-            )
+            Helper.ModRegistry.Get("leroymilo.FurnitureFramework") is IModInfo modInfo
+            && !modInfo.Manifest.Version.IsOlderThan(new SemanticVersion("3.3.0"))
             && Helper.ModRegistry.GetApi<IFurnitureFrameworkAPI>("leroymilo.FurnitureFramework")
                 is IFurnitureFrameworkAPI ffApi
         )
